@@ -7,6 +7,9 @@ export interface UserProgress {
       fecha: string
     }
   }
+  moments?: {
+    [key: string]: number[]
+  }
   usuario?: {
     nombre: string
     telefono: string
@@ -62,4 +65,45 @@ export function saveUsuario(nombre: string, telefono: string): void {
 export function resetProgress(): void {
   if (typeof window === 'undefined') return
   localStorage.removeItem(STORAGE_KEY)
+}
+
+// Funciones para el seguimiento de momentos
+export function markMomentCompleted(reto: string, dia: number, momentIndex: number): void {
+  const progress = getProgress()
+  if (!progress) return
+  
+  if (!progress.moments) {
+    progress.moments = {}
+  }
+  
+  const key = `${reto}-${dia}`
+  if (!progress.moments[key]) {
+    progress.moments[key] = []
+  }
+  
+  if (!progress.moments[key].includes(momentIndex)) {
+    progress.moments[key].push(momentIndex)
+  }
+  
+  saveProgress(progress)
+}
+
+export function isMomentCompleted(reto: string, dia: number, momentIndex: number): boolean {
+  const progress = getProgress()
+  if (!progress || !progress.moments) return false
+  
+  const key = `${reto}-${dia}`
+  return progress.moments[key]?.includes(momentIndex) ?? false
+}
+
+export function getNextDia(reto: string): number {
+  const progress = getProgress()
+  if (!progress || !progress.dias) return 1
+  
+  const diasCompletados = Object.keys(progress.dias)
+    .map(Number)
+    .filter(n => progress.dias[n]?.completado)
+    .sort((a, b) => b - a)
+  
+  return diasCompletados.length > 0 ? diasCompletados[0] + 1 : 1
 }
