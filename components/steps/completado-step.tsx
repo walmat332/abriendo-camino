@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { DEVOCIONALES } from "@/lib/devocionales"
-import { copyToClipboard, shareLink, getNextDia, isDiaCompleted } from "@/lib/storage"
+import { getNextDia } from "@/lib/storage"
 import type { UserProgress } from "@/lib/types"
 import { ArrowRight, Share2, Home } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -15,13 +15,29 @@ interface CompletadoStepProps {
 
 export function CompletadoStep({ dia, devocional, progress, onNext }: CompletadoStepProps) {
   const router = useRouter()
-  const completedDias = Object.keys(progress.dias).filter((k) => progress.dias[Number(k)]?.completed).length
+  const completedDias = Object.keys(progress.dias).filter((k) => progress.dias[Number(k)]?.completado).length
 
   const handleShare = async () => {
-    const url = shareLink()
-    const success = await copyToClipboard(url)
-    if (success) {
-      alert("Enlace copiado al portapapeles!")
+    const url = typeof window !== 'undefined' ? window.location.origin + '/abriendo-camino' : ''
+    const texto = `¡Completé el día ${dia} del reto "Abriendo Camino"! \n\nLlevó ${completedDias}/7 días.\n\n${url}`
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Abriendo Camino',
+          text: texto,
+          url: url,
+        })
+      } catch (err) {
+        console.error('Error al compartir:', err)
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(texto)
+        alert('¡Enlace copiado al portapapeles!')
+      } catch (err) {
+        console.error('Error al copiar:', err)
+      }
     }
   }
 
@@ -29,7 +45,7 @@ export function CompletadoStep({ dia, devocional, progress, onNext }: Completado
     router.push("/abriendo-camino")
   }
 
-  const nextDia = getNextDia(progress, dia)
+  const nextDia = getNextDia('abriendo-camino')
   const allComplete = completedDias >= 7
 
   return (
@@ -40,7 +56,7 @@ export function CompletadoStep({ dia, devocional, progress, onNext }: Completado
           ¡Día {dia} completado!
         </h2>
         <p className="text-lg text-gray-700">
-          {devocional.completado}
+          ¡Excelente trabajo hoy! Sigue avanzando en tu camino.
         </p>
         <div className="py-4">
           <p className="text-sm text-gray-600 mb-2">Tu progreso:</p>

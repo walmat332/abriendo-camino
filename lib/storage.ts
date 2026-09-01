@@ -1,22 +1,6 @@
 ﻿'use client'
 
-export interface UserProgress {
-  dias: {
-    [key: number]: {
-      completado: boolean
-      fecha: string
-    }
-  }
-  moments?: {
-    [key: string]: number[]
-  }
-  usuario?: {
-    nombre: string
-    telefono: string
-  }
-  startDate: string
-  lastAccess: string
-}
+import type { UserProgress } from './types'
 
 const STORAGE_KEY = 'abriendo-camino-progress'
 
@@ -43,15 +27,16 @@ export function saveProgress(progress: UserProgress): void {
 export function initializeProgress(): UserProgress {
   const existing = getProgress()
   if (existing) {
-    existing.lastAccess = new Date().toISOString()
-    saveProgress(existing)
-    return existing
+    const updated = { ...existing, lastAccess: new Date().toISOString() }
+    saveProgress(updated)
+    return updated
   }
   const initial: UserProgress = {
     dias: {},
+    moments: {},
     startDate: new Date().toISOString(),
     lastAccess: new Date().toISOString(),
-  }
+  } as UserProgress
   saveProgress(initial)
   return initial
 }
@@ -72,20 +57,21 @@ export function markMomentCompleted(reto: string, dia: number, momentIndex: numb
   const progress = getProgress()
   if (!progress) return
   
-  if (!progress.moments) {
-    progress.moments = {}
+  const updatedProgress = { ...progress }
+  if (!updatedProgress.moments) {
+    updatedProgress.moments = {}
   }
   
   const key = `${reto}-${dia}`
-  if (!progress.moments[key]) {
-    progress.moments[key] = []
+  if (!updatedProgress.moments[key]) {
+    updatedProgress.moments[key] = []
   }
   
-  if (!progress.moments[key].includes(momentIndex)) {
-    progress.moments[key].push(momentIndex)
+  if (!updatedProgress.moments[key].includes(momentIndex)) {
+    updatedProgress.moments[key] = [...updatedProgress.moments[key], momentIndex]
   }
   
-  saveProgress(progress)
+  saveProgress(updatedProgress)
 }
 
 export function isMomentCompleted(reto: string, dia: number, momentIndex: number): boolean {

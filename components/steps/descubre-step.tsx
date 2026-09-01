@@ -13,7 +13,7 @@ interface DescubreStepProps {
 export function DescubreStep({ devocional, onNext, completed }: DescubreStepProps) {
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
-  const correctIndex = devocional.descubre.indiceCorrecto ?? 0
+  const correctIndex = devocional.descubre.opciones.findIndex(op => op.esCorrecta)
 
   const handleSelect = (index: number) => {
     if (completed || showFeedback) return
@@ -95,7 +95,7 @@ export function DescubreStep({ devocional, onNext, completed }: DescubreStepProp
                 onClick={() => handleSelect(index)}
                 disabled={completed || showFeedback}
               >
-                {opcion}
+                {opcion.texto}
               </Button>
             ))}
           </div>

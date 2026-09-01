@@ -33,15 +33,15 @@ export function MomentView({
     if (currentMomentIndex < moments.length - 1) {
       setCurrentMomentIndex(currentMomentIndex + 1)
       if (progress) {
-        const newProgress = markMomentCompleted(progress, dia, currentMoment.id)
-        setProgress(newProgress)
+        markMomentCompleted('abriendo-camino', dia, currentMomentIndex)
+        setProgress(getProgress())
       }
     } else {
       setShowCompletion(true)
       if (progress) {
-        const newProgress = markMomentCompleted(progress, dia, currentMoment.id)
-        setProgress(newProgress)
-        const nextDia = getNextDia(newProgress, dia)
+        markMomentCompleted('abriendo-camino', dia, currentMomentIndex)
+        setProgress(getProgress())
+        const nextDia = getNextDia('abriendo-camino')
         if (nextDia !== dia) {
           setTimeout(() => {
             router.push(`/abriendo-camino/reto/1/dia/${nextDia}`)
@@ -52,7 +52,7 @@ export function MomentView({
   }
 
   const handleMomentClick = (index: number) => {
-    if (progress && isMomentCompleted(progress, dia, moments[index].id)) {
+    if (progress && isMomentCompleted('abriendo-camino', dia, index)) {
       setCurrentMomentIndex(index)
     } else if (index <= currentMomentIndex) {
       setCurrentMomentIndex(index)
@@ -66,7 +66,7 @@ export function MomentView({
         devocional={devocional}
         progress={progress!}
         onNext={() => {
-          const nextDia = getNextDia(progress!, dia)
+          const nextDia = getNextDia('abriendo-camino')
           router.push(`/abriendo-camino/reto/1/dia/${nextDia}`)
         }}
       />
@@ -77,9 +77,8 @@ export function MomentView({
     case "lee":
       return (
         <LeeStep
-          devocional={devocional}
-          onNext={handleNextMoment}
-          completed={isMomentCompleted(progress!, dia, "lee")}
+          dia={dia}
+          onContinue={handleNextMoment}
         />
       )
     case "descubre":
@@ -87,7 +86,7 @@ export function MomentView({
         <DescubreStep
           devocional={devocional}
           onNext={handleNextMoment}
-          completed={isMomentCompleted(progress!, dia, "descubre")}
+          completed={isMomentCompleted('abriendo-camino', dia, currentMomentIndex)}
         />
       )
     case "conecta":
@@ -95,7 +94,7 @@ export function MomentView({
         <ConectaStep
           devocional={devocional}
           onNext={handleNextMoment}
-          completed={isMomentCompleted(progress!, dia, "conecta")}
+          completed={isMomentCompleted('abriendo-camino', dia, currentMomentIndex)}
         />
       )
     case "camina":
@@ -103,7 +102,7 @@ export function MomentView({
         <CaminaStep
           devocional={devocional}
           onNext={handleNextMoment}
-          completed={isMomentCompleted(progress!, dia, "camina")}
+          completed={isMomentCompleted('abriendo-camino', dia, currentMomentIndex)}
         />
       )
     default:

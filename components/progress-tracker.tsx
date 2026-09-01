@@ -6,6 +6,14 @@ interface ProgressTrackerProps {
   moments: MomentData[]
 }
 
+const momentoEmojis: Record<string, string> = {
+  lee: "📖",
+  descubre: "🔍",
+  conecta: "🤝",
+  camina: "🚶",
+  completado: "✅",
+}
+
 export function ProgressTracker({ currentDay, totalDays, moments }: ProgressTrackerProps) {
   return (
     <div className="w-full">
@@ -29,8 +37,8 @@ export function ProgressTracker({ currentDay, totalDays, moments }: ProgressTrac
             key={moment.id}
             className="flex items-center space-x-2 p-3 bg-gray-50 rounded hover:bg-gray-100 transition-colors"
           >
-            <div className="text-amber-500">{moment.emoji}</div>
-            <span className="text-sm font-medium text-gray-700">{moment.title}</span>
+            <div className="text-amber-500">{momentoEmojis[moment.tipo] || "✨"}</div>
+            <span className="text-sm font-medium text-gray-700">{moment.titulo}</span>
           </div>
         ))}
       </div>
