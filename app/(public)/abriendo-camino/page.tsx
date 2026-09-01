@@ -1,0 +1,250 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { getProgress, resetProgress, saveUsuario } from '@/lib/storage'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import { Sparkles, ArrowRight, Share2, RotateCcw, Flame } from 'lucide-react'
+import { TrendingUp } from 'lucide-react'
+import { LoginModal } from '@/components/LoginModal'
+
+export default function AbriendoCaminoIndex() {
+  const router = useRouter()
+  const [progress, setProgress] = useState<any>(null)
+  const [mounted, setMounted] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+
+  useEffect(() => {
+    const prog = getProgress()
+    setProgress(prog)
+    setMounted(true)
+
+    // Mostrar login después del día 2 si no hay usuario
+    if (prog && Object.keys(prog.dias).length >= 2 && !prog.usuario) {
+      setShowLogin(true)
+    }
+  }, [])
+
+  const diasCompletados = progress ? Object.keys(progress.dias).length : 0
+  const totalDias = 7
+  const porcentaje = (diasCompletados / totalDias) * 100
+
+  const handleContinuar = () => {
+    const diaActual = diasCompletados + 1
+    router.push(`/abriendo-camino/reto/1/dia/${Math.min(diaActual, totalDias)}`)
+  }
+
+  const handleLoginComplete = (nombre: string, telefono: string) => {
+    saveUsuario(nombre, telefono)
+    setShowLogin(false)
+    setProgress(getProgress())
+    alert(`✅ ¡Gracias ${nombre}! Te enviaremos el link cada día.`)
+  }
+
+  const handleReiniciar = () => {
+    if (confirm('¿Seguro que quieres reiniciar tu progreso?')) {
+      resetProgress()
+      window.location.reload()
+    }
+  }
+
+  const handleCompartir = async () => {
+    const url = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: '🔥 Abriendo Camino',
+          text: '7 días para volver a caminar con Dios. Una experiencia que cambia vidas.',
+          url: url,
+        })
+      } catch (err) {
+        navigator.clipboard.writeText(url)
+        alert('✅ Enlace copiado al portapapeles')
+      }
+    } else {
+      navigator.clipboard.writeText(url)
+      alert('✅ Enlace copiado al portapapeles')
+    }
+  }
+
+  if (!mounted) return null
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Partículas flotantes */}
+      {[...Array(20)].map((_, i) => (
+        <div
+          key={i}
+          className="particle"
+          style={{
+            left: `${Math.random() * 100}%`,
+            bottom: '-10px',
+            animationDelay: `${Math.random() * 10}s`,
+            animationDuration: `${10 + Math.random() * 10}s`,
+          }}
+        />
+      ))}
+
+      {/* Círculos de luz */}
+      <div className="absolute top-20 left-20 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl animate-float" />
+      <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+
+      {/* Tarjeta principal */}
+      <div className="glass-card rounded-3xl p-8 md:p-12 max-w-lg w-full animate-slide-up relative z-10">
+        
+        {/* Logo */}
+        <div className="flex justify-center mb-6 logo-container">
+          <div className="animate-pulse-glow rounded-full p-2">
+            <Image
+              src="/logo.png"
+              alt="Abriendo Camino"
+              width={100}
+              height={100}
+              className="object-contain animate-float"
+            />
+          </div>
+        </div>
+
+        {/* Título */}
+        <div className="text-center mb-8 animate-fade-in" style={{ animationDelay: '0.3s', opacity: 0 }}>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Sparkles className="text-amber-400 w-6 h-6" />
+            <h1 className="text-5xl md:text-6xl font-black text-white text-glow tracking-tight">
+              ABRIENDO
+            </h1>
+            <Sparkles className="text-amber-400 w-6 h-6" />
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-amber-400 mb-4">
+            CAMINO
+          </h2>
+          <p className="text-lg text-blue-100 font-medium">
+            7 días para volver a caminar con Dios
+          </p>
+        </div>
+
+        {/* Progreso */}
+        {diasCompletados > 0 && (
+          <div className="mb-8 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
+            <div className="text-center mb-3">
+              <p className="text-sm text-blue-200 mb-1">Tu progreso</p>
+              <div className="flex items-center justify-center gap-2">
+                <Flame className="text-amber-400 w-6 h-6 animate-pulse" />
+                <span className="text-3xl font-black text-white">
+                  {diasCompletados}
+                </span>
+                <span className="text-xl text-blue-200">/ {totalDias}</span>
+              </div>
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+              <div 
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 transition-all duration-1000 ease-out relative overflow-hidden"
+                style={{ width: `${porcentaje}%` }}
+              >
+                <div className="absolute inset-0 animate-shimmer" />
+              </div>
+            </div>
+            <p className="text-center text-sm text-amber-400 mt-2 font-semibold">
+              {diasCompletados === 1 && ' ¡Excelente comienzo!'}
+              {diasCompletados === 2 && ' ¡Vas muy bien!'}
+              {diasCompletados === 3 && '⭐ ¡Más de la mitad!'}
+              {diasCompletados >= 4 && diasCompletados < 7 && '🚀 ¡Imparable!'}
+              {diasCompletados === 7 && '🏆 ¡COMPLETADO!'}
+            </p>
+          </div>
+        )}
+
+        {/* Botones */}
+        <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.7s', opacity: 0 }}>
+          <Button 
+            size="lg" 
+            className="w-full text-xl py-7 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-600 hover:via-amber-500 hover:to-amber-600 text-white font-bold btn-magnetic shadow-2xl"
+            onClick={handleContinuar}
+          >
+            {diasCompletados > 0 ? (
+              <>
+                CONTINUAR DÍA {diasCompletados + 1}
+                <ArrowRight className="ml-2 h-6 w-6" />
+              </>
+            ) : (
+              <>
+                COMENZAR DÍA 1
+                <Sparkles className="ml-2 h-6 w-6" />
+              </>
+            )}
+          </Button>
+
+          {diasCompletados > 0 && !progress?.usuario && (
+            <Button 
+              variant="ghost"
+              className="w-full text-amber-400 hover:text-amber-300 hover:bg-white/10"
+              onClick={() => setShowLogin(true)}
+            >
+              📱 Guardar mi progreso
+            </Button>
+          )}
+
+          {diasCompletados > 0 && (
+            <Button 
+              variant="ghost"
+              className="w-full text-blue-200 hover:text-white hover:bg-white/10"
+              onClick={handleReiniciar}
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reiniciar progreso
+            </Button>
+          )}
+
+          <Button 
+            variant="ghost"
+            className="w-full text-blue-200 hover:text-white hover:bg-white/10"
+            onClick={handleCompartir}
+          >
+            <Share2 className="mr-2 h-4 w-4" />
+            Compartir con alguien
+          </Button>
+        </div>
+<Button 
+  variant="ghost"
+  className="w-full text-amber-400 hover:text-amber-300 hover:bg-white/10 border border-amber-400/30"
+  onClick={() => router.push('/abriendo-camino/proposito')}
+>
+  <Sparkles className="mr-2 h-4 w-4" />
+  Descubre tu propósito
+</Button>
+
+        <Button
+          variant="outline"
+          onClick={() => router.push('/abriendo-camino/dashboard')}
+          className="w-full text-blue-200 hover:text-white hover:bg-white/10"
+        >
+          <TrendingUp className="mr-2 h-4 w-4" />
+          Ver mi progreso
+        </Button>
+        {/* Frase */}
+        <div className="mt-8 text-center animate-fade-in" style={{ animationDelay: '0.9s', opacity: 0 }}>
+          <p className="text-sm text-blue-200 italic">
+            "Un paso cada día para caminar con Dios"
+          </p>
+          <div className="flex justify-center gap-1 mt-3">
+            {[...Array(5)].map((_, i) => (
+              <div 
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-amber-400/60 animate-pulse"
+                style={{ animationDelay: `${i * 0.2}s` }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Modal de login */}
+      {showLogin && (
+        <LoginModal
+          onComplete={handleLoginComplete}
+          onClose={() => setShowLogin(false)}
+        />
+      )}
+    </div>
+  )
+}
