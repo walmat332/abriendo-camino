@@ -97,11 +97,11 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
 
   // Identificar el área más débil para priorizar
   const areasOrdenadas = secciones
-    .map(s => ({ ...s, nivel: getNivel(resultados[s.id as keyof typeof resultados]) }))
-    .sort((a, b) => {
-      const orden = { 'Área de crecimiento': 0, 'En desarrollo': 1, 'Fuerte': 2 }
-      return orden[a.nivel.nivel] - orden[b.nivel.nivel]
-    })
+  .map(s => ({ ...s, nivel: getNivel(resultados[s.id as keyof typeof resultados]) }))
+  .sort((a, b) => {
+    const orden: Record<string, number> = { 'Área de crecimiento': 0, 'En desarrollo': 1, 'Fuerte': 2 }
+    return orden[a.nivel.nivel] - orden[b.nivel.nivel]
+  })
 
   const areaPrioritaria = areasOrdenadas[0]
 
