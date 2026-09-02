@@ -99,8 +99,8 @@ export default function AbriendoCaminoIndex() {
             <Image
               src="/logo.png"
               alt="Abriendo Camino"
-              width={250}
-              height={250}
+              width={160}
+              height={160}
               className="object-contain animate-float"
             />
           </div>
