@@ -20,7 +20,7 @@ const grupos: Grupo[] = [
     diaHora: "Martes 7:00 PM",
     tipo: "Presencial",
     ubicacion: "Dirección referencial, SMP",
-    whatsapp: "51999999999", // Cambia por el número real del líder
+    whatsapp: "51999999999", // 👈 CAMBIA ESTE NÚMERO
   },
   {
     id: 2,
@@ -29,7 +29,7 @@ const grupos: Grupo[] = [
     diaHora: "Miércoles 7:00 PM",
     tipo: "Presencial",
     ubicacion: "Dirección referencial, SMP",
-    whatsapp: "51979345646",
+    whatsapp: "51999999999", // 👈 CAMBIA ESTE NÚMERO
   },
   {
     id: 3,
@@ -38,7 +38,7 @@ const grupos: Grupo[] = [
     diaHora: "Jueves 7:00 PM",
     tipo: "Presencial",
     ubicacion: "Dirección referencial, SJL",
-    whatsapp: "51939945787",
+    whatsapp: "51999999999", // 👈 CAMBIA ESTE NÚMERO
   },
   {
     id: 4,
@@ -47,16 +47,16 @@ const grupos: Grupo[] = [
     diaHora: "Viernes 7:00 PM",
     tipo: "Presencial",
     ubicacion: "Dirección referencial, SJL",
-    whatsapp: "51979345646",
+    whatsapp: "51999999999", // 👈 CAMBIA ESTE NÚMERO
   },
   {
     id: 5,
-    nombre: "GC CENTRO 01",
+    nombre: "GC LA VICTORIA 01",
     distrito: "La Victoria",
     diaHora: "Jueves 8:00 PM",
     tipo: "Presencial",
     ubicacion: "Dirección referencial, La Victoria",
-    whatsapp: "51999999999",
+    whatsapp: "51999999999", // 👈 CAMBIA ESTE NÚMERO
   },
   {
     id: 6,
@@ -65,7 +65,7 @@ const grupos: Grupo[] = [
     diaHora: "Lunes 8:00 PM",
     tipo: "Virtual",
     ubicacion: "El link se envía por WhatsApp al inscribirte",
-    whatsapp: "51999999999",
+    whatsapp: "51999999999", // 👈 CAMBIA ESTE NÚMERO
   },
   {
     id: 7,
@@ -74,7 +74,7 @@ const grupos: Grupo[] = [
     diaHora: "Sábado 10:00 AM",
     tipo: "Virtual",
     ubicacion: "El link se envía por WhatsApp al inscribirte",
-    whatsapp: "51939945787",
+    whatsapp: "51999999999", // 👈 CAMBIA ESTE NÚMERO
   },
 ]
 
