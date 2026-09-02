@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -99,8 +99,8 @@ export default function AbriendoCaminoIndex() {
             <Image
               src="/logo.png"
               alt="Abriendo Camino"
-              width={100}
-              height={100}
+              width={250}
+              height={250}
               className="object-contain animate-float"
             />
           </div>
