@@ -195,3 +195,4 @@ export function getDiasCompletados(progress: UserProgress): number {
 export function isDiaCompletado(progress: UserProgress, dia: number): boolean {
   return progress.dias[dia]?.completado ?? false
 }
+

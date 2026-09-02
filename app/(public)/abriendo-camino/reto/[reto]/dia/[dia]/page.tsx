@@ -5,8 +5,17 @@ import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { DEVOCIONALES } from '@/lib/devocionales'
-import { saveUsuario, getProgress } from '@/lib/storage'
-import { ArrowRight, CheckCircle2, XCircle, Flame, Sparkles } from 'lucide-react'
+import { 
+  saveUsuario, 
+  getProgress, 
+  saveProgress, 
+  marcarDiaCompletado, 
+  getSiguienteDiaDisponible,
+  getModoRetos,
+  puedeAccederAlDia,
+  getHorasRestantes
+} from '@/lib/storage'
+import { ArrowRight, CheckCircle2, XCircle, Flame, Home, Clock, ArrowLeft } from 'lucide-react'
 import { LoginModal } from '@/components/LoginModal'
 
 export default function DiaPage() {
@@ -20,17 +29,31 @@ export default function DiaPage() {
   const [feedback, setFeedback] = useState<'correcto' | 'incorrecto' | null>(null)
   const [showLogin, setShowLogin] = useState(false)
   const [progress, setProgress] = useState<any>(null)
+  
+  // Nuevos estados para el control de 24h
+  const [noDisponible, setNoDisponible] = useState(false)
+  const [horasRestantes, setHorasRestantes] = useState(0)
 
   useEffect(() => {
-    setProgress(getProgress())
-  }, [])
+    const currentProgress = getProgress()
+    setProgress(currentProgress)
+    
+    if (currentProgress) {
+      const puedeAcceder = puedeAccederAlDia(dia, currentProgress)
+      if (!puedeAcceder) {
+        setNoDisponible(true)
+        setHorasRestantes(getHorasRestantes(currentProgress))
+      }
+    }
+  }, [dia])
 
   if (!devocional) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary-light to-white">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-100">
         <Card className="max-w-md w-full p-8 text-center">
-          <h2 className="text-2xl font-bold text-primary-dark">Día no encontrado</h2>
-          <Button className="mt-4" onClick={() => router.push('/abriendo-camino')}>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">Día no encontrado</h2>
+          <Button className="w-full" onClick={() => router.push('/abriendo-camino')}>
+            <Home className="mr-2 h-4 w-4" />
             Volver al inicio
           </Button>
         </Card>
@@ -38,18 +61,50 @@ export default function DiaPage() {
     )
   }
 
+  // Pantalla de espera para Modo Diario
+  if (noDisponible) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-6 text-center">
+            <Clock className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              ¡Paciencia!
+            </h2>
+            <p className="text-slate-600 mb-2">
+              Estás en <strong>Modo Diario</strong>.
+            </p>
+            <p className="text-slate-600 mb-6">
+              Tu próximo día estará disponible en aproximadamente:
+            </p>
+            <div className="text-4xl font-black text-blue-600 mb-6">
+              {horasRestantes}h
+            </div>
+            <Button 
+              onClick={() => router.push('/abriendo-camino')}
+              className="w-full"
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Volver al inicio
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   const totalDias = DEVOCIONALES.length
 
-  const faseLabels = {
+  const faseLabels: Record<string, string> = {
     conecta: '🔗 FASE 1: CONECTA - Jesús llamó',
     crece: '🌱 FASE 2: CRECE - Jesús entrenó',
     multiplica: '🚀 FASE 3: MULTIPLICA - Jesús envió'
   }
 
-  const faseColors = {
-    conecta: 'bg-blue-500/20 text-blue-300',
-    crece: 'bg-green-500/20 text-green-300',
-    multiplica: 'bg-amber-500/20 text-amber-300'
+  const faseColors: Record<string, string> = {
+    conecta: 'bg-blue-100 text-blue-700',
+    crece: 'bg-green-100 text-green-700',
+    multiplica: 'bg-amber-100 text-amber-700'
   }
 
   const handleContinuar = () => {
@@ -58,7 +113,7 @@ export default function DiaPage() {
     setFeedback(null)
 
     // Mostrar login después de completar el día 2
-    if (paso === 4 && dia === 2 && !progress?.usuario) {
+    if (paso === 3 && dia === 2 && !progress?.usuario) {
       setTimeout(() => setShowLogin(true), 500)
     }
   }
@@ -74,13 +129,23 @@ export default function DiaPage() {
   }
 
   const handleCompletarDia = () => {
-    const progreso = JSON.parse(localStorage.getItem('abriendo-camino-progress') || '{"dias":{}}')
-    progreso.dias[dia] = { completado: true, fecha: new Date().toISOString() }
-    localStorage.setItem('abriendo-camino-progress', JSON.stringify(progreso))
-    setProgress(getProgress())
+    let currentProgress = getProgress() || { dias: {}, startDate: new Date().toISOString(), lastAccess: new Date().toISOString() }
     
-    if (dia < totalDias) {
-      router.push(`/abriendo-camino/reto/1/dia/${dia + 1}`)
+    // Marcar día como completado usando la nueva función
+    currentProgress = marcarDiaCompletado(currentProgress, dia, [])
+    saveProgress(currentProgress)
+    setProgress(currentProgress)
+    
+    // Mostrar login si es el día 2 y no hay usuario
+    if (dia === 2 && !currentProgress?.usuario) {
+      setShowLogin(true)
+      return // No avanzar hasta que complete el login
+    }
+
+    const siguienteDia = getSiguienteDiaDisponible(currentProgress)
+    
+    if (siguienteDia > dia && siguienteDia <= totalDias) {
+      router.push(`/abriendo-camino/reto/abriendo-camino/dia/${siguienteDia}`)
     } else {
       router.push('/abriendo-camino')
     }
@@ -88,38 +153,62 @@ export default function DiaPage() {
 
   const handleLoginComplete = (nombre: string, telefono: string) => {
     saveUsuario(nombre, telefono)
+    
+    let currentProgress = getProgress() || { dias: {}, startDate: new Date().toISOString(), lastAccess: new Date().toISOString() }
+    currentProgress.usuario = { nombre, telefono }
+    saveProgress(currentProgress)
+    
     setShowLogin(false)
-    setProgress(getProgress())
+    setProgress(currentProgress)
+    
+    // Avanzar al siguiente día después del login
+    const siguienteDia = getSiguienteDiaDisponible(currentProgress)
+    if (siguienteDia > dia && siguienteDia <= totalDias) {
+      router.push(`/abriendo-camino/reto/abriendo-camino/dia/${siguienteDia}`)
+    } else {
+      router.push('/abriendo-camino')
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-light to-white p-4 flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex flex-col items-center justify-center relative overflow-hidden">
+      
+      {/* ✅ BOTÓN VOLVER AL INICIO (Siempre visible en la parte superior izquierda) */}
+      <div className="absolute top-4 left-4 z-20">
+        <button
+          onClick={() => router.push('/abriendo-camino')}
+          className="flex items-center gap-2 text-slate-600 hover:text-slate-900 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all border border-slate-200"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span className="text-sm font-medium">Volver al inicio</span>
+        </button>
+      </div>
+
       {/* Partículas decorativas */}
       {[...Array(15)].map((_, i) => (
         <div
           key={i}
-          className="particle"
+          className="absolute w-2 h-2 bg-amber-400/20 rounded-full animate-pulse"
           style={{
             left: `${Math.random() * 100}%`,
-            bottom: '-10px',
-            animationDelay: `${Math.random() * 10}s`,
-            animationDuration: `${10 + Math.random() * 10}s`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 5}s`,
           }}
         />
       ))}
 
-      <Card className="w-full max-w-2xl glass-card animate-slide-up relative z-10">
+      <Card className="w-full max-w-2xl bg-white/90 backdrop-blur-md border-white/50 shadow-xl relative z-10 mt-12">
         <CardHeader>
           <div className="flex justify-between items-start gap-2">
             <div className="flex flex-col gap-1">
-              <span className="text-sm text-primary font-medium">
+              <span className="text-sm text-slate-600 font-medium">
                 Día {dia} de {totalDias}
               </span>
-              <span className={`text-xs px-2 py-1 rounded-full font-medium ${faseColors[devocional.fase]}`}>
-                {faseLabels[devocional.fase]}
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${faseColors[devocional.fase] || 'bg-slate-100 text-slate-600'}`}>
+                {faseLabels[devocional.fase] || devocional.fase}
               </span>
             </div>
-            <span className="text-sm font-semibold text-primary-dark text-right">
+            <span className="text-sm font-semibold text-slate-700 text-right">
               {paso === 0 && '📖 LEE'}
               {paso === 1 && '🔎 DESCUBRE'}
               {paso === 2 && '❤️ CONECTA'}
@@ -127,7 +216,7 @@ export default function DiaPage() {
               {paso === 4 && '🎉 COMPLETADO'}
             </span>
           </div>
-          <div className="w-full bg-white/10 rounded-full h-2 mt-2">
+          <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
             <div 
               className="bg-gradient-to-r from-amber-400 to-amber-600 h-2 rounded-full transition-all duration-500"
               style={{ width: `${((paso + 1) / 5) * 100}%` }}
@@ -137,30 +226,30 @@ export default function DiaPage() {
 
         <CardContent className="p-6">
           {paso === 0 && (
-            <div className="space-y-4 animate-fade-in">
-              <h2 className="text-3xl font-bold text-primary-dark text-center">
+            <div className="space-y-4">
+              <h2 className="text-3xl font-bold text-slate-900 text-center">
                 {devocional.titulo}
               </h2>
-              <p className="text-center text-primary font-semibold text-lg">
+              <p className="text-center text-slate-600 font-semibold text-lg">
                 {devocional.lecturaRef}
               </p>
-              <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg border border-white/20">
-                <p className="text-lg leading-relaxed text-primary-dark whitespace-pre-line italic">
+              <div className="bg-slate-50 p-6 rounded-lg border border-slate-200">
+                <p className="text-lg leading-relaxed text-slate-800 whitespace-pre-line italic">
                   {devocional.lecturaTexto}
                 </p>
               </div>
-              <p className="text-center text-primary italic text-sm font-medium">
+              <p className="text-center text-slate-500 italic text-sm font-medium">
                 "{devocional.fraseDelDia}"
               </p>
             </div>
           )}
 
           {paso === 1 && (
-            <div className="space-y-4 animate-fade-in">
-              <h3 className="text-xl font-bold text-primary-dark text-center">
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-slate-900 text-center">
                 🔎 ¿Qué dice el texto?
               </h3>
-              <p className="text-lg text-primary-dark text-center font-medium">
+              <p className="text-lg text-slate-700 text-center font-medium">
                 {devocional.descubre.pregunta}
               </p>
               <div className="space-y-3">
@@ -174,17 +263,17 @@ export default function DiaPage() {
                         ? feedback === 'correcto'
                           ? 'border-green-500 bg-green-50'
                           : 'border-red-500 bg-red-50'
-                        : 'border-white/20 bg-white/10 hover:border-primary'
+                        : 'border-slate-200 bg-white hover:border-amber-400'
                     }`}
                   >
-                    <span className="font-medium text-primary-dark">{opcion.texto}</span>
+                    <span className="font-medium text-slate-800">{opcion.texto}</span>
                   </button>
                 ))}
               </div>
               {feedback === 'correcto' && (
-                <div className="bg-green-50 border-2 border-green-300 p-4 rounded-lg animate-slide-up">
+                <div className="bg-green-50 border-2 border-green-300 p-4 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle2 className="text-green-600" />
+                    <CheckCircle2 className="text-green-600 w-5 h-5" />
                     <span className="font-bold text-green-900">¡Lo descubriste!</span>
                   </div>
                   <p className="text-green-800">{devocional.descubre.explicacion}</p>
@@ -192,10 +281,10 @@ export default function DiaPage() {
                 </div>
               )}
               {feedback === 'incorrecto' && (
-                <div className="bg-primary-light border-2 border-primary p-4 rounded-lg animate-slide-up">
+                <div className="bg-red-50 border-2 border-red-300 p-4 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <XCircle className="text-primary" />
-                    <span className="text-primary-dark">💡 Casi. Vuelve al texto y observa nuevamente...</span>
+                    <XCircle className="text-red-500 w-5 h-5" />
+                    <span className="text-red-800">💡 Casi. Vuelve al texto y observa nuevamente...</span>
                   </div>
                 </div>
               )}
@@ -203,11 +292,11 @@ export default function DiaPage() {
           )}
 
           {paso === 2 && (
-            <div className="space-y-4 animate-fade-in">
-              <h3 className="text-xl font-bold text-primary-dark text-center">
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-slate-900 text-center">
                 ❤️ Conecta con tu vida
               </h3>
-              <p className="text-lg text-primary-dark text-center">
+              <p className="text-lg text-slate-700 text-center">
                 {devocional.conecta.pregunta}
               </p>
               <div className="space-y-3">
@@ -217,32 +306,32 @@ export default function DiaPage() {
                     onClick={() => setOpcionSeleccionada(opcion.id)}
                     className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
                       opcionSeleccionada === opcion.id
-                        ? 'border-primary bg-primary-light'
-                        : 'border-white/20 bg-white/10 hover:border-primary'
+                        ? 'border-amber-500 bg-amber-50'
+                        : 'border-slate-200 bg-white hover:border-amber-400'
                     }`}
                   >
-                    <span className="text-primary-dark">{opcion.texto}</span>
+                    <span className="text-slate-800">{opcion.texto}</span>
                   </button>
                 ))}
               </div>
-              <p className="text-center text-primary text-sm italic">
+              <p className="text-center text-slate-500 text-sm italic">
                 No hay respuesta correcta. Es tu reflexión personal.
               </p>
             </div>
           )}
 
           {paso === 3 && (
-            <div className="space-y-4 animate-fade-in">
-              <h3 className="text-xl font-bold text-primary-dark text-center">
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-slate-900 text-center">
                 🎯 Da un paso hoy
               </h3>
-              <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg border-2 border-primary">
-                <p className="text-lg text-primary-dark text-center font-medium">
+              <div className="bg-amber-50 p-6 rounded-lg border-2 border-amber-200">
+                <p className="text-lg text-slate-800 text-center font-medium">
                   {devocional.camina.desafio}
                 </p>
               </div>
-              <div className="bg-white/10 p-4 rounded-lg border border-white/20">
-                <p className="text-sm text-primary-dark italic text-center">
+              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <p className="text-sm text-slate-600 italic text-center">
                   {devocional.camina.oracion}
                 </p>
               </div>
@@ -250,22 +339,22 @@ export default function DiaPage() {
           )}
 
           {paso === 4 && (
-            <div className="space-y-4 text-center animate-fade-in">
+            <div className="space-y-4 text-center">
               <div className="text-6xl">🎉</div>
-              <h3 className="text-2xl font-bold text-primary-dark">
+              <h3 className="text-2xl font-bold text-slate-900">
                 ¡Día {dia} completado!
               </h3>
               <div className="flex items-center justify-center gap-2">
-                <Flame className="text-amber-400 w-6 h-6" />
-                <p className="text-lg text-primary-dark font-bold">
+                <Flame className="text-amber-500 w-6 h-6" />
+                <p className="text-lg text-slate-800 font-bold">
                   {dia} / {totalDias}
                 </p>
               </div>
-              <p className="text-primary">
+              <p className="text-slate-600">
                 Hoy no solamente leíste la Palabra. Diste un paso para caminar con Dios.
               </p>
               {dia === 2 && !progress?.usuario && (
-                <p className="text-sm text-amber-600 font-medium mt-4">
+                <p className="text-sm text-amber-600 font-medium mt-4 bg-amber-50 p-2 rounded">
                    En el siguiente paso podrás guardar tu progreso
                 </p>
               )}
@@ -277,7 +366,7 @@ export default function DiaPage() {
           {paso < 4 ? (
             <Button
               size="lg"
-              className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold btn-magnetic"
+              className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold"
               onClick={handleContinuar}
               disabled={
                 (paso === 1 && feedback !== 'correcto') ||
@@ -290,10 +379,10 @@ export default function DiaPage() {
           ) : (
             <Button
               size="lg"
-              className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold btn-magnetic"
+              className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold"
               onClick={handleCompletarDia}
             >
-              {dia < totalDias ? 'SIGUIENTE DÍA' : 'VOLVER AL INICIO'}
+              {getSiguienteDiaDisponible(progress || { dias: {} }) > dia ? 'SIGUIENTE DÍA' : 'VOLVER AL INICIO'}
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           )}
@@ -304,7 +393,10 @@ export default function DiaPage() {
       {showLogin && (
         <LoginModal
           onComplete={handleLoginComplete}
-          onClose={() => setShowLogin(false)}
+          onClose={() => {
+            setShowLogin(false)
+            router.push('/abriendo-camino')
+          }}
         />
       )}
     </div>
