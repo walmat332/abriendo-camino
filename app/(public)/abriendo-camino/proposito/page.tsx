@@ -6,12 +6,13 @@ import { Card } from '@/components/ui/card'
 import { 
   Home, Heart, Sprout, HandHeart, Users, 
   ArrowRight, ChevronDown, BookOpen, Mountain,
-  Check
+  Check, MessageCircle
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { DiagnosticFlow } from './components/DiagnosticFlow'
 import { ResultMap } from './components/ResultMap'
 import { VersiculoModal } from '@/components/VersiculoModal'
+import { GruposModal } from './components/GruposModal'
 import { getVersiculoDelDia } from '@/lib/versiculos'
 
 type SeccionId = 'conexion' | 'crecimiento' | 'servicio' | 'multiplicacion'
@@ -79,6 +80,7 @@ export default function PropositoPage() {
   const router = useRouter()
   const [estado, setEstado] = useState<'intro' | 'diagnostico' | 'resultado'>('intro')
   const [showVersiculo, setShowVersiculo] = useState(false)
+  const [showGrupos, setShowGrupos] = useState(false)
   const versiculoDelDia = getVersiculoDelDia()
   const [seccionActual, setSeccionActual] = useState<SeccionId | null>(null)
   const [resultados, setResultados] = useState<{
@@ -157,8 +159,8 @@ export default function PropositoPage() {
       {/* Botón Versículo del día */}
       <div className="absolute top-4 right-4 z-20">
         <button onClick={() => setShowVersiculo(true)} className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all border border-slate-200 hover:scale-105">
-        <BookOpen className="w-4 h-4 text-slate-600" />
-        <span className="text-sm font-medium text-slate-700">Versículo del día</span>
+          <BookOpen className="w-4 h-4 text-slate-600" />
+          <span className="text-sm font-medium text-slate-700">Versículo del día</span>
         </button>
       </div>
 
@@ -249,7 +251,7 @@ export default function PropositoPage() {
         </div>
 
         {/* Sección ¿DÓNDE ESTÁS HOY? */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl border border-white/50">
+        <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl border border-white/50 mb-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
             {/* Icono montaña */}
             <div className="flex-shrink-0">
@@ -307,6 +309,31 @@ export default function PropositoPage() {
           </div>
         </div>
 
+        {/* Sección ÚNETE A UN GRUPO */}
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-6 md:p-8 shadow-xl text-white text-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
+          
+          <div className="relative z-10">
+            <Users className="w-12 h-12 mx-auto mb-4 text-emerald-100" strokeWidth={1.5} />
+            <h3 className="text-2xl md:text-3xl font-black mb-3">
+              NO CAMINES SOLO
+            </h3>
+            <p className="text-emerald-100 leading-relaxed mb-6 max-w-2xl mx-auto">
+              Únete a uno de nuestros grupos de conexión en tu distrito o de forma virtual. 
+              Tenemos horarios para todos y un espacio seguro para crecer juntos.
+            </p>
+            <button
+              onClick={() => setShowGrupos(true)}
+              className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-4 rounded-full font-black text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2 mx-auto"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Ver grupos disponibles
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
         {/* Botón volver */}
         <div className="flex justify-center mt-8">
           <Button
@@ -320,12 +347,17 @@ export default function PropositoPage() {
         </div>
       </div>
     
-{showVersiculo && (
-  <VersiculoModal 
-    versiculo={versiculoDelDia} 
-    onClose={() => setShowVersiculo(false)} 
-  />
-)}
+      {showVersiculo && (
+        <VersiculoModal 
+          versiculo={versiculoDelDia} 
+          onClose={() => setShowVersiculo(false)} 
+        />
+      )}
+
+      <GruposModal 
+        isOpen={showGrupos} 
+        onClose={() => setShowGrupos(false)} 
+      />
     </div>
   )
 }
