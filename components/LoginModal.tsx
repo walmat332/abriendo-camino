@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Phone, User, ArrowRight } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface LoginModalProps {
   onComplete: (nombre: string, telefono: string) => void
@@ -16,11 +17,38 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
   const [nombre, setNombre] = useState('')
   const [telefono, setTelefono] = useState('')
   const [step, setStep] = useState(1)
+  const [loading, setLoading] = useState(false)
 
-  const handleContinue = () => {
-    if (nombre.trim() && telefono.trim()) {
-      onComplete(nombre.trim(), telefono.trim())
+  const handleContinue = async () => {
+    if (!nombre.trim() || !telefono.trim()) return
+    
+    setLoading(true)
+
+    try {
+      // Guardar en Supabase
+      const { data, error } = await supabase
+        .from('registros')
+        .insert([
+          {
+            nombre: nombre.trim(),
+            telefono: telefono.trim(),
+            dia_completado: 2, // Se registra después del Día 2
+            gc_interes: null
+          }
+        ])
+        .select()
+
+      if (error) {
+        console.error('❌ Error al guardar en Supabase:', error)
+      } else {
+        console.log('✅ Registro guardado en la nube:', data)
+      }
+    } catch (err) {
+      console.error('Error inesperado:', err)
     }
+
+    setLoading(false)
+    onComplete(nombre.trim(), telefono.trim())
   }
 
   return (
@@ -105,10 +133,10 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
                 <Button
                   className="w-full py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-lg"
                   onClick={handleContinue}
-                  disabled={!nombre.trim() || !telefono.trim()}
+                  disabled={!nombre.trim() || !telefono.trim() || loading}
                 >
-                  Guardar y continuar
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  {loading ? 'Guardando...' : 'Guardar y continuar'}
+                  {!loading && <ArrowRight className="ml-2 h-5 w-5" />}
                 </Button>
 
                 <Button
