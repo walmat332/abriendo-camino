@@ -13,10 +13,10 @@ interface Grupo {
 }
 
 const grupos: Grupo[] = [
-  { id: 1, nombre: "GC NORTE 01", distrito: "San Martín de Porres", diaHora: "Martes 7:00 PM", tipo: "Presencial", ubicacion: "Dirección referencial, SMP", whatsapp: "51999999999" },
-  { id: 2, nombre: "GC NORTE 02", distrito: "San Martín de Porres", diaHora: "Miércoles 7:00 PM", tipo: "Presencial", ubicacion: "Dirección referencial, SMP", whatsapp: "51999999999" },
-  { id: 3, nombre: "GC ESTE 01", distrito: "San Juan de Lurigancho", diaHora: "Jueves 7:00 PM", tipo: "Presencial", ubicacion: "Dirección referencial, SJL", whatsapp: "51999999999" },
-  { id: 4, nombre: "GC ESTE 02", distrito: "San Juan de Lurigancho", diaHora: "Viernes 7:00 PM", tipo: "Presencial", ubicacion: "Dirección referencial, SJL", whatsapp: "51999999999" },
+  { id: 1, nombre: "GC NORTE 01", distrito: "San Martín de Porres", diaHora: "Martes 7:00 PM", tipo: "Presencial", ubicacion: "Dirección referencial, SMP", whatsapp: "51939945787" },
+  { id: 2, nombre: "GC NORTE 02", distrito: "San Martín de Porres", diaHora: "Miércoles 7:00 PM", tipo: "Presencial", ubicacion: "Dirección referencial, SMP", whatsapp: "51979345646" },
+  { id: 3, nombre: "GC ESTE 01", distrito: "San Juan de Lurigancho", diaHora: "Jueves 7:00 PM", tipo: "Presencial", ubicacion: "Dirección referencial, SJL", whatsapp: "51939945787" },
+  { id: 4, nombre: "GC ESTE 02", distrito: "San Juan de Lurigancho", diaHora: "Viernes 7:00 PM", tipo: "Presencial", ubicacion: "Dirección referencial, SJL", whatsapp: "51979345646" },
   { id: 5, nombre: "GC LA VICTORIA 01", distrito: "La Victoria", diaHora: "Jueves 8:00 PM", tipo: "Presencial", ubicacion: "Dirección referencial, La Victoria", whatsapp: "51999999999" },
   { id: 6, nombre: "GC VIRTUAL 01", distrito: "Virtual (Zoom / Meet)", diaHora: "Lunes 8:00 PM", tipo: "Virtual", ubicacion: "El link se envía por WhatsApp al inscribirte", whatsapp: "51999999999" },
   { id: 7, nombre: "GC VIRTUAL 02", distrito: "Virtual (Zoom / Meet)", diaHora: "Sábado 10:00 AM", tipo: "Virtual", ubicacion: "El link se envía por WhatsApp al inscribirte", whatsapp: "51999999999" },
