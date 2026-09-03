@@ -28,7 +28,6 @@ export default function PropositoPage() {
   const [estado, setEstado] = useState<'intro' | 'diagnostico' | 'resultado'>('intro')
   const [showVersiculo, setShowVersiculo] = useState(false)
   const [showGrupos, setShowGrupos] = useState(false)
-  const versiculoDelDia = getVersiculoDelDia()
   const [seccionActual, setSeccionActual] = useState<SeccionId | null>(null)
   const [resultados, setResultados] = useState({ conexion: [], crecimiento: [], servicio: [], multiplicacion: [] })
 
@@ -144,7 +143,7 @@ export default function PropositoPage() {
         </div>
       </div>
     
-      {showVersiculo && <VersiculoModal versiculo={versiculoDelDia} onClose={() => setShowVersiculo(false)} />}
+      {showVersiculo && <VersiculoModal isOpen={showVersiculo} onClose={() => setShowVersiculo(false)} />}
       <GruposModal isOpen={showGrupos} onClose={() => setShowGrupos(false)} />
     </div>
   )

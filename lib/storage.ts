@@ -85,7 +85,7 @@ export function getNextDia(reto: string): number {
   
   // Buscar el último día completado
   let ultimoCompletado = 0
-  for (let i = 1; i <= 7; i++) {
+  for (let i = 1; i <= 14; i++) {
     if (progress.dias[i]?.completado) {
       ultimoCompletado = i
     }
@@ -95,7 +95,7 @@ export function getNextDia(reto: string): number {
   if (ultimoCompletado === 0) return 1
   
   // Si completó todos, retornar 7
-  if (ultimoCompletado === 7) return 7
+  if (ultimoCompletado === 14) return 14
   
   // Retornar el siguiente día
   return ultimoCompletado + 1
@@ -135,14 +135,14 @@ export function getSiguienteDiaDisponible(progress: UserProgress): number {
   const modo = getModoRetos()
   let ultimoCompletado = 0
   
-  for (let i = 1; i <= 7; i++) {
+  for (let i = 1; i <= 14; i++) {
     if (progress.dias[i]?.completado) {
       ultimoCompletado = i
     }
   }
   
   if (ultimoCompletado === 0) return 1
-  if (ultimoCompletado === 7) return 7
+  if (ultimoCompletado === 14) return 14
   if (modo === 'intensivo') return ultimoCompletado + 1
   
   const fechaUltimoDia = progress.dias[ultimoCompletado]?.fechaCompletado || progress.dias[ultimoCompletado]?.fecha
@@ -158,7 +158,7 @@ export function getSiguienteDiaDisponible(progress: UserProgress): number {
 
 export function getHorasRestantes(progress: UserProgress): number {
   let ultimoCompletado = 0
-  for (let i = 1; i <= 7; i++) {
+  for (let i = 1; i <= 14; i++) {
     if (progress.dias[i]?.completado) {
       ultimoCompletado = i
     }

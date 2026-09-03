@@ -260,4 +260,214 @@ export const DEVOCIONALES: Devocional[] = [
       oracion: "Señor, dame hambre de ti. Que mi alma tenga sed de tu presencia cada día. Amén.",
     },
   },
+  {
+    dia: 8,
+    titulo: "Día 8 - Profundizando en la Oración",
+    lecturaRef: "Mateo 6:5-15",
+    lecturaTexto: "Y cuando ores, no seas como los hipócritas; porque ellos gustan de orar de pie en las sinagogas y en las esquinas de las calles, para ser vistos de los hombres. De cierto os digo que ya tienen su recompensa. Mas tú, cuando ores, entra en tu aposento, y cerrada la puerta, ora a tu Padre que está en secreto; y tu Padre que ve en lo secreto te recompensará en público.",
+    fraseDelDia: "La oración es la respiración del alma",
+    fase: "crece",
+    descubre: {
+      pregunta: "¿Qué nos enseña Jesús sobre cómo orar?",
+      opciones: [
+        { id: "a", texto: "Orar en público para ser vistos", esCorrecta: false },
+        { id: "b", texto: "Orar en privado con sinceridad", esCorrecta: true },
+        { id: "c", texto: "Orar muchas palabras", esCorrecta: false }
+      ],
+      explicacion: "Jesús nos enseña que la oración debe ser sincera y desde el corazón, no para impresionar a otros.",
+      versiculoApoyo: "Mateo 6:6"
+    },
+    conecta: {
+      pregunta: "¿Cómo es tu vida de oración actualmente?",
+      opciones: [
+        { id: "a", texto: "Oro todos los días" },
+        { id: "b", texto: "Oro de vez en cuando" },
+        { id: "c", texto: "Casi no oro" }
+      ]
+    },
+    camina: {
+      desafio: "Hoy dedica 10 minutos a orar en privado, sin distracciones.",
+      oracion: "Señor, enséñame a orar con un corazón sincero. Amén."
+    }
+  },
+  {
+    dia: 9,
+    titulo: "Día 9 - El Poder de la Palabra",
+    lecturaRef: "Juan 1:1-5",
+    lecturaTexto: "En el principio era el Verbo, y el Verbo era con Dios, y el Verbo era Dios. Este era en el principio con Dios. Todas las cosas por él fueron hechas, y sin él nada de lo que ha sido hecho, fue hecho. En él estaba la vida, y la vida era la luz de los hombres. La luz en las tinieblas resplandece, y las tinieblas no prevalecieron contra ella.",
+    fraseDelDia: "La Palabra de Dios es viva y eficaz",
+    fase: "crece",
+    descubre: {
+      pregunta: "¿Qué dice el texto sobre el Verbo (la Palabra)?",
+      opciones: [
+        { id: "a", texto: "Era solo un profeta", esCorrecta: false },
+        { id: "b", texto: "Era Dios y estaba con Dios", esCorrecta: true },
+        { id: "c", texto: "Fue creado al principio", esCorrecta: false }
+      ],
+      explicacion: "Jesús (el Verbo) existía desde el principio y es Dios mismo hecho carne.",
+      versiculoApoyo: "Juan 1:1"
+    },
+    conecta: {
+      pregunta: "¿Qué lugar ocupa la Biblia en tu vida diaria?",
+      opciones: [
+        { id: "a", texto: "La leo todos los días" },
+        { id: "b", texto: "La leo de vez en cuando" },
+        { id: "c", texto: "Casi no la leo" }
+      ]
+    },
+    camina: {
+      desafio: "Lee un capítulo del Evangelio de Juan hoy y medita en él.",
+      oracion: "Señor, que tu Palabra sea lámpara a mis pies. Amén."
+    }
+  },
+  {
+    dia: 10,
+    titulo: "Día 10 - Sirviendo con Amor",
+    lecturaRef: "Gálatas 5:13-14",
+    lecturaTexto: "Porque vosotros, hermanos, a libertad fuisteis llamados; solamente que no uséis la libertad como ocasión para la carne, sino servíos por amor los unos a los otros. Porque toda la ley en esta sola palabra se cumple: Amarás a tu prójimo como a ti mismo.",
+    fraseDelDia: "Servir es la forma más alta de amor",
+    fase: "servicio",
+    descubre: {
+      pregunta: "¿Para qué debemos usar nuestra libertad en Cristo?",
+      opciones: [
+        { id: "a", texto: "Para hacer lo que queramos", esCorrecta: false },
+        { id: "b", texto: "Para servirnos por amor", esCorrecta: true },
+        { id: "c", texto: "Para no seguir reglas", esCorrecta: false }
+      ],
+      explicacion: "La verdadera libertad cristiana se expresa sirviendo a otros con amor.",
+      versiculoApoyo: "Gálatas 5:13"
+    },
+    conecta: {
+      pregunta: "¿Cómo estás sirviendo a otros actualmente?",
+      opciones: [
+        { id: "a", texto: "Sirvo activamente en mi iglesia" },
+        { id: "b", texto: "Ayudo cuando puedo" },
+        { id: "c", texto: "No estoy sirviendo" }
+      ]
+    },
+    camina: {
+      desafio: "Hoy haz un acto de servicio inesperado para alguien.",
+      oracion: "Señor, muéstrame cómo servir a otros con tu amor. Amén."
+    }
+  },
+  {
+    dia: 11,
+    titulo: "Día 11 - Fruto del Espíritu",
+    lecturaRef: "Gálatas 5:22-23",
+    lecturaTexto: "Mas el fruto del Espíritu es amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre, templanza; contra tales cosas no hay ley.",
+    fraseDelDia: "El Espíritu produce fruto en nosotros",
+    fase: "crece",
+    descubre: {
+      pregunta: "¿Cuántos frutos del Espíritu se mencionan?",
+      opciones: [
+        { id: "a", texto: "Tres", esCorrecta: false },
+        { id: "b", texto: "Nueve", esCorrecta: true },
+        { id: "c", texto: "Doce", esCorrecta: false }
+      ],
+      explicacion: "El Espíritu Santo produce 9 frutos en nuestra vida: amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre y templanza.",
+      versiculoApoyo: "Gálatas 5:22-23"
+    },
+    conecta: {
+      pregunta: "¿Qué fruto del Espíritu necesitas desarrollar más?",
+      opciones: [
+        { id: "a", texto: "Paciencia o paz" },
+        { id: "b", texto: "Amor o gozo" },
+        { id: "c", texto: "Dominio propio o mansedumbre" }
+      ]
+    },
+    camina: {
+      desafio: "Elige un fruto del Espíritu y practícalo intencionalmente hoy.",
+      oracion: "Espíritu Santo, produce tu fruto en mi vida. Amén."
+    }
+  },
+  {
+    dia: 12,
+    titulo: "Día 12 - Compartiendo la Fe",
+    lecturaRef: "Hechos 1:8",
+    lecturaTexto: "Pero recibiréis poder, cuando haya venido sobre vosotros el Espíritu Santo, y me seréis testigos en Jerusalén, en toda Judea, en Samaria, y hasta lo último de la tierra.",
+    fraseDelDia: "Somos testigos de Cristo",
+    fase: "multiplicacion",
+    descubre: {
+      pregunta: "¿Qué nos promete Jesús en este versículo?",
+      opciones: [
+        { id: "a", texto: "Riquezas y prosperidad", esCorrecta: false },
+        { id: "b", texto: "Poder para ser sus testigos", esCorrecta: true },
+        { id: "c", texto: "Una vida sin problemas", esCorrecta: false }
+      ],
+      explicacion: "El Espíritu Santo nos da poder para ser testigos de Jesús y compartir el evangelio.",
+      versiculoApoyo: "Hechos 1:8"
+    },
+    conecta: {
+      pregunta: "¿Te sientes preparado para compartir tu fe?",
+      opciones: [
+        { id: "a", texto: "Sí, lo hago regularmente" },
+        { id: "b", texto: "Me gustaría pero me da miedo" },
+        { id: "c", texto: "No me siento preparado" }
+      ]
+    },
+    camina: {
+      desafio: "Hoy comparte con alguien lo que Dios ha hecho en tu vida.",
+      oracion: "Señor, dame valentía para ser tu testigo. Amén."
+    }
+  },
+  {
+    dia: 13,
+    titulo: "Día 13 - Haciendo Discípulos",
+    lecturaRef: "Mateo 28:18-20",
+    lecturaTexto: "Y Jesús se acercó y les habló diciendo: Toda potestad me es dada en el cielo y en la tierra. Por tanto, id, y haced discípulos de todas las naciones, bautizándolos en el nombre del Padre, y del Hijo, y del Espíritu Santo; enseñándoles que guarden todas las cosas que os he mandado; y he aquí yo estoy con vosotros todos los días, hasta el fin del mundo. Amén.",
+    fraseDelDia: "La gran comisión es hacer discípulos",
+    fase: "multiplicacion",
+    descubre: {
+      pregunta: "¿Qué nos manda Jesús en este texto?",
+      opciones: [
+        { id: "a", texto: "Solo ir a la iglesia", esCorrecta: false },
+        { id: "b", texto: "Hacer discípulos de todas las naciones", esCorrecta: true },
+        { id: "c", texto: "Estudiar la Biblia solo", esCorrecta: false }
+      ],
+      explicacion: "Jesús nos comisiona a hacer discípulos, no solo convertidos. Discípulos que obedezcan sus enseñanzas.",
+      versiculoApoyo: "Mateo 28:19"
+    },
+    conecta: {
+      pregunta: "¿Estás discipulando a alguien o siendo discipulado?",
+      opciones: [
+        { id: "a", texto: "Ambas cosas" },
+        { id: "b", texto: "Solo soy discipulado" },
+        { id: "c", texto: "Ninguna de las dos" }
+      ]
+    },
+    camina: {
+      desafio: "Invita a alguien a crecer junto contigo en la fe.",
+      oracion: "Señor, úsame para hacer discípulos. Amén."
+    }
+  },
+  {
+    dia: 14,
+    titulo: "Día 14 - Perseverando hasta el Fin",
+    lecturaRef: "Santiago 1:12",
+    lecturaTexto: "Bienaventurado el varón que soporta la tentación; porque cuando haya resistido la prueba, recibirá la corona de vida, que Dios ha prometido a los que le aman.",
+    fraseDelDia: "¡Persevera! La recompensa viene",
+    fase: "multiplicacion",
+    descubre: {
+      pregunta: "¿Qué promete Dios a los que perseveran?",
+      opciones: [
+        { id: "a", texto: "La corona de vida", esCorrecta: true },
+        { id: "b", texto: "Dinero y éxito", esCorrecta: false },
+        { id: "c", texto: "Una vida sin problemas", esCorrecta: false }
+      ],
+      explicacion: "Dios promete la corona de vida (vida eterna) a quienes perseveran en la fe y le aman.",
+      versiculoApoyo: "Santiago 1:12"
+    },
+    conecta: {
+      pregunta: "¿Cómo te sientes después de estos 14 días?",
+      opciones: [
+        { id: "a", texto: "Más cerca de Dios" },
+        { id: "b", texto: "Con más hambre de Él" },
+        { id: "c", texto: "Motivado a continuar" }
+      ]
+    },
+    camina: {
+      desafio: "Únete a un Grupo de Conexión para continuar creciendo.",
+      oracion: "Señor, gracias por estos 14 días. Ayúdame a perseverar. Amén."
+    }
+  },
 ];

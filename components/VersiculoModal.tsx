@@ -1,116 +1,84 @@
 'use client'
 
-import { useState } from 'react'
-import { X, Copy, Share2, Quote, Check } from 'lucide-react'
-import { Versiculo } from '@/lib/versiculos'
+import { useState, useEffect } from 'react'
+import { X, BookOpen } from 'lucide-react'
+import { getVersiculoDelDia, type Versiculo } from '@/lib/versiculos'
 
 interface VersiculoModalProps {
-  versiculo: Versiculo
+  isOpen: boolean
   onClose: () => void
 }
 
-export function VersiculoModal({ versiculo, onClose }: VersiculoModalProps) {
-  const [copiado, setCopiado] = useState(false)
+export function VersiculoModal({ isOpen, onClose }: VersiculoModalProps) {
+  const [versiculo, setVersiculo] = useState<Versiculo | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const handleCopiar = async () => {
-    const texto = `"${versiculo.texto}"\n\n— ${versiculo.referencia}`
-    try {
-      await navigator.clipboard.writeText(texto)
-      setCopiado(true)
-      setTimeout(() => setCopiado(false), 2000)
-    } catch (err) {
-      console.error('Error al copiar:', err)
+  // Cada vez que el modal se abre, busca el versículo en Supabase
+  useEffect(() => {
+    if (isOpen) {
+      setLoading(true)
+      getVersiculoDelDia().then((data) => {
+        setVersiculo(data)
+        setLoading(false)
+      })
     }
-  }
+  }, [isOpen])
 
-  const handleCompartir = async () => {
-    const texto = `"${versiculo.texto}" — ${versiculo.referencia}`
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Versículo del Día',
-          text: texto,
-        })
-      } catch (err) {
-        console.log('Error al compartir:', err)
-      }
-    } else {
-      handleCopiar()
-    }
-  }
+  if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full relative overflow-hidden animate-slide-up">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-slide-up">
         
-        {/* Barra superior de color */}
-        <div className="h-2 bg-gradient-to-r from-blue-400 via-emerald-400 to-amber-400" />
-
-        {/* Botón cerrar */}
+        {/* Botón de cerrar */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition-colors"
         >
-          <X className="w-4 h-4 text-slate-600" />
+          <X className="w-5 h-5 text-slate-500" />
         </button>
 
-        <div className="p-8 md:p-10">
-          {/* Categoría */}
-          <div className="text-center mb-6">
-            <span className="inline-block px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold tracking-wider uppercase">
-              Versículo del día
-            </span>
+        {/* Encabezado */}
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="w-8 h-8 text-amber-600" />
           </div>
+          <h3 className="text-2xl font-bold text-slate-900 mb-2">
+            Versículo del Día
+          </h3>
+          <p className="text-slate-500 text-sm">
+            Una palabra de aliento para hoy
+          </p>
+        </div>
 
-          {/* Icono de comillas */}
-          <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-              <Quote className="w-6 h-6 text-blue-600" fill="currentColor" />
-            </div>
+        {/* Contenido */}
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto"></div>
+            <p className="text-slate-500 mt-2">Cargando...</p>
           </div>
-
-          {/* Texto del versículo */}
-          <blockquote className="text-center mb-6">
-            <p className="text-xl md:text-2xl text-slate-800 font-serif italic leading-relaxed">
+        ) : versiculo ? (
+          <div className="space-y-4">
+            <blockquote className="text-xl text-slate-800 italic leading-relaxed text-center">
               "{versiculo.texto}"
-            </p>
-          </blockquote>
-
-          {/* Referencia */}
-          <div className="text-center mb-8">
-            <p className="text-lg font-bold text-slate-900">
+            </blockquote>
+            <p className="text-center font-bold text-amber-600 text-lg">
               — {versiculo.referencia}
             </p>
           </div>
-
-          {/* Botones de acción */}
-          <div className="flex gap-3">
-            <button
-              onClick={handleCopiar}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all"
-            >
-              {copiado ? (
-                <>
-                  <Check className="w-4 h-4 text-emerald-600" />
-                  <span className="text-emerald-600">Copiado</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  Copiar
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={handleCompartir}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium transition-all shadow-lg"
-            >
-              <Share2 className="w-4 h-4" />
-              Compartir
-            </button>
+        ) : (
+          <div className="text-center py-8 text-slate-500">
+            No se pudo cargar el versículo. Intenta de nuevo más tarde.
           </div>
-        </div>
+        )}
+
+        {/* Botón de acción */}
+        <button
+          onClick={onClose}
+          className="w-full mt-8 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-colors"
+        >
+          Cerrar
+        </button>
       </div>
     </div>
   )

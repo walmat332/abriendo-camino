@@ -15,7 +15,7 @@ import {
   puedeAccederAlDia,
   getHorasRestantes
 } from '@/lib/storage'
-import { ArrowRight, CheckCircle2, XCircle, Flame, Home, Clock, ArrowLeft } from 'lucide-react'
+import { ArrowRight, CheckCircle2, XCircle, Flame, Home, Clock, ArrowLeft, Users } from 'lucide-react'
 import { LoginModal } from '@/components/LoginModal'
 
 export default function DiaPage() {
@@ -131,7 +131,7 @@ export default function DiaPage() {
   const handleCompletarDia = () => {
     let currentProgress = getProgress() || { dias: {}, startDate: new Date().toISOString(), lastAccess: new Date().toISOString() }
     
-    // Marcar día como completado usando la nueva función
+    // Marcar día como completado
     currentProgress = marcarDiaCompletado(currentProgress, dia, [])
     saveProgress(currentProgress)
     setProgress(currentProgress)
@@ -140,6 +140,11 @@ export default function DiaPage() {
     if (dia === 2 && !currentProgress?.usuario) {
       setShowLogin(true)
       return // No avanzar hasta que complete el login
+    }
+
+    // Si es el día 14, NO redirigir automáticamente para mostrar la pantalla final
+    if (dia === 14) {
+      return 
     }
 
     const siguienteDia = getSiguienteDiaDisponible(currentProgress)
@@ -161,7 +166,6 @@ export default function DiaPage() {
     setShowLogin(false)
     setProgress(currentProgress)
     
-    // Avanzar al siguiente día después del login
     const siguienteDia = getSiguienteDiaDisponible(currentProgress)
     if (siguienteDia > dia && siguienteDia <= totalDias) {
       router.push(`/abriendo-camino/reto/abriendo-camino/dia/${siguienteDia}`)
@@ -173,7 +177,7 @@ export default function DiaPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex flex-col items-center justify-center relative overflow-hidden">
       
-      {/* ✅ BOTÓN VOLVER AL INICIO (Siempre visible en la parte superior izquierda) */}
+      {/* BOTÓN VOLVER AL INICIO */}
       <div className="absolute top-4 left-4 z-20">
         <button
           onClick={() => router.push('/abriendo-camino')}
@@ -211,7 +215,7 @@ export default function DiaPage() {
             <span className="text-sm font-semibold text-slate-700 text-right">
               {paso === 0 && '📖 LEE'}
               {paso === 1 && '🔎 DESCUBRE'}
-              {paso === 2 && '❤️ CONECTA'}
+              {paso === 2 && '💭 CONECTA'}
               {paso === 3 && '🎯 CAMINA'}
               {paso === 4 && '🎉 COMPLETADO'}
             </span>
@@ -294,7 +298,7 @@ export default function DiaPage() {
           {paso === 2 && (
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-slate-900 text-center">
-                ❤️ Conecta con tu vida
+                💭 Conecta con tu vida
               </h3>
               <p className="text-lg text-slate-700 text-center">
                 {devocional.conecta.pregunta}
@@ -340,23 +344,48 @@ export default function DiaPage() {
 
           {paso === 4 && (
             <div className="space-y-4 text-center">
-              <div className="text-6xl">🎉</div>
-              <h3 className="text-2xl font-bold text-slate-900">
-                ¡Día {dia} completado!
-              </h3>
-              <div className="flex items-center justify-center gap-2">
-                <Flame className="text-amber-500 w-6 h-6" />
-                <p className="text-lg text-slate-800 font-bold">
-                  {dia} / {totalDias}
-                </p>
-              </div>
-              <p className="text-slate-600">
-                Hoy no solamente leíste la Palabra. Diste un paso para caminar con Dios.
-              </p>
-              {dia === 2 && !progress?.usuario && (
-                <p className="text-sm text-amber-600 font-medium mt-4 bg-amber-50 p-2 rounded">
-                   En el siguiente paso podrás guardar tu progreso
-                </p>
+              {dia === 14 ? (
+                <>
+                  <div className="text-6xl">🏆</div>
+                  <h3 className="text-2xl font-bold text-slate-900">
+                    ¡Felicidades! Reto Completado
+                  </h3>
+                  <div className="flex items-center justify-center gap-2">
+                    <Flame className="text-amber-500 w-6 h-6" />
+                    <p className="text-lg text-slate-800 font-bold">
+                      14 / 14 días completados
+                    </p>
+                  </div>
+                  <p className="text-slate-600">
+                    Has dado un gran paso en tu caminar con Dios. El siguiente nivel es crecer en comunidad.
+                  </p>
+                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mt-4">
+                    <p className="text-amber-800 font-medium text-sm">
+                      💡 Recomendación: Únete a un Grupo de Conexión para seguir creciendo junto a otros.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-6xl">🎉</div>
+                  <h3 className="text-2xl font-bold text-slate-900">
+                    ¡Día {dia} completado!
+                  </h3>
+                  <div className="flex items-center justify-center gap-2">
+                    <Flame className="text-amber-500 w-6 h-6" />
+                    <p className="text-lg text-slate-800 font-bold">
+                      {dia} / {totalDias}
+                    </p>
+                  </div>
+                  <p className="text-slate-600">
+                    Hoy no solamente leíste la Palabra. Diste un paso para caminar con Dios.
+                  </p>
+                  {dia === 2 && !progress?.usuario && (
+                    <p className="text-sm text-amber-600 font-medium mt-4 bg-amber-50 p-2 rounded">
+                       En el siguiente paso podrás guardar tu progreso
+                    </p>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -376,6 +405,48 @@ export default function DiaPage() {
               CONTINUAR
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
+          ) : dia === 14 && !progress?.dias[dia]?.completado ? (
+            <Button
+              size="lg"
+              className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold"
+              onClick={handleCompletarDia}
+            >
+              FINALIZAR RETO
+              <CheckCircle2 className="ml-2 h-5 w-5" />
+            </Button>
+          ) : dia === 14 ? (
+            <div className="w-full space-y-3">
+              <Button
+                size="lg"
+                className="w-full text-lg py-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold"
+                onClick={() => {
+                  // ⚠️ REEMPLAZA ESTE LINK con el enlace real de tu grupo de WhatsApp o GC
+                  window.open('https://chat.whatsapp.com/TU_LINK_DE_GRUPO_AQUI', '_blank')
+                }}
+              >
+                <Users className="mr-2 h-5 w-5" />
+                Únete a un Grupo de Conexión
+              </Button>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1 py-6"
+                  onClick={() => {
+                    localStorage.removeItem('abriendo-camino-progress')
+                    router.push('/abriendo-camino')
+                  }}
+                >
+                  🔄 Reiniciar
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 py-6"
+                  onClick={() => router.push('/abriendo-camino')}
+                >
+                  🏠 Inicio
+                </Button>
+              </div>
+            </div>
           ) : (
             <Button
               size="lg"
@@ -388,7 +459,7 @@ export default function DiaPage() {
           )}
         </CardFooter>
       </Card>
-
+      
       {/* Modal de login */}
       {showLogin && (
         <LoginModal
