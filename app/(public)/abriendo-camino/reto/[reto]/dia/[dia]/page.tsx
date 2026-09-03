@@ -103,6 +103,9 @@ export default function DiaPage() {
     else setFeedback('incorrecto')
   }
 
+  const esFinDeSemana = [7, 14, 21, 28].includes(dia)
+  const esUltimoDia = dia === 28
+
   const handleCompletarDia = () => {
     let currentProgress = getProgress() || { dias: {}, startDate: new Date().toISOString(), lastAccess: new Date().toISOString() }
     currentProgress = marcarDiaCompletado(currentProgress, dia, [])
@@ -114,16 +117,8 @@ export default function DiaPage() {
       return
     }
     
-    if (dia === 28) return 
-
-    const siguienteDia = getSiguienteDiaDisponible(currentProgress)
-    const siguienteDevocional = DEVOCIONALES.find(d => d.dia === siguienteDia)
-    
-    if (siguienteDevocional) {
-      router.push(`/abriendo-camino/reto/abriendo-camino/dia/${siguienteDia}`)
-    } else {
-      router.push('/abriendo-camino')
-    }
+    // REDIRIGIR AL INICIO en lugar del siguiente día automáticamente
+    router.push('/abriendo-camino')
   }
 
   const handleLoginComplete = (nombre: string, telefono: string) => {
@@ -134,16 +129,9 @@ export default function DiaPage() {
     setShowLogin(false)
     setProgress(currentProgress)
     
-    const siguienteDia = getSiguienteDiaDisponible(currentProgress)
-    const siguienteDevocional = DEVOCIONALES.find(d => d.dia === siguienteDia)
-    if (siguienteDevocional) {
-      router.push(`/abriendo-camino/reto/abriendo-camino/dia/${siguienteDia}`)
-    } else {
-      router.push('/abriendo-camino')
-    }
+    // Después del login, también ir al inicio para que el usuario controle su avance
+    router.push('/abriendo-camino')
   }
-
-  const esUltimoDia = dia === 28
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex flex-col items-center justify-center relative overflow-hidden">
@@ -305,7 +293,7 @@ export default function DiaPage() {
             </div>
           ) : (
             <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold" onClick={handleCompletarDia}>
-              SIGUIENTE DÍA <ArrowRight className="ml-2 h-5 w-5" />
+              IR AL INICIO <Home className="ml-2 h-5 w-5" />
             </Button>
           )}
         </CardFooter>

@@ -1,11 +1,11 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { getProgress, saveUsuario } from '@/lib/storage'
+import { getProgress, resetProgress, saveUsuario } from '@/lib/storage'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Sparkles, ArrowRight, Share2, Flame, TrendingUp, BookOpen } from 'lucide-react'
+import { Sparkles, ArrowRight, Share2, RotateCcw, Flame, TrendingUp } from 'lucide-react'
 import { LoginModal } from '@/components/LoginModal'
 
 export default function AbriendoCaminoIndex() {
@@ -47,6 +47,13 @@ export default function AbriendoCaminoIndex() {
     setShowLogin(false)
     setProgress(getProgress())
     alert(`✅ ¡Gracias ${nombre}! Te enviaremos el link cada día.`)
+  }
+
+  const handleReiniciar = () => {
+    if (confirm('¿Seguro que quieres reiniciar tu progreso?')) {
+      resetProgress()
+      window.location.reload()
+    }
   }
 
   const handleCompartir = async () => {
@@ -148,7 +155,7 @@ export default function AbriendoCaminoIndex() {
               {diasCompletadosEnSemana === 1 && '¡Excelente comienzo de semana!'}
               {diasCompletadosEnSemana === 2 && '¡Vas muy bien!'}
               {diasCompletadosEnSemana === 3 && '⭐ ¡Más de la mitad de la semana!'}
-              {diasCompletadosEnSemana >= 4 && diasCompletadosEnSemana < 7 && '🚀 ¡Imparable!'}
+              {diasCompletadosEnSemana >= 4 && diasCompletadosEnSemana < 7 && ' ¡Imparable!'}
               {diasCompletadosEnSemana === 0 && diasCompletados > 0 && ' ¡Semana anterior completada!'}
               {diasCompletadosEnSemana === 7 && '🏆 ¡SEMANA COMPLETADA!'}
             </p>
@@ -185,6 +192,17 @@ export default function AbriendoCaminoIndex() {
             </Button>
           )}
 
+          {diasCompletados > 0 && (
+            <Button 
+              variant="ghost"
+              className="w-full text-blue-200 hover:text-white hover:bg-white/10"
+              onClick={handleReiniciar}
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reiniciar progreso
+            </Button>
+          )}
+
           <Button 
             variant="ghost"
             className="w-full text-blue-200 hover:text-white hover:bg-white/10"
@@ -195,26 +213,14 @@ export default function AbriendoCaminoIndex() {
           </Button>
         </div>
 
-        {/* Botones secundarios */}
-        <div className="mt-4 space-y-2 animate-fade-in" style={{ animationDelay: '0.8s', opacity: 0 }}>
-          <Button 
-            variant="outline"
-            onClick={() => router.push('/abriendo-camino/proposito')}
-            className="w-full text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 border-amber-400/30"
-          >
-            <Sparkles className="mr-2 h-4 w-4" />
-            Descubre tu propósito
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => router.push('/abriendo-camino/dashboard')}
-            className="w-full text-blue-200 hover:text-white hover:bg-white/10"
-          >
-            <TrendingUp className="mr-2 h-4 w-4" />
-            Ver mi progreso
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          onClick={() => router.push('/abriendo-camino/dashboard')}
+          className="w-full mt-3 text-blue-200 hover:text-white hover:bg-white/10"
+        >
+          <TrendingUp className="mr-2 h-4 w-4" />
+          Ver mi progreso
+        </Button>
 
         {/* Frase */}
         <div className="mt-8 text-center animate-fade-in" style={{ animationDelay: '0.9s', opacity: 0 }}>
