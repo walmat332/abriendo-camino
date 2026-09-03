@@ -9,8 +9,32 @@ import {
   saveUsuario, getProgress, saveProgress, marcarDiaCompletado, 
   getSiguienteDiaDisponible, puedeAccederAlDia, getHorasRestantes
 } from '@/lib/storage'
-import { ArrowRight, CheckCircle2, XCircle, Flame, Home, Clock, ArrowLeft, Users } from 'lucide-react'
+import { ArrowRight, CheckCircle2, XCircle, Flame, Home, Clock, ArrowLeft, Users, Trophy, Star } from 'lucide-react'
 import { LoginModal } from '@/components/LoginModal'
+
+// Mensajes motivacionales por semana
+const MENSAJES_SEMANA: Record<number, { titulo: string; mensaje: string; emoji: string }> = {
+  1: {
+    titulo: "¡Semana 1 Completada!",
+    mensaje: "Has dado el primer paso. Volver a Dios es el inicio de una nueva vida. ¡Sigue firme!",
+    emoji: "🌱"
+  },
+  2: {
+    titulo: "¡Semana 2 Completada!",
+    mensaje: "Estás creciendo en la fe. Cada día te acerca más a Jesús. ¡No te detengas!",
+    emoji: "🌿"
+  },
+  3: {
+    titulo: "¡Semana 3 Completada!",
+    mensaje: "Servir a otros es servir a Cristo. Tu amor está transformando vidas. ¡Continúa!",
+    emoji: "🤝"
+  },
+  4: {
+    titulo: "¡Reto de 4 Semanas Completado!",
+    mensaje: "Has completado el camino. Ahora es tiempo de multiplicar lo que has aprendido. ¡Lleva a otros a Cristo!",
+    emoji: "🏆"
+  }
+}
 
 export default function DiaPage() {
   const params = useParams()
@@ -87,6 +111,10 @@ export default function DiaPage() {
     multiplica: 'bg-amber-100 text-amber-700'
   }
 
+  // CORRECCIÓN CLAVE: Detecta el día 7 de CUALQUIER semana (7, 14, 21, 28)
+  const esFinDeSemana = diaEnSemana === 7
+  const esUltimaSemana = semanaNumero === 4
+
   const handleContinuar = () => {
     setPaso(paso + 1)
     setOpcionSeleccionada(null)
@@ -103,9 +131,6 @@ export default function DiaPage() {
     else setFeedback('incorrecto')
   }
 
-  const esFinDeSemana = [7, 14, 21, 28].includes(dia)
-  const esUltimoDia = dia === 28
-
   const handleCompletarDia = () => {
     let currentProgress = getProgress() || { dias: {}, startDate: new Date().toISOString(), lastAccess: new Date().toISOString() }
     currentProgress = marcarDiaCompletado(currentProgress, dia, [])
@@ -117,7 +142,10 @@ export default function DiaPage() {
       return
     }
     
-    // REDIRIGIR AL INICIO en lugar del siguiente día automáticamente
+    // Si es fin de semana, no redirigir, mostrar felicitaciones
+    if (esFinDeSemana) return 
+
+    // Para días normales, ir al inicio
     router.push('/abriendo-camino')
   }
 
@@ -128,10 +156,19 @@ export default function DiaPage() {
     saveProgress(currentProgress)
     setShowLogin(false)
     setProgress(currentProgress)
-    
-    // Después del login, también ir al inicio para que el usuario controle su avance
     router.push('/abriendo-camino')
   }
+
+  const handleReiniciar = () => {
+    localStorage.removeItem('abriendo-camino-progress')
+    router.push('/abriendo-camino/reto/1/dia/1')
+  }
+
+  const handleComenzarSiguienteSemana = () => {
+    router.push(`/abriendo-camino/reto/1/dia/${dia + 1}`)
+  }
+
+  const mensajeSemana = MENSAJES_SEMANA[semanaNumero] || MENSAJES_SEMANA[1]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex flex-col items-center justify-center relative overflow-hidden">
@@ -182,7 +219,7 @@ export default function DiaPage() {
 
           {paso === 1 && (
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-slate-900 text-center"> ¿Qué dice el texto?</h3>
+              <h3 className="text-xl font-bold text-slate-900 text-center">🔎 ¿Qué dice el texto?</h3>
               <p className="text-lg text-slate-700 text-center font-medium">{devocional.descubre.pregunta}</p>
               <div className="space-y-3">
                 {devocional.descubre.opciones.map((opcion) => (
@@ -239,57 +276,105 @@ export default function DiaPage() {
             </div>
           )}
 
-          {paso === 4 && (
+          {/* FELICITACIONES AL FINAL DE CADA SEMANA */}
+          {paso === 4 && esFinDeSemana && (
+            <div className="space-y-4 text-center py-4">
+              <div className="text-7xl animate-bounce">{mensajeSemana.emoji}</div>
+              <h3 className="text-3xl font-bold text-slate-900">¡¡¡LO LOGRASTE!!!</h3>
+              <div className="flex items-center justify-center gap-2">
+                {esUltimaSemana ? (
+                  <Trophy className="text-amber-500 w-6 h-6" />
+                ) : (
+                  <Star className="text-amber-500 w-6 h-6" />
+                )}
+                <p className="text-xl text-slate-800 font-bold">
+                  {esUltimaSemana ? '4 semanas completadas' : `${diaEnSemana} / 7 días completados`}
+                </p>
+              </div>
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border-2 border-green-200">
+                <p className="text-lg text-green-900 font-medium">{mensajeSemana.mensaje}</p>
+              </div>
+              
+              {/* Botón NO CAMINES SOLO */}
+              <div className="mt-6 p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
+                <div className="flex items-center gap-2 mb-2 justify-center">
+                  <Users className="w-5 h-5 text-purple-600" />
+                  <h4 className="font-bold text-purple-900">NO CAMINES SOLO</h4>
+                </div>
+                <p className="text-sm text-purple-800 mb-3">
+                  Únete a uno de nuestros grupos de conexión en tu distrito o de forma virtual. Tenemos horarios para todos.
+                </p>
+                <button 
+                  onClick={() => router.push('/abriendo-camino/grupos')}
+                  className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition"
+                >
+                  Ver grupos disponibles →
+                </button>
+              </div>
+              
+              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                <p className="text-amber-800 font-medium text-sm">💡 Recomendación: Únete a un Grupo de Conexión para seguir creciendo junto a otros.</p>
+              </div>
+            </div>
+          )}
+
+          {/* DÍA NORMAL COMPLETADO (no es fin de semana) */}
+          {paso === 4 && !esFinDeSemana && (
             <div className="space-y-4 text-center">
-              {esUltimoDia ? (
-                <>
-                  <div className="text-6xl">🏆</div>
-                  <h3 className="text-2xl font-bold text-slate-900">¡Felicidades! Reto Completado</h3>
-                  <div className="flex items-center justify-center gap-2">
-                    <Flame className="text-amber-500 w-6 h-6" />
-                    <p className="text-lg text-slate-800 font-bold">4 semanas completadas</p>
-                  </div>
-                  <p className="text-slate-600">Has dado un gran paso en tu caminar con Dios. El siguiente nivel es crecer en comunidad.</p>
-                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mt-4">
-                    <p className="text-amber-800 font-medium text-sm">💡 Recomendación: Únete a un Grupo de Conexión para seguir creciendo junto a otros.</p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-6xl">🎉</div>
-                  <h3 className="text-2xl font-bold text-slate-900">¡Semana {semanaNumero} - Día {diaEnSemana} completado!</h3>
-                  <p className="text-slate-600">Hoy no solamente leíste la Palabra. Diste un paso para caminar con Dios.</p>
-                  {dia === 2 && !progress?.usuario && (
-                    <p className="text-sm text-amber-600 font-medium mt-4 bg-amber-50 p-2 rounded">En el siguiente paso podrás guardar tu progreso</p>
-                  )}
-                </>
+              <div className="text-6xl">🎉</div>
+              <h3 className="text-2xl font-bold text-slate-900">¡Semana {semanaNumero} - Día {diaEnSemana} completado!</h3>
+              <p className="text-slate-600">Hoy no solamente leíste la Palabra. Diste un paso para caminar con Dios.</p>
+              {dia === 2 && !progress?.usuario && (
+                <p className="text-sm text-amber-600 font-medium mt-4 bg-amber-50 p-2 rounded">En el siguiente paso podrás guardar tu progreso</p>
               )}
             </div>
           )}
         </CardContent>
 
+        {/* FOOTER CON TODOS LOS BOTONES RESTAURADOS */}
         <CardFooter className="p-6 pt-0">
           {paso < 4 ? (
             <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold" onClick={handleContinuar} disabled={(paso === 1 && feedback !== 'correcto') || (paso === 2 && !opcionSeleccionada)}>
               CONTINUAR <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          ) : esUltimoDia && !progress?.dias[dia]?.completado ? (
+          ) : esUltimaSemana && !progress?.dias[dia]?.completado ? (
             <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold" onClick={handleCompletarDia}>
               FINALIZAR 4 SEMANAS <CheckCircle2 className="ml-2 h-5 w-5" />
             </Button>
-          ) : esUltimoDia ? (
+          ) : esUltimaSemana ? (
             <div className="w-full space-y-3">
               <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold" onClick={() => { window.open('https://chat.whatsapp.com/TU_LINK_DE_GRUPO_AQUI', '_blank') }}>
                 <Users className="mr-2 h-5 w-5" /> Únete a un Grupo de Conexión
               </Button>
               <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 py-6" onClick={() => { localStorage.removeItem('abriendo-camino-progress'); router.push('/abriendo-camino') }}>
+                <Button variant="outline" className="flex-1 py-6" onClick={handleReiniciar}>
                   🔄 Reiniciar
                 </Button>
                 <Button variant="outline" className="flex-1 py-6" onClick={() => router.push('/abriendo-camino')}>
                   🏠 Inicio
                 </Button>
               </div>
+            </div>
+          ) : esFinDeSemana && !progress?.dias[dia]?.completado ? (
+            <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold" onClick={handleCompletarDia}>
+              COMPLETAR SEMANA {semanaNumero} <CheckCircle2 className="ml-2 h-5 w-5" />
+            </Button>
+          ) : esFinDeSemana ? (
+            <div className="w-full space-y-3">
+              <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold" onClick={() => { window.open('https://chat.whatsapp.com/TU_LINK_DE_GRUPO_AQUI', '_blank') }}>
+                <Users className="mr-2 h-5 w-5" /> Únete a un Grupo de Conexión
+              </Button>
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1 py-6" onClick={handleReiniciar}>
+                  🔄 Reiniciar
+                </Button>
+                <Button variant="outline" className="flex-1 py-6" onClick={() => router.push('/abriendo-camino')}>
+                  🏠 Inicio
+                </Button>
+              </div>
+              <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold" onClick={handleComenzarSiguienteSemana}>
+                Comenzar Semana {semanaNumero + 1} <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
           ) : (
             <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold" onClick={handleCompletarDia}>

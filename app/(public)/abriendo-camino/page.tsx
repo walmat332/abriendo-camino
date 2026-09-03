@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { getProgress, saveUsuario } from '@/lib/storage'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Sparkles, ArrowRight, Share2, Flame, TrendingUp, BookOpen } from 'lucide-react'
+import { Sparkles, ArrowRight, Share2, Flame, TrendingUp } from 'lucide-react'
 import { LoginModal } from '@/components/LoginModal'
 
 export default function AbriendoCaminoIndex() {
@@ -19,7 +19,6 @@ export default function AbriendoCaminoIndex() {
     setProgress(prog)
     setMounted(true)
 
-    // Mostrar login después del día 2 si no hay usuario
     if (prog && Object.keys(prog.dias).length >= 2 && !prog.usuario) {
       setShowLogin(true)
     }
@@ -28,7 +27,6 @@ export default function AbriendoCaminoIndex() {
   const diasCompletados = progress ? Object.keys(progress.dias).length : 0
   const siguienteDia = diasCompletados + 1
   
-  // Cálculos para reiniciar visualmente cada semana (psicológicamente más alcanzable)
   const semanaActual = Math.ceil(siguienteDia / 7)
   const diaEnSemana = ((siguienteDia - 1) % 7) + 1
   const diasCompletadosEnSemana = diasCompletados % 7
@@ -37,7 +35,6 @@ export default function AbriendoCaminoIndex() {
   const porcentaje = (diasCompletadosEnSemana / totalDiasSemana) * 100
 
   const handleContinuar = () => {
-    // Aseguramos que no pase del día 28 (4 semanas)
     const diaDestino = Math.min(siguienteDia, 28)
     router.push(`/abriendo-camino/reto/1/dia/${diaDestino}`)
   }
@@ -72,7 +69,6 @@ export default function AbriendoCaminoIndex() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Partículas flotantes */}
       {[...Array(20)].map((_, i) => (
         <div
           key={i}
@@ -86,14 +82,11 @@ export default function AbriendoCaminoIndex() {
         />
       ))}
 
-      {/* Círculos de luz */}
       <div className="absolute top-20 left-20 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl animate-float" />
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
 
-      {/* Tarjeta principal */}
       <div className="glass-card rounded-3xl p-8 md:p-12 max-w-lg w-full animate-slide-up relative z-10">
         
-        {/* Logo */}
         <div className="flex justify-center mb-6 logo-container">
           <div className="animate-pulse-glow rounded-full p-2">
             <Image
@@ -106,7 +99,6 @@ export default function AbriendoCaminoIndex() {
           </div>
         </div>
 
-        {/* Título */}
         <div className="text-center mb-8 animate-fade-in" style={{ animationDelay: '0.3s', opacity: 0 }}>
           <div className="flex items-center justify-center gap-2 mb-2">
             <Sparkles className="text-amber-400 w-6 h-6" />
@@ -123,7 +115,6 @@ export default function AbriendoCaminoIndex() {
           </p>
         </div>
 
-        {/* Progreso (Reinicia visualmente cada semana) */}
         {diasCompletados > 0 && (
           <div className="mb-8 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
             <div className="text-center mb-3">
@@ -149,30 +140,26 @@ export default function AbriendoCaminoIndex() {
               {diasCompletadosEnSemana === 2 && '¡Vas muy bien!'}
               {diasCompletadosEnSemana === 3 && '⭐ ¡Más de la mitad de la semana!'}
               {diasCompletadosEnSemana >= 4 && diasCompletadosEnSemana < 7 && '🚀 ¡Imparable!'}
-              {diasCompletadosEnSemana === 0 && diasCompletados > 0 && ' ¡Semana anterior completada!'}
+              {diasCompletadosEnSemana === 0 && diasCompletados > 0 && '🏆 ¡Semana anterior completada!'}
               {diasCompletadosEnSemana === 7 && '🏆 ¡SEMANA COMPLETADA!'}
             </p>
           </div>
         )}
 
-        {/* Botones */}
         <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.7s', opacity: 0 }}>
+          {/* BOTÓN PRINCIPAL RESPONSIVE - No se corta en móvil */}
           <Button 
             size="lg" 
-            className="w-full text-xl py-7 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-600 hover:via-amber-500 hover:to-amber-600 text-white font-bold btn-magnetic shadow-2xl"
+            className="w-full py-6 md:py-7 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-600 hover:via-amber-500 hover:to-amber-600 text-white font-bold btn-magnetic shadow-2xl px-2 md:px-4"
             onClick={handleContinuar}
           >
-            {diasCompletados > 0 ? (
-              <>
-                CONTINUAR SEMANA {semanaActual} - DÍA {diaEnSemana}
-                <ArrowRight className="ml-2 h-6 w-6" />
-              </>
-            ) : (
-              <>
-                COMENZAR SEMANA 1 - DÍA 1
-                <Sparkles className="ml-2 h-6 w-6" />
-              </>
-            )}
+            <span className="text-sm md:text-xl font-bold text-center leading-tight">
+              {diasCompletados > 0 
+                ? `CONTINUAR SEMANA ${semanaActual} - DÍA ${diaEnSemana}`
+                : 'COMENZAR SEMANA 1 - DÍA 1'
+              }
+            </span>
+            <ArrowRight className="ml-2 h-5 w-5 md:h-6 md:w-6 flex-shrink-0" />
           </Button>
 
           {diasCompletados > 0 && !progress?.usuario && (
@@ -195,7 +182,6 @@ export default function AbriendoCaminoIndex() {
           </Button>
         </div>
 
-        {/* Botones secundarios */}
         <div className="mt-4 space-y-2 animate-fade-in" style={{ animationDelay: '0.8s', opacity: 0 }}>
           <Button 
             variant="outline"
@@ -216,7 +202,6 @@ export default function AbriendoCaminoIndex() {
           </Button>
         </div>
 
-        {/* Frase */}
         <div className="mt-8 text-center animate-fade-in" style={{ animationDelay: '0.9s', opacity: 0 }}>
           <p className="text-sm text-blue-200 italic">
             "Un paso cada día para caminar con Dios"
@@ -233,7 +218,6 @@ export default function AbriendoCaminoIndex() {
         </div>
       </div>
 
-      {/* Modal de login */}
       {showLogin && (
         <LoginModal
           onComplete={handleLoginComplete}
