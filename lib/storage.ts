@@ -131,29 +131,22 @@ export function puedeAccederAlDia(dia: number, progress: UserProgress): boolean 
   return true
 }
 
-export function getSiguienteDiaDisponible(progress: UserProgress): number {
-  const modo = getModoRetos()
-  let ultimoCompletado = 0
+export function getSiguienteDiaDisponible(progress: any): number {
+  if (!progress || !progress.dias) return 1
   
-  for (let i = 1; i <= 14; i++) {
-    if (progress.dias[i]?.completado) {
+  // Buscar el último día completado
+  let ultimoCompletado = 0
+  for (let i = 1; i <= 28; i++) {
+    if (progress.dias[i] && progress.dias[i].completado) {
       ultimoCompletado = i
     }
   }
   
-  if (ultimoCompletado === 0) return 1
-  if (ultimoCompletado === 14) return 14
-  if (modo === 'intensivo') return ultimoCompletado + 1
+  // Si completó todos, retornar 1
+  if (ultimoCompletado === 28) return 1
   
-  const fechaUltimoDia = progress.dias[ultimoCompletado]?.fechaCompletado || progress.dias[ultimoCompletado]?.fecha
-  if (!fechaUltimoDia) return ultimoCompletado + 1
-  
-  const horasTranscurridas = (new Date().getTime() - new Date(fechaUltimoDia).getTime()) / (1000 * 60 * 60)
-  if (horasTranscurridas >= 24) {
-    return ultimoCompletado + 1
-  }
-  
-  return ultimoCompletado
+  // Retornar el siguiente día
+  return ultimoCompletado + 1
 }
 
 export function getHorasRestantes(progress: UserProgress): number {
