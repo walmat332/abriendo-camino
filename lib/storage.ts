@@ -152,3 +152,34 @@ async function sincronizarConSupabase(progress: ProgressData): Promise<void> {
     console.error('❌ Error en sincronización:', error)
   }
 }
+// Funciones necesarias para moment-view.tsx
+export function markMomentCompleted(momentId: string): void {
+  const progress = getProgress()
+  if (!progress) return
+  
+  if (!progress.dias[0]) {
+    progress.dias[0] = {}
+  }
+  
+  if (!progress.dias[0].momentos) {
+    progress.dias[0].momentos = []
+  }
+  
+  if (!progress.dias[0].momentos.includes(momentId)) {
+    progress.dias[0].momentos.push(momentId)
+  }
+  
+  saveProgress(progress)
+}
+
+export function isMomentCompleted(momentId: string): boolean {
+  const progress = getProgress()
+  if (!progress || !progress.dias[0]?.momentos) return false
+  return progress.dias[0].momentos.includes(momentId)
+}
+
+export function getNextDia(progress: ProgressData | null): number {
+  if (!progress) return 1
+  const diasCompletados = Object.keys(progress.dias).filter(d => progress.dias[parseInt(d)].completado)
+  return diasCompletados.length + 1
+}
