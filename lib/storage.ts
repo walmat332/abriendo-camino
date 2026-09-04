@@ -1,191 +1,140 @@
-﻿import type { UserProgress, MomentData } from './types'
+﻿import { supabase } from './supabase'
+
+export interface Usuario {
+  nombre: string
+  telefono: string
+}
+
+export interface ProgressData {
+  dias: Record<number, { completado: boolean; fecha?: string; respuestas?: string[] }>
+  startDate: string
+  lastAccess: string
+  usuario?: Usuario
+}
 
 const STORAGE_KEY = 'abriendo-camino-progress'
-const MODO_KEY = 'modoRetos'
-const USUARIO_KEY = 'abriendo-camino-usuario'
 
-// ==========================================
-// FUNCIONES ORIGINALES
-// ==========================================
-
-export function getProgress(): UserProgress | null {
+// Obtener progreso actual
+export function getProgress(): ProgressData | null {
   if (typeof window === 'undefined') return null
+  const data = localStorage.getItem(STORAGE_KEY)
+  if (!data) return null
   try {
-    const data = localStorage.getItem(STORAGE_KEY)
-    if (!data) return null
     return JSON.parse(data)
   } catch {
     return null
   }
 }
 
-export function saveProgress(progress: UserProgress): void {
+// Guardar progreso
+export function saveProgress(progress: ProgressData): void {
   if (typeof window === 'undefined') return
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress))
 }
 
+// Resetear progreso
 export function resetProgress(): void {
   if (typeof window === 'undefined') return
   localStorage.removeItem(STORAGE_KEY)
-  localStorage.removeItem(MODO_KEY)
-  localStorage.removeItem(USUARIO_KEY)
 }
 
+// Guardar usuario y sincronizar con Supabase
 export function saveUsuario(nombre: string, telefono: string): void {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(USUARIO_KEY, JSON.stringify({ nombre, telefono }))
-}
-
-export function getUsuario() {
-  if (typeof window === 'undefined') return null
-  try {
-    const data = localStorage.getItem(USUARIO_KEY)
-    return data ? JSON.parse(data) : null
-  } catch {
-    return null
+  const progress = getProgress() || {
+    dias: {},
+    startDate: new Date().toISOString(),
+    lastAccess: new Date().toISOString()
   }
-}
-
-// ==========================================
-// FUNCIONES PARA MOMENTOS (Necesarias para moment-view.tsx)
-// ==========================================
-
-export function markMomentCompleted(reto: string, dia: number, momentoId: number): void {
-  const progress = getProgress()
-  if (!progress) return
-  
-  const moments = progress.moments || {}
-  const diaKey = `dia_${dia}`
-  
-  if (!moments[diaKey]) {
-    moments[diaKey] = []
-  }
-  
-  if (!moments[diaKey].includes(momentoId)) {
-    moments[diaKey].push(momentoId)
-  }
-  
-  progress.moments = moments
+  progress.usuario = { nombre, telefono }
+  progress.lastAccess = new Date().toISOString()
   saveProgress(progress)
+  
+  // Sincronizar con Supabase
+  sincronizarConSupabase(progress)
 }
 
-export function isMomentCompleted(reto: string, dia: number, momentoId: number): boolean {
-  const progress = getProgress()
-  if (!progress) return false
+// Marcar día como completado
+export function marcarDiaCompletado(progress: ProgressData, dia: number, respuestas: string[]): ProgressData {
+  const newProgress = { ...progress }
+  if (!newProgress.dias[dia]) {
+    newProgress.dias[dia] = {}
+  }
+  newProgress.dias[dia].completado = true
+  newProgress.dias[dia].fecha = new Date().toISOString()
+  newProgress.dias[dia].respuestas = respuestas
+  newProgress.lastAccess = new Date().toISOString()
   
-  const moments = progress.moments || {}
-  const diaKey = `dia_${dia}`
+  saveProgress(newProgress)
   
-  return moments[diaKey]?.includes(momentoId) || false
+  // Sincronizar con Supabase si hay usuario registrado
+  if (newProgress.usuario) {
+    sincronizarConSupabase(newProgress)
+  }
+  
+  return newProgress
 }
 
-export function getNextDia(reto: string): number {
-  const progress = getProgress()
+// Obtener siguiente día disponible
+export function getSiguienteDiaDisponible(progress: ProgressData | null): number {
   if (!progress) return 1
-  
-  // Buscar el último día completado
-  let ultimoCompletado = 0
-  for (let i = 1; i <= 14; i++) {
-    if (progress.dias[i]?.completado) {
-      ultimoCompletado = i
-    }
-  }
-  
-  // Si no completó ninguno, empezar en 1
-  if (ultimoCompletado === 0) return 1
-  
-  // Si completó todos, retornar 7
-  if (ultimoCompletado === 14) return 14
-  
-  // Retornar el siguiente día
-  return ultimoCompletado + 1
+  const diasCompletados = Object.keys(progress.dias).filter(d => progress.dias[parseInt(d)].completado)
+  return diasCompletados.length + 1
 }
 
-// ==========================================
-// FUNCIONES PARA MODO DIARIO/INTENSIVO
-// ==========================================
-
-export function getModoRetos(): 'diario' | 'intensivo' | null {
-  if (typeof window === 'undefined') return null
-  const modo = localStorage.getItem(MODO_KEY)
-  return modo as 'diario' | 'intensivo' | null
+// Verificar si puede acceder al día
+export function puedeAccederAlDia(dia: number, progress: ProgressData): boolean {
+  if (!progress) return dia === 1
+  const diasCompletados = Object.keys(progress.dias).filter(d => progress.dias[parseInt(d)].completado).length
+  return dia <= diasCompletados + 1
 }
 
-export function setModoRetos(modo: 'diario' | 'intensivo'): void {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(MODO_KEY, modo)
-}
-
-export function puedeAccederAlDia(dia: number, progress: UserProgress): boolean {
-  const modo = getModoRetos()
-  if (modo === 'intensivo') return true
-  
-  if (modo === 'diario') {
-    if (dia === 1) return true
-    const diaAnterior = dia - 1
-    const fechaDiaAnterior = progress.dias[diaAnterior]?.fechaCompletado || progress.dias[diaAnterior]?.fecha
-    if (!fechaDiaAnterior) return false
-    const horasTranscurridas = (new Date().getTime() - new Date(fechaDiaAnterior).getTime()) / (1000 * 60 * 60)
-    return horasTranscurridas >= 24
-  }
-  return true
-}
-
-export function getSiguienteDiaDisponible(progress: any): number {
-  if (!progress || !progress.dias) return 1
-  
-  // Buscar el último día completado
-  let ultimoCompletado = 0
-  for (let i = 1; i <= 28; i++) {
-    if (progress.dias[i] && progress.dias[i].completado) {
-      ultimoCompletado = i
-    }
-  }
-  
-  // Si completó todos, retornar 1
-  if (ultimoCompletado === 28) return 1
-  
-  // Retornar el siguiente día
-  return ultimoCompletado + 1
-}
-
-export function getHorasRestantes(progress: UserProgress): number {
-  let ultimoCompletado = 0
-  for (let i = 1; i <= 14; i++) {
-    if (progress.dias[i]?.completado) {
-      ultimoCompletado = i
-    }
-  }
-  
-  const fechaUltimoDia = progress.dias[ultimoCompletado]?.fechaCompletado || progress.dias[ultimoCompletado]?.fecha
-  if (!fechaUltimoDia) return 0
-  
-  const horasTranscurridas = (new Date().getTime() - new Date(fechaUltimoDia).getTime()) / (1000 * 60 * 60)
+// Obtener horas restantes para el siguiente día
+export function getHorasRestantes(progress: ProgressData): number {
+  if (!progress.lastAccess) return 0
+  const lastAccess = new Date(progress.lastAccess).getTime()
+  const now = Date.now()
+  const horasTranscurridas = (now - lastAccess) / (1000 * 60 * 60)
   return Math.max(0, Math.ceil(24 - horasTranscurridas))
 }
 
-export function marcarDiaCompletado(progress: UserProgress, dia: number, momentos: MomentData[]): UserProgress {
-  return {
-    ...progress,
-    dias: {
-      ...progress.dias,
-      [dia]: {
-        completado: true,
-        fecha: new Date().toISOString(),
-        fechaCompletado: new Date().toISOString(),
-        momento: momentos,
-      },
-    },
+// FUNCIÓN CLAVE: Sincronizar con Supabase automáticamente
+async function sincronizarConSupabase(progress: ProgressData): Promise<void> {
+  try {
+    if (!progress.usuario || !progress.usuario.telefono) {
+      console.log('⚠️ No hay usuario registrado, no se sincroniza')
+      return
+    }
+    
+    // Calcular el último día completado
+    const diasCompletados = Object.keys(progress.dias)
+      .filter(d => progress.dias[parseInt(d)].completado)
+      .map(d => parseInt(d))
+    
+    const ultimoDiaCompletado = diasCompletados.length > 0 
+      ? Math.max(...diasCompletados)
+      : 0
+
+    console.log(`🔄 Sincronizando: ${progress.usuario.nombre} - Día ${ultimoDiaCompletado}`)
+
+    // Usar UPSERT: actualiza si existe, inserta si no existe
+    const { data, error } = await supabase
+      .from('registros')
+      .upsert({
+        nombre: progress.usuario.nombre,
+        telefono: progress.usuario.telefono,
+        dia_completado: ultimoDiaCompletado,
+        gc_interes: null
+      }, { 
+        onConflict: 'telefono' // Si el teléfono ya existe, lo actualiza
+      })
+      .select()
+
+    if (error) {
+      console.error('❌ Error al sincronizar con Supabase:', error)
+    } else {
+      console.log('✅ Sincronización exitosa:', data)
+    }
+  } catch (error) {
+    console.error('❌ Error en sincronización:', error)
   }
 }
-
-export function getDiasCompletados(progress: UserProgress): number {
-  return Object.keys(progress.dias || {}).filter(
-    (k) => progress.dias[Number(k)]?.completado
-  ).length
-}
-
-export function isDiaCompletado(progress: UserProgress, dia: number): boolean {
-  return progress.dias[dia]?.completado ?? false
-}
-

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Phone, User, ArrowRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { saveUsuario } from '@/lib/storage'
 
 interface LoginModalProps {
   onComplete: (nombre: string, telefono: string) => void
@@ -25,23 +26,26 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
     setLoading(true)
 
     try {
-      // Guardar en Supabase
+      // 1. Guardar en localStorage y disparar sincronización automática
+      saveUsuario(nombre.trim(), telefono.trim())
+
+      // 2. Respaldo: también guardar directamente en Supabase con upsert
       const { data, error } = await supabase
         .from('registros')
-        .insert([
-          {
-            nombre: nombre.trim(),
-            telefono: telefono.trim(),
-            dia_completado: 2, // Se registra después del Día 2
-            gc_interes: null
-          }
-        ])
+        .upsert({
+          nombre: nombre.trim(),
+          telefono: telefono.trim(),
+          dia_completado: 2,
+          gc_interes: null
+        }, { 
+          onConflict: 'telefono'
+        })
         .select()
 
       if (error) {
         console.error('❌ Error al guardar en Supabase:', error)
       } else {
-        console.log('✅ Registro guardado en la nube:', data)
+        console.log('✅ Registro guardado/actualizado:', data)
       }
     } catch (err) {
       console.error('Error inesperado:', err)
@@ -53,7 +57,7 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <Card className="max-w-md w-full glass-card">
+      <Card className="max-w-md w-full glass-card border-white/20">
         <CardContent className="p-8">
           {step === 1 ? (
             <>
@@ -109,7 +113,7 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
                       placeholder="¿Cómo te llamas?"
                       value={nombre}
                       onChange={(e) => setNombre(e.target.value)}
-                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-blue-300"
+                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-blue-300 focus-visible:ring-amber-500"
                     />
                   </div>
                 </div>
@@ -125,7 +129,7 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
                       placeholder="+51 999 999 999"
                       value={telefono}
                       onChange={(e) => setTelefono(e.target.value)}
-                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-blue-300"
+                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-blue-300 focus-visible:ring-amber-500"
                     />
                   </div>
                 </div>
