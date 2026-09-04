@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { getProgress, saveUsuario } from '@/lib/storage'
+import { getProgress, saveProgress, saveUsuario } from '@/lib/storage'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Sparkles, ArrowRight, Share2, Flame, TrendingUp } from 'lucide-react'
@@ -22,7 +22,53 @@ export default function AbriendoCaminoIndex() {
     if (prog && Object.keys(prog.dias).length >= 2 && !prog.usuario) {
       setShowLogin(true)
     }
+
+    // 🔥 Si ya hay usuario registrado, recuperar progreso desde Supabase
+    if (prog?.usuario?.telefono) {
+      recuperarProgresoDesdeSupabase(prog.usuario.telefono)
+    }
   }, [])
+
+  // 🔥 FUNCIÓN: Recuperar progreso desde Supabase
+  async function recuperarProgresoDesdeSupabase(telefono: string) {
+    try {
+      const { supabase } = await import('@/lib/supabase')
+      const { data, error } = await supabase
+        .from('registros')
+        .select('*')
+        .eq('telefono', telefono)
+        .single()
+
+      if (error) {
+        console.error('❌ Error al recuperar progreso:', error)
+        return
+      }
+
+      if (data && data.dia_completado > 0) {
+        const currentProgress = getProgress() || {
+          dias: {},
+          startDate: new Date().toISOString(),
+          lastAccess: new Date().toISOString()
+        }
+
+        // Reconstruir los días completados
+        for (let i = 1; i <= data.dia_completado; i++) {
+          if (!currentProgress.dias[i]) {
+            currentProgress.dias[i] = {
+              completado: true,
+              fecha: new Date().toISOString()
+            }
+          }
+        }
+
+        saveProgress(currentProgress)
+        setProgress(currentProgress)
+        console.log(`✅ Progreso recuperado desde Supabase: Día ${data.dia_completado}`)
+      }
+    } catch (err) {
+      console.error('Error al recuperar progreso:', err)
+    }
+  }
 
   const diasCompletados = progress ? Object.keys(progress.dias).length : 0
   const siguienteDia = diasCompletados + 1
@@ -147,7 +193,6 @@ export default function AbriendoCaminoIndex() {
         )}
 
         <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.7s', opacity: 0 }}>
-          {/* BOTÓN PRINCIPAL RESPONSIVE - No se corta en móvil */}
           <Button 
             size="lg" 
             className="w-full py-6 md:py-7 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-600 hover:via-amber-500 hover:to-amber-600 text-white font-bold btn-magnetic shadow-2xl px-2 md:px-4"

@@ -14,7 +14,6 @@ export interface ProgressData {
 
 const STORAGE_KEY = 'abriendo-camino-progress'
 
-// Obtener progreso actual
 export function getProgress(): ProgressData | null {
   if (typeof window === 'undefined') return null
   const data = localStorage.getItem(STORAGE_KEY)
@@ -26,19 +25,16 @@ export function getProgress(): ProgressData | null {
   }
 }
 
-// Guardar progreso
 export function saveProgress(progress: ProgressData): void {
   if (typeof window === 'undefined') return
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress))
 }
 
-// Resetear progreso
 export function resetProgress(): void {
   if (typeof window === 'undefined') return
   localStorage.removeItem(STORAGE_KEY)
 }
 
-// Guardar usuario y sincronizar con Supabase
 export function saveUsuario(nombre: string, telefono: string): void {
   const progress = getProgress() || {
     dias: {},
@@ -49,11 +45,9 @@ export function saveUsuario(nombre: string, telefono: string): void {
   progress.lastAccess = new Date().toISOString()
   saveProgress(progress)
   
-  // Sincronizar con Supabase
   sincronizarConSupabase(progress)
 }
 
-// Marcar día como completado
 export function marcarDiaCompletado(progress: ProgressData, dia: number, respuestas: string[]): ProgressData {
   const newProgress = { ...progress }
   if (!newProgress.dias[dia]) {
@@ -66,7 +60,6 @@ export function marcarDiaCompletado(progress: ProgressData, dia: number, respues
   
   saveProgress(newProgress)
   
-  // Sincronizar con Supabase si hay usuario registrado
   if (newProgress.usuario) {
     sincronizarConSupabase(newProgress)
   }
@@ -74,21 +67,18 @@ export function marcarDiaCompletado(progress: ProgressData, dia: number, respues
   return newProgress
 }
 
-// Obtener siguiente día disponible
 export function getSiguienteDiaDisponible(progress: ProgressData | null): number {
   if (!progress) return 1
   const diasCompletados = Object.keys(progress.dias).filter(d => progress.dias[parseInt(d)].completado)
   return diasCompletados.length + 1
 }
 
-// Verificar si puede acceder al día
 export function puedeAccederAlDia(dia: number, progress: ProgressData): boolean {
   if (!progress) return dia === 1
   const diasCompletados = Object.keys(progress.dias).filter(d => progress.dias[parseInt(d)].completado).length
   return dia <= diasCompletados + 1
 }
 
-// Obtener horas restantes para el siguiente día
 export function getHorasRestantes(progress: ProgressData): number {
   if (!progress.lastAccess) return 0
   const lastAccess = new Date(progress.lastAccess).getTime()
@@ -97,15 +87,14 @@ export function getHorasRestantes(progress: ProgressData): number {
   return Math.max(0, Math.ceil(24 - horasTranscurridas))
 }
 
-// FUNCIÓN CLAVE: Sincronizar con Supabase automáticamente
+//  VERSIÓN CORREGIDA: Sin upsert, busca y actualiza/inserta manualmente
 async function sincronizarConSupabase(progress: ProgressData): Promise<void> {
   try {
     if (!progress.usuario || !progress.usuario.telefono) {
-      console.log('⚠️ No hay usuario registrado, no se sincroniza')
+      console.log('⚠️ No hay usuario registrado')
       return
     }
     
-    // Calcular el último día completado
     const diasCompletados = Object.keys(progress.dias)
       .filter(d => progress.dias[parseInt(d)].completado)
       .map(d => parseInt(d))
@@ -116,23 +105,48 @@ async function sincronizarConSupabase(progress: ProgressData): Promise<void> {
 
     console.log(`🔄 Sincronizando: ${progress.usuario.nombre} - Día ${ultimoDiaCompletado}`)
 
-    // Usar UPSERT: actualiza si existe, inserta si no existe
-    const { data, error } = await supabase
+    // 1. Buscar si existe el registro por teléfono
+    const { data: existing, error: fetchError } = await supabase
       .from('registros')
-      .upsert({
-        nombre: progress.usuario.nombre,
-        telefono: progress.usuario.telefono,
-        dia_completado: ultimoDiaCompletado,
-        gc_interes: null
-      }, { 
-        onConflict: 'telefono' // Si el teléfono ya existe, lo actualiza
-      })
-      .select()
+      .select('*')
+      .eq('telefono', progress.usuario.telefono)
+      .maybeSingle()
 
-    if (error) {
-      console.error('❌ Error al sincronizar con Supabase:', error)
+    if (fetchError) {
+      console.error('❌ Error al buscar:', fetchError)
+      return
+    }
+
+    if (existing) {
+      // 2. Actualizar existente
+      const { error: updateError } = await supabase
+        .from('registros')
+        .update({
+          nombre: progress.usuario.nombre,
+          dia_completado: ultimoDiaCompletado
+        })
+        .eq('telefono', progress.usuario.telefono)
+
+      if (updateError) {
+        console.error('❌ Error al actualizar:', updateError)
+      } else {
+        console.log('✅ Actualizado correctamente')
+      }
     } else {
-      console.log('✅ Sincronización exitosa:', data)
+      // 3. Insertar nuevo
+      const { error: insertError } = await supabase
+        .from('registros')
+        .insert({
+          nombre: progress.usuario.nombre,
+          telefono: progress.usuario.telefono,
+          dia_completado: ultimoDiaCompletado
+        })
+
+      if (insertError) {
+        console.error('❌ Error al insertar:', insertError)
+      } else {
+        console.log('✅ Insertado correctamente')
+      }
     }
   } catch (error) {
     console.error('❌ Error en sincronización:', error)
