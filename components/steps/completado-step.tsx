@@ -48,7 +48,7 @@ export function CompletadoStep({ dia, devocional, progress, onNext }: Completado
     router.push("/abriendo-camino")
   }
 
-  const nextDia = getNextDia('abriendo-camino')
+  const nextDia = getNextDia(progress)
   const allComplete = completedDias >= 7
 
   return (
