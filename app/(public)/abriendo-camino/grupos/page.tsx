@@ -13,25 +13,25 @@ export default function GruposPage() {
   const grupos = [
     {
       id: 1,
-      nombre: 'Grupo Familiar Esperanza',
+      nombre: 'GC NORTE 01',
       distrito: 'Norte',
       dia: 'Martes',
       hora: '7:00 PM',
       tipo: 'Presencial',
-      direccion: 'Av. Principal #123, Colonia Norte',
-      lider: 'Pastor Juan Pérez',
-      telefono: '+52 555 123 4567'
+      direccion: 'Altura 26 Av. Perú SMP',
+      lider: 'Walter',
+      telefono: '+51 979 345 646'
     },
     {
       id: 2,
-      nombre: 'Grupo Jóvenes de Fe',
+      nombre: 'GC NORTE 01',
       distrito: 'Sur',
       dia: 'Jueves',
       hora: '8:00 PM',
       tipo: 'Presencial',
-      direccion: 'Calle Secundaria #456, Colonia Sur',
-      lider: 'Hno. Carlos Gómez',
-      telefono: '+52 555 987 6543'
+      direccion: 'Altura Av. Perú SMP',
+      lider: 'Dora',
+      telefono: '+51 939 945 787'
     },
     {
       id: 3,
@@ -41,19 +41,19 @@ export default function GruposPage() {
       hora: '7:00 AM',
       tipo: 'Virtual',
       link: 'https://zoom.us/j/123456789',
-      lider: 'Hna. María Rodríguez',
-      telefono: '+52 555 456 7890'
+      lider: 'Walter',
+      telefono: '+51 939 945 787'
     },
     {
       id: 4,
-      nombre: 'Grupo Familiar Bendición',
+      nombre: 'GC ESTE 01',
       distrito: 'Oriente',
       dia: 'Viernes',
       hora: '7:30 PM',
       tipo: 'Presencial',
-      direccion: 'Blvd. Oriente #789, Colonia Oriente',
-      lider: 'Pastor Luis Martínez',
-      telefono: '+52 555 234 5678'
+      direccion: 'SJL',
+      lider: 'Alex',
+      telefono: '+51 963453 438'
     },
     {
       id: 5,
@@ -63,19 +63,19 @@ export default function GruposPage() {
       hora: '10:00 AM',
       tipo: 'Virtual',
       link: 'https://zoom.us/j/987654321',
-      lider: 'Hno. David López',
-      telefono: '+52 555 876 5432'
+      lider: 'Walter',
+      telefono: '+51 939 945 787'
     },
     {
       id: 6,
-      nombre: 'Grupo Familiar Gracia',
+      nombre: 'GC ESTE 02',
       distrito: 'Poniente',
       dia: 'Domingo',
       hora: '5:00 PM',
       tipo: 'Presencial',
-      direccion: 'Av. Poniente #321, Colonia Poniente',
-      lider: 'Hna. Ana Sánchez',
-      telefono: '+52 555 345 6789'
+      direccion: 'SJL Altura Estacion Santa Rosa',
+      lider: 'Salomé',
+      telefono: '+51 939 945 787'
     }
   ]
 
