@@ -25,7 +25,7 @@ export function MomentView({
   const [showCompletion, setShowCompletion] = useState(false)
 
   const getProgressState = () => getProgress()
-  const [progress, setProgress] = useState<UserProgress | null>(getProgressState)
+  const [progress, setProgress] = useState<any>(getProgressState)
 
   const currentMoment = moments[currentMomentIndex]
 
