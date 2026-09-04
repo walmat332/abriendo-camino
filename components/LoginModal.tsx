@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Phone, User, ArrowRight } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import { saveUsuario } from '@/lib/storage'
+import { supabase } from '@/lib/supabase'
+import { vincularUsuarioConRegistro } from '@/lib/oracion/identity'
 
 interface LoginModalProps {
   onComplete: (nombre: string, telefono: string) => void
@@ -24,137 +24,117 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
     if (!nombre.trim() || !telefono.trim()) return
     
     setLoading(true)
-
+    
     try {
       // 1. Guardar en localStorage y disparar sincronización automática
       saveUsuario(nombre.trim(), telefono.trim())
-
-      // 2. Respaldo: también guardar directamente en Supabase con upsert
+      
+      // 2. Vincular UUID con el registro en Supabase
+      await vincularUsuarioConRegistro(telefono.trim())
+      
+      // 3. Respaldo: también guardar directamente en Supabase con upsert
       const { data, error } = await supabase
         .from('registros')
         .upsert({
           nombre: nombre.trim(),
           telefono: telefono.trim(),
-          dia_completado: 2,
+          dia_completado: 0,
           gc_interes: null
-        }, { 
+        }, {
           onConflict: 'telefono'
         })
         .select()
-
+      
       if (error) {
         console.error('❌ Error al guardar en Supabase:', error)
       } else {
-        console.log('✅ Registro guardado/actualizado:', data)
+        console.log('✅ Usuario guardado en Supabase:', data)
       }
+      
+      onComplete(nombre.trim(), telefono.trim())
     } catch (err) {
-      console.error('Error inesperado:', err)
+      console.error(' Error:', err)
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
-    onComplete(nombre.trim(), telefono.trim())
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <Card className="max-w-md w-full glass-card border-white/20">
-        <CardContent className="p-8">
-          {step === 1 ? (
-            <>
-              <div className="text-center mb-6">
-                <div className="text-5xl mb-3">🎉</div>
-                <h3 className="text-2xl font-bold text-white mb-2">
-                  ¡Día 2 completado!
-                </h3>
-                <p className="text-blue-200">
-                  ¿Quieres recibir el link del día 3 mañana?
-                </p>
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="bg-gradient-to-br from-blue-900 to-blue-950 border-white/20 text-white max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-white text-center">
+            {step === 1 ? '👋 ¡Bienvenido!' : '📱 Tu número de celular'}
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          {step === 1 && (
+            <div className="space-y-2">
+              <p className="text-blue-200 text-center text-sm mb-4">
+                Guarda tu progreso y recibe el link cada día
+              </p>
+              <div className="space-y-2">
+                <Label htmlFor="nombre" className="text-white font-semibold">
+                  ¿Cómo te llamas?
+                </Label>
+                <Input
+                  id="nombre"
+                  placeholder="Tu nombre completo"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-blue-300"
+                  onKeyPress={(e) => e.key === 'Enter' && setStep(2)}
+                />
               </div>
-
-              <div className="space-y-4">
-                <Button
-                  className="w-full py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-lg"
-                  onClick={() => setStep(2)}
-                >
-                  Sí, quiero continuar
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  className="w-full text-blue-200 hover:text-white"
-                  onClick={onClose}
-                >
-                  No, gracias
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="text-center mb-6">
-                <div className="text-4xl mb-3">📱</div>
-                <h3 className="text-xl font-bold text-white mb-2">
-                  Guarda tu progreso
-                </h3>
-                <p className="text-sm text-blue-200">
-                  Te enviaremos el link cada día
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nombre" className="text-white">
-                    Tu nombre
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-5 w-5 text-blue-300" />
-                    <Input
-                      id="nombre"
-                      placeholder="¿Cómo te llamas?"
-                      value={nombre}
-                      onChange={(e) => setNombre(e.target.value)}
-                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-blue-300 focus-visible:ring-amber-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="telefono" className="text-white">
-                    WhatsApp
-                  </Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-5 w-5 text-blue-300" />
-                    <Input
-                      id="telefono"
-                      placeholder="+51 999 999 999"
-                      value={telefono}
-                      onChange={(e) => setTelefono(e.target.value)}
-                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-blue-300 focus-visible:ring-amber-500"
-                    />
-                  </div>
-                </div>
-
-                <Button
-                  className="w-full py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-lg"
-                  onClick={handleContinue}
-                  disabled={!nombre.trim() || !telefono.trim() || loading}
-                >
-                  {loading ? 'Guardando...' : 'Guardar y continuar'}
-                  {!loading && <ArrowRight className="ml-2 h-5 w-5" />}
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  className="w-full text-blue-200 hover:text-white text-sm"
-                  onClick={onClose}
-                >
-                  Omitir por ahora
-                </Button>
-              </div>
-            </>
+              <Button
+                onClick={() => setStep(2)}
+                disabled={!nombre.trim()}
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold"
+              >
+                Continuar
+              </Button>
+            </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+          
+          {step === 2 && (
+            <div className="space-y-2">
+              <p className="text-blue-200 text-center text-sm mb-4">
+                Te enviaremos el link del devocional cada día
+              </p>
+              <div className="space-y-2">
+                <Label htmlFor="telefono" className="text-white font-semibold">
+                  Número de celular
+                </Label>
+                <Input
+                  id="telefono"
+                  placeholder="Ej: 999999999"
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value.replace(/\D/g, ''))}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-blue-300"
+                  onKeyPress={(e) => e.key === 'Enter' && handleContinue()}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                  className="flex-1 border-white/20 text-blue-200 hover:text-white hover:bg-white/10"
+                >
+                  Atrás
+                </Button>
+                <Button
+                  onClick={handleContinue}
+                  disabled={!telefono.trim() || loading}
+                  className="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold disabled:opacity-50"
+                >
+                  {loading ? 'Guardando...' : 'Guardar'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

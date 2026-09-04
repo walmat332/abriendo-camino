@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { getProgress, saveProgress, saveUsuario } from '@/lib/storage'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Sparkles, ArrowRight, Share2, Flame, TrendingUp } from 'lucide-react'
+import { Sparkles, ArrowRight, Share2, Flame, TrendingUp, HandHeart } from 'lucide-react'
 import { LoginModal } from '@/components/LoginModal'
 
 export default function AbriendoCaminoIndex() {
@@ -228,6 +228,15 @@ export default function AbriendoCaminoIndex() {
         </div>
 
         <div className="mt-4 space-y-2 animate-fade-in" style={{ animationDelay: '0.8s', opacity: 0 }}>
+          <Button 
+            variant="outline"
+            onClick={() => router.push('/abriendo-camino/oracion')}
+            className="w-full text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 border-amber-400/30 font-semibold"
+          >
+            <HandHeart className="mr-2 h-4 w-4" />
+            🙏 Oración
+          </Button>
+
           <Button 
             variant="outline"
             onClick={() => router.push('/abriendo-camino/proposito')}
