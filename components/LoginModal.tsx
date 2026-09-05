@@ -26,14 +26,32 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
     setLoading(true)
     
     try {
-      // 1. Generar o obtener UUID del usuario
-      const userId = getOrCreateUserId()
-      console.log(' UUID generado:', userId)
+      // 1. Buscar si ya existe un registro con este teléfono
+      const { data: registroExistente } = await supabase
+        .from('registros')
+        .select('usuario_id')
+        .eq('telefono', telefono.trim())
+        .maybeSingle()
       
-      // 2. Guardar en localStorage
+      let userId: string
+      
+      if (registroExistente?.usuario_id) {
+        // Ya existe, usar ese UUID
+        userId = registroExistente.usuario_id
+        console.log('✅ UUID existente encontrado:', userId)
+      } else {
+        // No existe, generar nuevo UUID
+        userId = getOrCreateUserId()
+        console.log('🆕 Nuevo UUID generado:', userId)
+      }
+      
+      // 2. Guardar UUID en localStorage
+      localStorage.setItem('abriendo-camino-usuario-id', userId)
+      
+      // 3. Guardar en localStorage
       saveUsuario(nombre.trim(), telefono.trim())
       
-      // 3. Guardar directamente en Supabase con usuario_id
+      // 4. Guardar o actualizar en Supabase
       const { data, error } = await supabase
         .from('registros')
         .upsert({
