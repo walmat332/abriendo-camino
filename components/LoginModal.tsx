@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { saveUsuario } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
-import { vincularUsuarioConRegistro } from '@/lib/oracion/identity'
+import { getOrCreateUserId } from '@/lib/oracion/identity'
 
 interface LoginModalProps {
   onComplete: (nombre: string, telefono: string) => void
@@ -26,18 +26,20 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
     setLoading(true)
     
     try {
-      // 1. Guardar en localStorage y disparar sincronización automática
+      // 1. Generar o obtener UUID del usuario
+      const userId = getOrCreateUserId()
+      console.log(' UUID generado:', userId)
+      
+      // 2. Guardar en localStorage
       saveUsuario(nombre.trim(), telefono.trim())
       
-      // 2. Vincular UUID con el registro en Supabase
-      await vincularUsuarioConRegistro(telefono.trim())
-      
-      // 3. Respaldo: también guardar directamente en Supabase con upsert
+      // 3. Guardar directamente en Supabase con usuario_id
       const { data, error } = await supabase
         .from('registros')
         .upsert({
           nombre: nombre.trim(),
           telefono: telefono.trim(),
+          usuario_id: userId,
           dia_completado: 0,
           gc_interes: null
         }, {
@@ -53,7 +55,7 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
       
       onComplete(nombre.trim(), telefono.trim())
     } catch (err) {
-      console.error(' Error:', err)
+      console.error('❌ Error:', err)
     } finally {
       setLoading(false)
     }
