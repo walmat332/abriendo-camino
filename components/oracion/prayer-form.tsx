@@ -38,7 +38,11 @@ export function PrayerForm({ onClose, onCreated }: PrayerFormProps) {
     setLoading(true)
 
     try {
+      // 1. Obtener el UUID (debería ser el mismo que se guardó en el registro)
       const usuarioId = getOrCreateUserId()
+      
+      // 🔍 AUDITORÍA: Ver en consola qué UUID se está usando
+      console.log('🆔 UUID que se usará para la petición:', usuarioId)
 
       // Verificar rate limiting
       const puedeCrear = await puedeCrearPeticion(usuarioId)
@@ -48,11 +52,12 @@ export function PrayerForm({ onClose, onCreated }: PrayerFormProps) {
         return
       }
 
+      // 2. Crear la petición
       const resultado = await crearPeticion({
         usuario_id: usuarioId,
         texto: texto.trim(),
         categoria,
-        visibilidad,
+        visibilidad, // 'publico' o 'anonimo'
       })
 
       if (resultado.success) {
@@ -180,7 +185,7 @@ export function PrayerForm({ onClose, onCreated }: PrayerFormProps) {
                     : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
                 }`}
               >
-                <span className="text-lg"></span>
+                <span className="text-lg">👻</span>
                 <div className="text-left">
                   <div className="font-semibold">Publicar como anónimo</div>
                   <div className="text-xs opacity-80">
@@ -204,7 +209,7 @@ export function PrayerForm({ onClose, onCreated }: PrayerFormProps) {
               </>
             ) : (
               <>
-                 PEDIR ORACIÓN
+                🙏 PEDIR ORACIÓN
               </>
             )}
           </Button>

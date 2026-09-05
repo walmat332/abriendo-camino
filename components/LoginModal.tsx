@@ -42,13 +42,14 @@ export function LoginModal({ onComplete, onClose }: LoginModalProps) {
       } else {
         // No existe, generar nuevo UUID
         userId = getOrCreateUserId()
-        console.log('🆕 Nuevo UUID generado:', userId)
+        console.log(' Nuevo UUID generado:', userId)
       }
       
-      // 2. Guardar UUID en localStorage
+      // 2. CRÍTICO: Guardar UUID en localStorage (para que prayer-form lo use)
       localStorage.setItem('abriendo-camino-usuario-id', userId)
+      console.log('💾 UUID guardado en localStorage:', userId)
       
-      // 3. Guardar en localStorage
+      // 3. Guardar en localStorage (nombre y teléfono)
       saveUsuario(nombre.trim(), telefono.trim())
       
       // 4. Guardar o actualizar en Supabase
