@@ -52,7 +52,7 @@ export default function AbriendoCaminoIndex() {
       try {
         await navigator.share({
           title: '🔥 Abriendo Camino',
-          text: 'Un reto de 4 semanas para volver a caminar con Dios. Una experiencia que cambia vidas.',
+          text: 'Reto de 1 semanas para volver a caminar con Dios. Una experiencia que cambia vidas.',
           url: url,
         })
       } catch (err) {
@@ -111,7 +111,7 @@ export default function AbriendoCaminoIndex() {
             CAMINO
           </h2>
           <p className="text-lg text-blue-100 font-medium">
-            4 semanas para volver a caminar con Dios
+            1 semana para volver a caminar con Dios
           </p>
         </div>
 
