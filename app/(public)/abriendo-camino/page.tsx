@@ -157,7 +157,7 @@ export default function AbriendoCaminoIndex() {
             CAMINO
           </h2>
           <p className="text-lg text-blue-100 font-medium">
-            4 semanas para volver a caminar con Dios
+            1 semana para volver a caminar con Dios
           </p>
         </div>
 
