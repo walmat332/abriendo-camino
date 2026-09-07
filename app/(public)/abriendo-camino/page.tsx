@@ -10,7 +10,7 @@ import {
   Sprout,
   HandHeart,
   UserRound,
-  BookOpen,
+  MessageCircle,
   Share2,
   Flame,
   ChevronRight,
@@ -288,10 +288,10 @@ export default function AbriendoCaminoIndex() {
 
           <div className="grid grid-cols-4 gap-2">
 
-            {/* CONEXIÓN → Oración */}
+            {/* CONEXIÓN */}
             <button
               onClick={() =>
-                router.push('/abriendo-camino/oracion')
+                router.push('/abriendo-camino/proposito?seccion=conexion')
               }
               className="group min-h-[118px] rounded-xl bg-rose-50 p-3 text-left transition hover:-translate-y-1"
             >
@@ -449,14 +449,14 @@ export default function AbriendoCaminoIndex() {
 
             <button
               onClick={() =>
-                router.push('/abriendo-camino/reto/1/dia/1')
+                router.push('/abriendo-camino/oracion')
               }
               className="flex flex-col items-center gap-1 text-slate-400"
             >
-              <BookOpen className="h-5 w-5" />
+              <MessageCircle className="h-5 w-5" />
 
               <span className="text-[8px] font-bold">
-                Biblia
+                Oración
               </span>
             </button>
 
