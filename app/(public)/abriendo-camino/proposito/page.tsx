@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Heart, Sprout, HandHeart, Users, ArrowRight, BookOpen, Mountain, Check } from 'lucide-react'
+import { Heart, Sprout, HandHeart, Users, ArrowRight, BookOpen, Mountain, Check, Target } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DiagnosticFlow } from './components/DiagnosticFlow'
 import { ResultMap } from './components/ResultMap'
@@ -22,11 +22,9 @@ export default function PropositoPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  // 1. Detectar si la URL tiene ?seccion=
   const seccionDesdeURL = searchParams.get('seccion') as SeccionId
   const seccionValida = secciones.some(s => s.id === seccionDesdeURL) ? seccionDesdeURL : null
   
-  // 2. Inicializar el estado directamente en 'diagnostico' si viene de un acceso directo
   const [estado, setEstado] = useState<'intro' | 'diagnostico' | 'resultado'>(
     seccionValida ? 'diagnostico' : 'intro'
   )
@@ -54,14 +52,12 @@ export default function PropositoPage() {
     setEstado('intro') 
   }
 
-  // 3. Limpia la URL al volver atrás para evitar bucles de reapertura
   const handleVolverAlInicio = () => {
     setEstado('intro')
     setSeccionActual(null)
     router.push('/abriendo-camino/proposito')
   }
 
-  // Renderizado condicional: Diagnóstico, Resultado o Mapa General
   if (estado === 'diagnostico' && seccionActual) {
     return <DiagnosticFlow seccion={seccionActual} onComplete={handleCompletarPaso} onBack={handleVolverAlInicio} />
   }
@@ -138,23 +134,37 @@ export default function PropositoPage() {
           })}
         </div>
 
-        <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/50">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center">
+        {/* TARJETA INFERIOR ACTUALIZADA */}
+        <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/50 space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-emerald-600 flex items-center justify-center">
               <Mountain className="w-8 h-8 text-white" />
             </div>
             <div>
               <h3 className="text-2xl font-black text-slate-800">¿DÓNDE ESTÁS HOY?</h3>
-              <p className="text-slate-600">Descubre en qué etapa estás y cuál es tu siguiente paso para vivir el propósito que Dios tiene para ti.</p>
+              <p className="text-slate-600">Descubre dónde estás hoy y cuál es tu siguiente paso.</p>
             </div>
           </div>
-          <Button 
-            onClick={() => setEstado('diagnostico')} 
-            className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all"
+          
+          <Button
+            onClick={() => setEstado('diagnostico')}
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all text-lg"
           >
-            Comenzar evaluación completa
+            DESCUBRIR MI CAMINO
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
+
+          <div className="pt-4 border-t border-slate-200">
+            <Button
+              variant="outline"
+              onClick={() => router.push('/abriendo-camino/grupos')}
+              className="w-full border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-6 rounded-2xl transition-all flex flex-col items-center gap-1"
+            >
+              <Users className="w-6 h-6 mb-1" />
+              <span className="text-base">NO CAMINES SOLO</span>
+              <span className="text-xs font-normal text-emerald-700">Encuentra un grupo de conexión y crece junto a otros.</span>
+            </Button>
+          </div>
         </div>
       </div>
 

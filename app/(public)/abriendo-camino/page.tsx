@@ -11,6 +11,7 @@ import {
   HandHeart,
   UserRound,
   MessageCircle,
+  Target,
   Share2,
   Flame,
   ChevronRight,
@@ -136,7 +137,6 @@ export default function AbriendoCaminoIndex() {
           </div>
 
           <div className="grid grid-cols-4 gap-2">
-            {/* CONEXIÓN */}
             <button onClick={() => router.push('/abriendo-camino/proposito?seccion=conexion')} className="group min-h-[118px] rounded-xl bg-rose-50 p-3 text-left transition hover:-translate-y-1">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-rose-400 text-white"><Heart className="h-5 w-5" /></div>
               <h4 className="mt-3 text-[9px] font-black text-slate-800">CONEXIÓN</h4>
@@ -144,7 +144,6 @@ export default function AbriendoCaminoIndex() {
               <ArrowRight className="mt-2 h-3 w-3 text-slate-500" />
             </button>
 
-            {/* CRECIMIENTO */}
             <button onClick={() => router.push('/abriendo-camino/proposito?seccion=crecimiento')} className="group min-h-[118px] rounded-xl bg-green-50 p-3 text-left transition hover:-translate-y-1">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-500 text-white"><Sprout className="h-5 w-5" /></div>
               <h4 className="mt-3 text-[9px] font-black text-slate-800">CRECIMIENTO</h4>
@@ -152,7 +151,6 @@ export default function AbriendoCaminoIndex() {
               <ArrowRight className="mt-2 h-3 w-3 text-slate-500" />
             </button>
 
-            {/* SERVICIO */}
             <button onClick={() => router.push('/abriendo-camino/proposito?seccion=servicio')} className="group min-h-[118px] rounded-xl bg-orange-50 p-3 text-left transition hover:-translate-y-1">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-400 text-white"><HandHeart className="h-5 w-5" /></div>
               <h4 className="mt-3 text-[9px] font-black text-slate-800">SERVICIO</h4>
@@ -160,7 +158,6 @@ export default function AbriendoCaminoIndex() {
               <ArrowRight className="mt-2 h-3 w-3 text-slate-500" />
             </button>
 
-            {/* MULTIPLICACIÓN */}
             <button onClick={() => router.push('/abriendo-camino/proposito?seccion=multiplicacion')} className="group min-h-[118px] rounded-xl bg-purple-50 p-3 text-left transition hover:-translate-y-1">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-500 text-white"><Users className="h-5 w-5" /></div>
               <h4 className="mt-3 text-[9px] font-black text-slate-800">MULTIPLICACIÓN</h4>
@@ -184,7 +181,7 @@ export default function AbriendoCaminoIndex() {
           </div>
         </section>
 
-        {/* NAVEGACIÓN INFERIOR */}
+        {/* NAVEGACIÓN INFERIOR (ACTUALIZADA) */}
         <nav className="sticky bottom-0 border-t border-slate-100 bg-white/95 px-8 py-3 backdrop-blur-md">
           <div className="flex items-center justify-around">
             <button onClick={() => router.push('/abriendo-camino')} className="flex flex-col items-center gap-1 text-emerald-600">
@@ -197,9 +194,10 @@ export default function AbriendoCaminoIndex() {
               <span className="text-[8px] font-bold">Oración</span>
             </button>
 
-            <button onClick={() => router.push('/abriendo-camino/dashboard')} className="flex flex-col items-center gap-1 text-slate-400">
-              <UserRound className="h-5 w-5" />
-              <span className="text-[8px] font-bold">Más</span>
+            {/* CAMBIO: De "Más/Dashboard" a "Propósito" */}
+            <button onClick={() => router.push('/abriendo-camino/proposito')} className="flex flex-col items-center gap-1 text-slate-400">
+              <Target className="h-5 w-5" />
+              <span className="text-[8px] font-bold">Propósito</span>
             </button>
           </div>
         </nav>
