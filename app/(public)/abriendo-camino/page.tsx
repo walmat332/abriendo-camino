@@ -1,276 +1,487 @@
 ﻿'use client'
 
 import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { getProgress, saveProgress, saveUsuario } from '@/lib/storage'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Sparkles, ArrowRight, Share2, Flame, TrendingUp, HandHeart } from 'lucide-react'
+import {
+  ArrowRight,
+  Users,
+  Heart,
+  Sprout,
+  HandHeart,
+  UserRound,
+  BookOpen,
+  Share2,
+  Flame,
+  ChevronRight,
+} from 'lucide-react'
+
+import { getProgress, saveUsuario } from '@/lib/storage'
 import { LoginModal } from '@/components/LoginModal'
 
 export default function AbriendoCaminoIndex() {
   const router = useRouter()
+
   const [progress, setProgress] = useState<any>(null)
   const [mounted, setMounted] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
 
   useEffect(() => {
-    const prog = getProgress()
-    setProgress(prog)
+    const data = getProgress()
+
+    setProgress(data)
     setMounted(true)
 
-    if (prog && Object.keys(prog.dias).length >= 2 && !prog.usuario) {
+    if (
+      data?.dias &&
+      Object.keys(data.dias).length >= 2 &&
+      !data.usuario
+    ) {
       setShowLogin(true)
-    }
-
-    // 🔥 Si ya hay usuario registrado, recuperar progreso desde Supabase
-    if (prog?.usuario?.telefono) {
-      recuperarProgresoDesdeSupabase(prog.usuario.telefono)
     }
   }, [])
 
-  // 🔥 FUNCIÓN: Recuperar progreso desde Supabase
-  async function recuperarProgresoDesdeSupabase(telefono: string) {
-    try {
-      const { supabase } = await import('@/lib/supabase')
-      const { data, error } = await supabase
-        .from('registros')
-        .select('*')
-        .eq('telefono', telefono)
-        .single()
+  if (!mounted) return null
 
-      if (error) {
-        console.error('❌ Error al recuperar progreso:', error)
-        return
-      }
+  const diasCompletados = progress?.dias
+    ? Object.keys(progress.dias).length
+    : 0
 
-      if (data && data.dia_completado > 0) {
-        const currentProgress = getProgress() || {
-          dias: {},
-          startDate: new Date().toISOString(),
-          lastAccess: new Date().toISOString()
-        }
+  const siguienteDia = Math.min(diasCompletados + 1, 7)
 
-        // Reconstruir los días completados
-        for (let i = 1; i <= data.dia_completado; i++) {
-          if (!currentProgress.dias[i]) {
-            currentProgress.dias[i] = {
-              completado: true,
-              fecha: new Date().toISOString()
-            }
-          }
-        }
-
-        saveProgress(currentProgress)
-        setProgress(currentProgress)
-        console.log(`✅ Progreso recuperado desde Supabase: Día ${data.dia_completado}`)
-      }
-    } catch (err) {
-      console.error('Error al recuperar progreso:', err)
-    }
-  }
-
-  const diasCompletados = progress ? Object.keys(progress.dias).length : 0
-  const siguienteDia = diasCompletados + 1
-  
-  const semanaActual = Math.ceil(siguienteDia / 7)
-  const diaEnSemana = ((siguienteDia - 1) % 7) + 1
-  const diasCompletadosEnSemana = diasCompletados % 7
-  
-  const totalDiasSemana = 7
-  const porcentaje = (diasCompletadosEnSemana / totalDiasSemana) * 100
+  const porcentaje = Math.min(
+    Math.round((diasCompletados / 7) * 100),
+    100
+  )
 
   const handleContinuar = () => {
-    const diaDestino = Math.min(siguienteDia, 28)
-    router.push(`/abriendo-camino/reto/1/dia/${diaDestino}`)
+    router.push(
+      `/abriendo-camino/reto/1/dia/${siguienteDia}`
+    )
   }
 
-  const handleLoginComplete = (nombre: string, telefono: string) => {
+  const handleLoginComplete = (
+    nombre: string,
+    telefono: string
+  ) => {
     saveUsuario(nombre, telefono)
     setShowLogin(false)
     setProgress(getProgress())
-    alert(`✅ ¡Gracias ${nombre}! Te enviaremos el link cada día.`)
   }
 
-  const handleCompartir = async () => {
+  const compartir = async () => {
     const url = window.location.href
+
     if (navigator.share) {
       try {
         await navigator.share({
-          title: '🔥 Abriendo Camino',
-          text: 'Un reto de 4 semanas para volver a caminar con Dios. Una experiencia que cambia vidas.',
-          url: url,
+          title: 'CRECE',
+          text: 'Un paso cada día para crecer con Dios.',
+          url,
         })
-      } catch (err) {
-        navigator.clipboard.writeText(url)
-        alert('✅ Enlace copiado al portapapeles')
-      }
+      } catch {}
     } else {
-      navigator.clipboard.writeText(url)
-      alert('✅ Enlace copiado al portapapeles')
+      await navigator.clipboard.writeText(url)
+      alert('Enlace copiado')
     }
   }
 
-  if (!mounted) return null
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {[...Array(20)].map((_, i) => (
-        <div
-          key={i}
-          className="particle"
-          style={{
-            left: `${Math.random() * 100}%`,
-            bottom: '-10px',
-            animationDelay: `${Math.random() * 10}s`,
-            animationDuration: `${10 + Math.random() * 10}s`,
-          }}
-        />
-      ))}
+    <main className="min-h-screen bg-[#f4f7f6]">
 
-      <div className="absolute top-20 left-20 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+      {/* =====================================================
+          CONTENEDOR PRINCIPAL
+      ====================================================== */}
 
-      <div className="glass-card rounded-3xl p-8 md:p-12 max-w-lg w-full animate-slide-up relative z-10">
-        
-        <div className="flex justify-center mb-6 logo-container">
-          <div className="animate-pulse-glow rounded-full p-2">
-            <Image
-              src="/logo.png"
-              alt="Abriendo Camino"
-              width={160}
-              height={160}
-              className="object-contain animate-float"
-            />
-          </div>
-        </div>
+      <div className="mx-auto min-h-screen w-full max-w-[520px] overflow-hidden bg-white shadow-2xl md:my-8 md:min-h-[900px] md:rounded-[32px]">
 
-        <div className="text-center mb-8 animate-fade-in" style={{ animationDelay: '0.3s', opacity: 0 }}>
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Sparkles className="text-amber-400 w-6 h-6" />
-            <h1 className="text-5xl md:text-6xl font-black text-white text-glow tracking-tight">
-              ABRIENDO
-            </h1>
-            <Sparkles className="text-amber-400 w-6 h-6" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-amber-400 mb-4">
-            CAMINO
-          </h2>
-          <p className="text-lg text-blue-100 font-medium">
-            1 semana para volver a caminar con Dios
-          </p>
-        </div>
+        {/* =====================================================
+            HERO
+        ====================================================== */}
 
-        {diasCompletados > 0 && (
-          <div className="mb-8 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
-            <div className="text-center mb-3">
-              <p className="text-sm text-blue-200 mb-1">Tu progreso esta semana</p>
-              <div className="flex items-center justify-center gap-2">
-                <Flame className="text-amber-400 w-6 h-6 animate-pulse" />
-                <span className="text-3xl font-black text-white">
-                  {diasCompletadosEnSemana}
-                </span>
-                <span className="text-xl text-blue-200">/ {totalDiasSemana}</span>
+        <section className="relative h-[430px] overflow-hidden">
+
+          {/* Imagen */}
+          <Image
+            src="/hero-crece.jpg"
+            alt=""
+            fill
+            priority
+            className="object-cover"
+          />
+
+          {/* Oscurecimiento */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/10 to-black/75" />
+
+          {/* =================================================
+              HEADER
+          ================================================== */}
+
+          <div className="relative z-10 flex items-center justify-between px-7 pt-6">
+
+            {/* Logo */}
+            <div className="flex items-center gap-2.5">
+
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md">
+                <Sprout className="h-6 w-6 text-lime-300" />
               </div>
-            </div>
-            <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
-              <div 
-                className="h-full rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 transition-all duration-1000 ease-out relative overflow-hidden"
-                style={{ width: `${porcentaje}%` }}
-              >
-                <div className="absolute inset-0 animate-shimmer" />
-              </div>
-            </div>
-            <p className="text-center text-sm text-amber-400 mt-2 font-semibold">
-              {diasCompletadosEnSemana === 1 && '¡Excelente comienzo de semana!'}
-              {diasCompletadosEnSemana === 2 && '¡Vas muy bien!'}
-              {diasCompletadosEnSemana === 3 && '⭐ ¡Más de la mitad de la semana!'}
-              {diasCompletadosEnSemana >= 4 && diasCompletadosEnSemana < 7 && '🚀 ¡Imparable!'}
-              {diasCompletadosEnSemana === 0 && diasCompletados > 0 && '🏆 ¡Semana anterior completada!'}
-              {diasCompletadosEnSemana === 7 && '🏆 ¡SEMANA COMPLETADA!'}
-            </p>
-          </div>
-        )}
 
-        <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.7s', opacity: 0 }}>
-          <Button 
-            size="lg" 
-            className="w-full py-6 md:py-7 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-600 hover:via-amber-500 hover:to-amber-600 text-white font-bold btn-magnetic shadow-2xl px-2 md:px-4"
-            onClick={handleContinuar}
-          >
-            <span className="text-sm md:text-xl font-bold text-center leading-tight">
-              {diasCompletados > 0 
-                ? `CONTINUAR SEMANA ${semanaActual} - DÍA ${diaEnSemana}`
-                : 'COMENZAR SEMANA 1 - DÍA 1'
+              <div>
+                <h1 className="text-[24px] font-black leading-none tracking-tight text-white">
+                  CRECE
+                </h1>
+
+                <p className="mt-1 text-[8px] font-semibold tracking-wide text-white/80">
+                  Descubre · Conecta · Crece
+                </p>
+              </div>
+
+            </div>
+
+            {/* Grupos */}
+            <button
+              onClick={() =>
+                router.push('/abriendo-camino/grupos')
               }
-            </span>
-            <ArrowRight className="ml-2 h-5 w-5 md:h-6 md:w-6 flex-shrink-0" />
-          </Button>
-
-          {diasCompletados > 0 && !progress?.usuario && (
-            <Button 
-              variant="ghost"
-              className="w-full text-amber-400 hover:text-amber-300 hover:bg-white/10"
-              onClick={() => setShowLogin(true)}
+              className="flex flex-col items-center text-white"
             >
-              📱 Guardar mi progreso
-            </Button>
-          )}
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-black/10 backdrop-blur-md">
+                <Users className="h-5 w-5" />
+              </div>
 
-          <Button 
-            variant="ghost"
-            className="w-full text-blue-200 hover:text-white hover:bg-white/10"
-            onClick={handleCompartir}
-          >
-            <Share2 className="mr-2 h-4 w-4" />
-            Compartir con alguien
-          </Button>
-        </div>
+              <span className="mt-1 text-[9px] font-medium">
+                Grupos
+              </span>
+            </button>
 
-        <div className="mt-4 space-y-2 animate-fade-in" style={{ animationDelay: '0.8s', opacity: 0 }}>
-          <Button 
-            variant="outline"
-            onClick={() => router.push('/abriendo-camino/oracion')}
-            className="w-full text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 border-amber-400/30 font-semibold"
-          >
-            <HandHeart className="mr-2 h-4 w-4" />
-            🙏 Oración
-          </Button>
-
-          <Button 
-            variant="outline"
-            onClick={() => router.push('/abriendo-camino/proposito')}
-            className="w-full text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 border-amber-400/30"
-          >
-            <Sparkles className="mr-2 h-4 w-4" />
-            Descubre tu propósito
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => router.push('/abriendo-camino/dashboard')}
-            className="w-full text-blue-200 hover:text-white hover:bg-white/10"
-          >
-            <TrendingUp className="mr-2 h-4 w-4" />
-            Ver mi progreso
-          </Button>
-        </div>
-
-        <div className="mt-8 text-center animate-fade-in" style={{ animationDelay: '0.9s', opacity: 0 }}>
-          <p className="text-sm text-blue-200 italic">
-            "Un paso cada día para caminar con Dios"
-          </p>
-          <div className="flex justify-center gap-1 mt-3">
-            {[...Array(5)].map((_, i) => (
-              <div 
-                key={i}
-                className="w-1.5 h-1.5 rounded-full bg-amber-400/60 animate-pulse"
-                style={{ animationDelay: `${i * 0.2}s` }}
-              />
-            ))}
           </div>
-        </div>
+
+          {/* =================================================
+              MENSAJE
+          ================================================== */}
+
+          <div className="absolute bottom-[145px] left-0 z-10 w-full px-8">
+
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-lime-300">
+              Tu camino de hoy
+            </p>
+
+            <h2 className="max-w-[340px] text-[38px] font-black leading-[0.95] tracking-tight text-white">
+              No te quedes
+              <br />
+              donde estás.
+            </h2>
+
+            <p className="mt-3 max-w-[285px] text-[14px] leading-[1.35] text-white/90">
+              Crece en tu relación con Dios,
+              <br />
+              crece en su Palabra,
+              <br />
+              crece para vivir tu propósito.
+            </p>
+
+          </div>
+
+          {/* =================================================
+              RETO SOBRE LA IMAGEN
+          ================================================== */}
+
+          <div className="absolute bottom-0 left-0 z-20 w-full px-7">
+
+            <div className="relative overflow-hidden rounded-t-[20px] bg-[#073f3b]/95 px-5 py-4 backdrop-blur-md">
+
+              {/* Imagen pequeña decorativa */}
+              <div className="absolute right-0 top-0 h-full w-[38%] opacity-40">
+
+                <Image
+                  src="/hero-crece.jpg"
+                  alt=""
+                  fill
+                  className="object-cover"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-r from-[#073f3b] to-transparent" />
+
+              </div>
+
+              <div className="relative z-10 flex items-center gap-3">
+
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500">
+                  <Flame className="h-5 w-5 text-white" />
+                </div>
+
+                <div className="min-w-0">
+
+                  <p className="text-[8px] font-bold uppercase tracking-[0.18em] text-white/60">
+                    Reto actual
+                  </p>
+
+                  <h3 className="mt-0.5 text-[15px] font-black text-white">
+                    7 días — Volver a Dios
+                  </h3>
+
+                  <p className="mt-0.5 text-[10px] text-white/70">
+                    Un encuentro que puede cambiar tu camino.
+                  </p>
+
+                </div>
+
+                <div className="ml-auto shrink-0 rounded-full bg-emerald-300 px-3 py-1.5 text-[9px] font-black text-emerald-950">
+                  Día {siguienteDia} de 7
+                </div>
+
+              </div>
+
+              <button
+                onClick={handleContinuar}
+                className="absolute right-4 top-1/2 z-20 -translate-y-1/2 text-white"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* =====================================================
+            CONTINUAR
+        ====================================================== */}
+
+        <section className="px-7 pt-3">
+
+          <button
+            onClick={handleContinuar}
+            className="flex h-[52px] w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 text-[14px] font-black text-white shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
+          >
+            {diasCompletados > 0
+              ? 'Continuar mi camino'
+              : 'Comenzar mi camino'}
+
+            <ArrowRight className="h-5 w-5" />
+          </button>
+
+        </section>
+
+        {/* =====================================================
+            MI CAMINO
+        ====================================================== */}
+
+        <section className="px-7 pb-4 pt-5">
+
+          <div className="mb-3">
+
+            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-700">
+              Mi camino
+            </p>
+
+            <p className="mt-1 text-[11px] text-slate-400">
+              Un paso cada día para crecer con Dios.
+            </p>
+
+          </div>
+
+          {/* =================================================
+              4 ÁREAS
+          ================================================== */}
+
+          <div className="grid grid-cols-4 gap-2">
+
+            {/* CONEXIÓN */}
+            <button
+              onClick={() =>
+                router.push('/abriendo-camino/conexion')
+              }
+              className="group min-h-[118px] rounded-xl bg-rose-50 p-3 text-left transition hover:-translate-y-1"
+            >
+
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-rose-400 text-white">
+                <Heart className="h-5 w-5" />
+              </div>
+
+              <h4 className="mt-3 text-[9px] font-black text-slate-800">
+                CONEXIÓN
+              </h4>
+
+              <p className="mt-1 text-[7px] leading-[1.35] text-slate-500">
+                Conoce a Cristo.
+                <br />
+                Conecta con otros.
+              </p>
+
+              <ArrowRight className="mt-2 h-3 w-3 text-slate-500" />
+
+            </button>
+
+            {/* CRECIMIENTO */}
+            <button
+              onClick={() =>
+                router.push('/abriendo-camino/biblia')
+              }
+              className="group min-h-[118px] rounded-xl bg-green-50 p-3 text-left transition hover:-translate-y-1"
+            >
+
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-500 text-white">
+                <Sprout className="h-5 w-5" />
+              </div>
+
+              <h4 className="mt-3 text-[9px] font-black text-slate-800">
+                CRECIMIENTO
+              </h4>
+
+              <p className="mt-1 text-[7px] leading-[1.35] text-slate-500">
+                Lee la Palabra.
+                <br />
+                Desarrolla tu fe.
+              </p>
+
+              <ArrowRight className="mt-2 h-3 w-3 text-slate-500" />
+
+            </button>
+
+            {/* SERVICIO */}
+            <button
+              onClick={() =>
+                router.push('/abriendo-camino/servicio')
+              }
+              className="group min-h-[118px] rounded-xl bg-orange-50 p-3 text-left transition hover:-translate-y-1"
+            >
+
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-400 text-white">
+                <HandHeart className="h-5 w-5" />
+              </div>
+
+              <h4 className="mt-3 text-[9px] font-black text-slate-800">
+                SERVICIO
+              </h4>
+
+              <p className="mt-1 text-[7px] leading-[1.35] text-slate-500">
+                Descubre tus dones.
+                <br />
+                Sirve a otros.
+              </p>
+
+              <ArrowRight className="mt-2 h-3 w-3 text-slate-500" />
+
+            </button>
+
+            {/* MULTIPLICACIÓN */}
+            <button
+              onClick={() =>
+                router.push('/abriendo-camino/multiplicacion')
+              }
+              className="group min-h-[118px] rounded-xl bg-purple-50 p-3 text-left transition hover:-translate-y-1"
+            >
+
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-500 text-white">
+                <Users className="h-5 w-5" />
+              </div>
+
+              <h4 className="mt-3 text-[9px] font-black text-slate-800">
+                MULTIPLICACIÓN
+              </h4>
+
+              <p className="mt-1 text-[7px] leading-[1.35] text-slate-500">
+                Comparte a Jesús.
+                <br />
+                Haz discípulos.
+              </p>
+
+              <ArrowRight className="mt-2 h-3 w-3 text-slate-500" />
+
+            </button>
+
+          </div>
+
+        </section>
+
+        {/* =====================================================
+            VERSÍCULO
+        ====================================================== */}
+
+        <section className="mx-7 mb-4 rounded-xl bg-slate-50 px-4 py-3">
+
+          <div className="flex items-center gap-3">
+
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-100">
+              <Sprout className="h-4 w-4 text-green-600" />
+            </div>
+
+            <div className="min-w-0">
+
+              <p className="truncate text-[9px] italic text-slate-500">
+                “Porque yo sé los planes que tengo para ustedes...”
+              </p>
+
+              <p className="mt-0.5 text-[7px] font-bold uppercase tracking-wider text-slate-400">
+                Jeremías 29:11
+              </p>
+
+            </div>
+
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-slate-300" />
+
+          </div>
+
+        </section>
+
+        {/* =====================================================
+            NAVEGACIÓN
+        ====================================================== */}
+
+        <nav className="sticky bottom-0 border-t border-slate-100 bg-white/95 px-8 py-3 backdrop-blur-md">
+
+          <div className="flex items-center justify-around">
+
+            <button
+              onClick={() =>
+                router.push('/abriendo-camino')
+              }
+              className="flex flex-col items-center gap-1 text-emerald-600"
+            >
+              <Flame className="h-5 w-5" />
+
+              <span className="text-[8px] font-bold">
+                Reto
+              </span>
+            </button>
+
+            <button
+              onClick={() =>
+                router.push('/abriendo-camino/biblia')
+              }
+              className="flex flex-col items-center gap-1 text-slate-400"
+            >
+              <BookOpen className="h-5 w-5" />
+
+              <span className="text-[8px] font-bold">
+                Biblia
+              </span>
+            </button>
+
+            <button
+              onClick={() =>
+                router.push('/abriendo-camino/mas')
+              }
+              className="flex flex-col items-center gap-1 text-slate-400"
+            >
+              <UserRound className="h-5 w-5" />
+
+              <span className="text-[8px] font-bold">
+                Más
+              </span>
+            </button>
+
+          </div>
+
+        </nav>
+
       </div>
+
+      {/* =====================================================
+          LOGIN
+      ====================================================== */}
 
       {showLogin && (
         <LoginModal
@@ -278,6 +489,7 @@ export default function AbriendoCaminoIndex() {
           onClose={() => setShowLogin(false)}
         />
       )}
-    </div>
+
+    </main>
   )
 }
