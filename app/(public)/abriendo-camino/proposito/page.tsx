@@ -168,8 +168,8 @@ export default function PropositoPage() {
         </div>
       </div>
 
-      {showVersiculo && <VersiculoModal onClose={() => setShowVersiculo(false)} />}
-      {showGrupos && <GruposModal onClose={() => setShowGrupos(false)} />}
+      <VersiculoModal isOpen={showVersiculo} onClose={() => setShowVersiculo(false)} />
+      <GruposModal isOpen={showGrupos} onClose={() => setShowGrupos(false)} />
     </div>
   )
 }
