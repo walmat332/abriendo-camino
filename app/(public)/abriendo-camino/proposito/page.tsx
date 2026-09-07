@@ -1,18 +1,13 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { 
-  Home, Heart, Sprout, HandHeart, Users, 
-  ArrowRight, ChevronDown, BookOpen, Mountain,
-  Check, MessageCircle
-} from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { Heart, Sprout, HandHeart, Users, ArrowRight, BookOpen, Mountain, Check } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { DiagnosticFlow } from './components/DiagnosticFlow'
 import { ResultMap } from './components/ResultMap'
 import { VersiculoModal } from '@/components/VersiculoModal'
 import { GruposModal } from './components/GruposModal'
-import { getVersiculoDelDia } from '@/lib/versiculos'
 
 type SeccionId = 'conexion' | 'crecimiento' | 'servicio' | 'multiplicacion'
 
@@ -25,13 +20,26 @@ const secciones = [
 
 export default function PropositoPage() {
   const router = useRouter()
-  const [estado, setEstado] = useState<'intro' | 'diagnostico' | 'resultado'>('intro')
+  const searchParams = useSearchParams()
+  
+  // 1. Detectar si la URL tiene ?seccion=
+  const seccionDesdeURL = searchParams.get('seccion') as SeccionId
+  const seccionValida = secciones.some(s => s.id === seccionDesdeURL) ? seccionDesdeURL : null
+  
+  // 2. Inicializar el estado directamente en 'diagnostico' si viene de un acceso directo
+  const [estado, setEstado] = useState<'intro' | 'diagnostico' | 'resultado'>(
+    seccionValida ? 'diagnostico' : 'intro'
+  )
   const [showVersiculo, setShowVersiculo] = useState(false)
   const [showGrupos, setShowGrupos] = useState(false)
-  const [seccionActual, setSeccionActual] = useState<SeccionId | null>(null)
+  const [seccionActual, setSeccionActual] = useState<SeccionId | null>(seccionValida)
   const [resultados, setResultados] = useState({ conexion: [], crecimiento: [], servicio: [], multiplicacion: [] })
 
-  const handleIniciarPaso = (seccion: SeccionId) => { setSeccionActual(seccion); setEstado('diagnostico') }
+  const handleIniciarPaso = (seccion: SeccionId) => { 
+    setSeccionActual(seccion)
+    setEstado('diagnostico') 
+  }
+  
   const handleCompletarPaso = (respuestas: string[]) => {
     if (seccionActual) {
       const nuevos = { ...resultados, [seccionActual]: respuestas }
@@ -40,11 +48,24 @@ export default function PropositoPage() {
     }
     setSeccionActual(null)
   }
-  const handleReiniciar = () => { setResultados({ conexion: [], crecimiento: [], servicio: [], multiplicacion: [] }); setEstado('intro') }
-
-  if (estado === 'diagnostico' && seccionActual) {
-    return <DiagnosticFlow seccion={seccionActual} onComplete={handleCompletarPaso} onBack={() => { setEstado('intro'); setSeccionActual(null) }} />
+  
+  const handleReiniciar = () => { 
+    setResultados({ conexion: [], crecimiento: [], servicio: [], multiplicacion: [] })
+    setEstado('intro') 
   }
+
+  // 3. Limpia la URL al volver atrás para evitar bucles de reapertura
+  const handleVolverAlInicio = () => {
+    setEstado('intro')
+    setSeccionActual(null)
+    router.push('/abriendo-camino/proposito')
+  }
+
+  // Renderizado condicional: Diagnóstico, Resultado o Mapa General
+  if (estado === 'diagnostico' && seccionActual) {
+    return <DiagnosticFlow seccion={seccionActual} onComplete={handleCompletarPaso} onBack={handleVolverAlInicio} />
+  }
+
   if (estado === 'resultado') {
     return <ResultMap resultados={resultados} onReiniciar={handleReiniciar} />
   }
@@ -88,8 +109,12 @@ export default function PropositoPage() {
             const { Icono } = seccion
             const completada = resultados[seccion.id].length > 0
             return (
-              <div key={seccion.id} className={`${seccion.bgCard} rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-white/50 relative overflow-hidden`}>
-                {completada && <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-md"><Check className="w-4 h-4 text-white" strokeWidth={3} /></div>}
+              <div key={seccion.id} id={seccion.id} className={`${seccion.bgCard} rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-white/50 relative overflow-hidden scroll-mt-20`}>
+                {completada && (
+                  <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-md">
+                    <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                  </div>
+                )}
                 <div className="flex justify-center mb-4">
                   <div className={`w-16 h-16 rounded-full ${seccion.bgIcon} flex items-center justify-center shadow-md`}>
                     <Icono className={`w-8 h-8 ${seccion.textTitle}`} strokeWidth={1.5} />
@@ -97,54 +122,44 @@ export default function PropositoPage() {
                 </div>
                 <h3 className={`text-xl font-black ${seccion.textTitle} text-center mb-3 tracking-tight`}>{seccion.titulo}</h3>
                 <p className={`text-sm ${seccion.textDesc} text-center mb-6 leading-relaxed`}>
-                  {seccion.descripcion.split('•').map((item, idx) => (<span key={idx}>{item.trim()}{idx < 2 && <span className="mx-1">•</span>}</span>))}
+                  {seccion.descripcion.split('•').map((item, idx) => (
+                    <span key={idx}>{item.trim()}{idx < 2 && <span className="mx-1">•</span>}</span>
+                  ))}
                 </p>
-                <button onClick={() => handleIniciarPaso(seccion.id)} className={`w-full py-3 rounded-full ${seccion.btnBg} text-white font-bold shadow-md hover:shadow-lg transition-all`}>Explorar</button>
-                <div className="flex justify-center mt-3"><ChevronDown className="w-5 h-5 text-slate-400" /></div>
+                <Button 
+                  onClick={() => handleIniciarPaso(seccion.id)} 
+                  className={`w-full ${seccion.btnBg} text-white font-bold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all`}
+                >
+                  Explorar
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
               </div>
             )
           })}
         </div>
 
-        <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl border border-white/50 mb-8">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center shadow-lg">
-                <Mountain className="w-10 h-10 text-white" strokeWidth={1.5} />
-              </div>
+        <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/50">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center">
+              <Mountain className="w-8 h-8 text-white" />
             </div>
-            <div className="flex-1 text-center md:text-left">
-              <h3 className="text-2xl font-black text-slate-900 mb-2">¿DÓNDE ESTÁS HOY?</h3>
-              <p className="text-slate-600 leading-relaxed">Descubre en qué etapa estás y cuál es tu siguiente paso para vivir el propósito que Dios tiene para ti.</p>
-            </div>
-            <div className="flex-shrink-0">
-              <Button onClick={() => handleIniciarPaso('conexion')} className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-full font-bold shadow-lg">
-                Comenzar evaluación <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+            <div>
+              <h3 className="text-2xl font-black text-slate-800">¿DÓNDE ESTÁS HOY?</h3>
+              <p className="text-slate-600">Descubre en qué etapa estás y cuál es tu siguiente paso para vivir el propósito que Dios tiene para ti.</p>
             </div>
           </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-6 md:p-8 shadow-xl text-white text-center relative overflow-hidden">
-          <div className="relative z-10">
-            <Users className="w-12 h-12 mx-auto mb-4 text-emerald-100" strokeWidth={1.5} />
-            <h3 className="text-2xl md:text-3xl font-black mb-3">NO CAMINES SOLO</h3>
-            <p className="text-emerald-100 leading-relaxed mb-6 max-w-2xl mx-auto">Únete a uno de nuestros grupos de conexión en tu distrito o de forma virtual. Tenemos horarios para todos.</p>
-            <button onClick={() => setShowGrupos(true)} className="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-4 rounded-full font-black text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center gap-2 mx-auto">
-              <MessageCircle className="w-5 h-5" /> Ver grupos disponibles <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        <div className="flex justify-center mt-8">
-          <Button variant="ghost" onClick={() => router.push('/abriendo-camino')} className="text-slate-600 hover:text-slate-900 hover:bg-white/50">
-            <Home className="mr-2 h-4 w-4" /> Volver al inicio
+          <Button 
+            onClick={() => setEstado('diagnostico')} 
+            className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all"
+          >
+            Comenzar evaluación completa
+            <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </div>
       </div>
-    
-      {showVersiculo && <VersiculoModal isOpen={showVersiculo} onClose={() => setShowVersiculo(false)} />}
-      <GruposModal isOpen={showGrupos} onClose={() => setShowGrupos(false)} />
+
+      {showVersiculo && <VersiculoModal onClose={() => setShowVersiculo(false)} />}
+      {showGrupos && <GruposModal onClose={() => setShowGrupos(false)} />}
     </div>
   )
 }
