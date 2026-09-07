@@ -288,10 +288,10 @@ export default function AbriendoCaminoIndex() {
 
           <div className="grid grid-cols-4 gap-2">
 
-            {/* CONEXIÓN */}
+            {/* CONEXIÓN → Oración */}
             <button
               onClick={() =>
-                router.push('/abriendo-camino/conexion')
+                router.push('/abriendo-camino/oracion')
               }
               className="group min-h-[118px] rounded-xl bg-rose-50 p-3 text-left transition hover:-translate-y-1"
             >
@@ -314,10 +314,10 @@ export default function AbriendoCaminoIndex() {
 
             </button>
 
-            {/* CRECIMIENTO */}
+            {/* CRECIMIENTO → Reto Día 1 */}
             <button
               onClick={() =>
-                router.push('/abriendo-camino/biblia')
+                router.push('/abriendo-camino/reto/1/dia/1')
               }
               className="group min-h-[118px] rounded-xl bg-green-50 p-3 text-left transition hover:-translate-y-1"
             >
@@ -340,10 +340,10 @@ export default function AbriendoCaminoIndex() {
 
             </button>
 
-            {/* SERVICIO */}
+            {/* SERVICIO → Propósito */}
             <button
               onClick={() =>
-                router.push('/abriendo-camino/servicio')
+                router.push('/abriendo-camino/proposito')
               }
               className="group min-h-[118px] rounded-xl bg-orange-50 p-3 text-left transition hover:-translate-y-1"
             >
@@ -366,10 +366,10 @@ export default function AbriendoCaminoIndex() {
 
             </button>
 
-            {/* MULTIPLICACIÓN */}
+            {/* MULTIPLICACIÓN → Grupos */}
             <button
               onClick={() =>
-                router.push('/abriendo-camino/multiplicacion')
+                router.push('/abriendo-camino/grupos')
               }
               className="group min-h-[118px] rounded-xl bg-purple-50 p-3 text-left transition hover:-translate-y-1"
             >
@@ -411,7 +411,7 @@ export default function AbriendoCaminoIndex() {
             <div className="min-w-0">
 
               <p className="truncate text-[9px] italic text-slate-500">
-                “Porque yo sé los planes que tengo para ustedes...”
+                "Porque yo sé los planes que tengo para ustedes..."
               </p>
 
               <p className="mt-0.5 text-[7px] font-bold uppercase tracking-wider text-slate-400">
@@ -427,7 +427,7 @@ export default function AbriendoCaminoIndex() {
         </section>
 
         {/* =====================================================
-            NAVEGACIÓN
+            NAVEGACIÓN INFERIOR
         ====================================================== */}
 
         <nav className="sticky bottom-0 border-t border-slate-100 bg-white/95 px-8 py-3 backdrop-blur-md">
@@ -449,7 +449,7 @@ export default function AbriendoCaminoIndex() {
 
             <button
               onClick={() =>
-                router.push('/abriendo-camino/biblia')
+                router.push('/abriendo-camino/reto/1/dia/1')
               }
               className="flex flex-col items-center gap-1 text-slate-400"
             >
@@ -462,7 +462,7 @@ export default function AbriendoCaminoIndex() {
 
             <button
               onClick={() =>
-                router.push('/abriendo-camino/mas')
+                router.push('/abriendo-camino/dashboard')
               }
               className="flex flex-col items-center gap-1 text-slate-400"
             >
