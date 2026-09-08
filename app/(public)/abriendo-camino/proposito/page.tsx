@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Heart, Sprout, HandHeart, Users, ArrowRight, BookOpen, Mountain, Check, Target } from 'lucide-react'
+import { Heart, Sprout, HandHeart, Users, ArrowRight, BookOpen, Mountain, Check } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DiagnosticFlow } from './components/DiagnosticFlow'
 import { ResultMap } from './components/ResultMap'
@@ -82,22 +82,10 @@ export default function PropositoPage() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-16">
         <div className="text-center mb-8">
-          <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tight mb-2">TU CAMINO</h1>
-          <h2 className="text-5xl md:text-7xl font-bold italic bg-gradient-to-r from-emerald-600 via-teal-500 to-blue-600 bg-clip-text text-transparent" style={{ fontFamily: 'cursive' }}>tiene propósito</h2>
-        </div>
-
-        <p className="text-center text-slate-700 text-lg md:text-xl max-w-3xl mx-auto mb-8 leading-relaxed">
-          "El propósito de Jesús no era solamente reunir seguidores, <br />sino formar discípulos que continuaran su misión."
-        </p>
-
-        <div className="flex items-center justify-center gap-3 md:gap-4 mb-12 flex-wrap">
-          <span className="text-blue-600 font-bold text-lg md:text-xl tracking-wider">LLAMÓ</span>
-          <ArrowRight className="w-5 h-5 text-slate-400" />
-          <span className="text-green-600 font-bold text-lg md:text-xl tracking-wider">FORMÓ</span>
-          <ArrowRight className="w-5 h-5 text-slate-400" />
-          <span className="text-orange-600 font-bold text-lg md:text-xl tracking-wider">ENVIÓ</span>
-          <ArrowRight className="w-5 h-5 text-slate-400" />
-          <span className="text-purple-600 font-bold text-lg md:text-xl tracking-wider">MULTIPLICARON</span>
+          <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tight mb-2">DESCUBRE TU PROPÓSITO</h1>
+          <p className="text-xl md:text-2xl text-slate-600 font-medium max-w-2xl mx-auto">
+            Conoce dónde estás. Descubre tu próximo paso.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
@@ -134,7 +122,6 @@ export default function PropositoPage() {
           })}
         </div>
 
-        {/* TARJETA INFERIOR ACTUALIZADA */}
         <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/50 space-y-6">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-emerald-600 flex items-center justify-center">
