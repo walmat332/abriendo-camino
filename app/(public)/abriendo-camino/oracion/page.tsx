@@ -1,25 +1,10 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import {
-  Heart,
-  Users,
-  Sparkles,
-  MessageCircle,
-  ArrowLeft,
-  Loader2,
-  Flame,
-  HandHeart,
-} from 'lucide-react'
-import {
-  getPeticionesPublicas,
-  getEstadisticasComunitarias,
-  getNombreUsuario,
-  getTestimoniosPublicos,
-} from '@/lib/oracion/queries'
+import { Heart, Users, Sparkles, MessageCircle, ArrowLeft, Loader2, Flame, HandHeart } from 'lucide-react'
+import { getPeticionesPublicas, getEstadisticasComunitarias, getNombreUsuario, getTestimoniosPublicos } from '@/lib/oracion/queries'
 import { getOrCreateUserId } from '@/lib/oracion/identity'
 import type { Peticion, Testimonio } from '@/lib/oracion/types'
 import { PrayerCard } from '@/components/oracion/prayer-card'
@@ -35,16 +20,10 @@ export default function OracionPage() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [showMyPrayers, setShowMyPrayers] = useState(false)
-  const [stats, setStats] = useState({
-    oracionesHoy: 0,
-    oracionesMes: 0,
-    peticionesActivas: 0,
-  })
+  const [stats, setStats] = useState({ oracionesHoy: 0, oracionesMes: 0, peticionesActivas: 0 })
   const [activeTab, setActiveTab] = useState<'comunidad' | 'testimonios'>('comunidad')
 
-  useEffect(() => {
-    cargarDatos()
-  }, [])
+  useEffect(() => { cargarDatos() }, [])
 
   async function cargarDatos() {
     setLoading(true)
@@ -54,231 +33,150 @@ export default function OracionPage() {
         getEstadisticasComunitarias(),
         getTestimoniosPublicos(10),
       ])
-
-      // Enriquecer peticiones con nombre del autor
       const peticionesEnriquecidas = await Promise.all(
         peticionesData.map(async (p) => {
           const nombre = await getNombreUsuario(p.usuario_id)
-          return {
-            ...p,
-            nombre_autor: p.visibilidad === 'anonimo' ? 'Anónimo' : nombre || 'Anónimo',
-          }
+          return { ...p, nombre_autor: p.visibilidad === 'anonimo' ? 'Anónimo' : nombre || 'Anónimo' }
         })
       )
-
-      // Enriquecer testimonios con nombre del autor y texto de la petición
       const testimoniosEnriquecidos = await Promise.all(
         testimoniosData.map(async (t) => {
           const nombre = await getNombreUsuario(t.usuario_id)
-          return {
-            ...t,
-            nombre_autor: nombre || 'Anónimo',
-          }
+          return { ...t, nombre_autor: nombre || 'Anónimo' }
         })
       )
-
       setPeticiones(peticionesEnriquecidas)
       setTestimonios(testimoniosEnriquecidos)
       setStats(statsData)
     } catch (error) {
-      console.error('❌ Error al cargar datos:', error)
+      console.error('Error cargando datos de oración:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleNuevaPeticion = () => {
-    getOrCreateUserId() // Asegurar que tiene UUID
-    setShowForm(true)
-  }
-
-  const handlePeticionCreada = () => {
-    setShowForm(false)
-    cargarDatos() // Recargar lista
-  }
-
   const handleOracionActualizada = (peticionId: string) => {
-    // Actualizar contador localmente
     setPeticiones((prev) =>
       prev.map((p) =>
-        p.id === peticionId
-          ? { ...p, oraciones_count: p.oraciones_count + 1 }
-          : p
+        p.id === peticionId ? { ...p, oraciones_count: p.oraciones_count + 1 } : p
       )
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 relative overflow-hidden">
-      {/* Partículas decorativas */}
-      {[...Array(15)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute w-1 h-1 bg-amber-400/30 rounded-full animate-float"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 5}s`,
-            animationDuration: `${10 + Math.random() * 10}s`,
-          }}
-        />
-      ))}
-
-      <div className="relative z-10 max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/abriendo-camino')}
-            className="text-blue-200 hover:text-white mb-4"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver
-          </Button>
-
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 mb-4 shadow-lg shadow-amber-500/30">
-              <HandHeart className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-2 tracking-tight">
-              🙏 ORACIÓN
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-blue-50 relative">
+      {/* Imagen atmosférica sutil de fondo */}
+      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80')] bg-cover bg-center opacity-10 pointer-events-none" />
+      
+      <div className="relative z-10 max-w-3xl mx-auto px-4 py-8 md:py-12">
+        
+        {/* HEADER */}
+        <div className="flex items-center gap-3 mb-8">
+          <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-slate-100 transition-colors text-slate-600">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+              <span className="text-amber-500">🙏</span> ORACIÓN
             </h1>
-            <p className="text-lg text-blue-200 max-w-md mx-auto">
-              Pide oración. Ora por otros. Acompáñense en el camino.
+            <p className="text-slate-500 text-sm md:text-base mt-1">
+              Pide oración. Ora por otros. No camines solo.
             </p>
           </div>
         </div>
 
-        {/* Estadísticas */}
+        {/* ESTADÍSTICAS DE COMUNIDAD */}
         <PrayerStats stats={stats} />
 
-        {/* Acciones principales */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
+        {/* ACCIONES PRINCIPALES */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Button
-            onClick={handleNuevaPeticion}
-            className="h-24 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-base shadow-lg shadow-amber-500/30 flex-col gap-2"
+            onClick={() => setShowForm(true)}
+            className="h-auto py-6 bg-slate-800 hover:bg-slate-900 text-white font-bold text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all flex flex-col items-center gap-2"
           >
-            <MessageCircle className="w-6 h-6" />
+            <span className="text-2xl">🙏</span>
             <span>PEDIR ORACIÓN</span>
           </Button>
-
           <Button
             onClick={() => setShowMyPrayers(true)}
-            className="h-24 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-base backdrop-blur-sm flex-col gap-2"
+            variant="outline"
+            className="h-auto py-6 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-lg rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col items-center gap-2"
           >
-            <Heart className="w-6 h-6" />
-            <span>MI ORACIÓN</span>
+            <span className="text-2xl">🤍</span>
+            <span>MIS ORACIONES</span>
           </Button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6 bg-white/5 rounded-lg p-1">
+        {/* TABS DE NAVEGACIÓN */}
+        <div className="flex gap-2 mb-6 p-1 bg-slate-100 rounded-xl w-fit mx-auto md:mx-0">
           <button
             onClick={() => setActiveTab('comunidad')}
-            className={`flex-1 py-2 px-4 rounded-md font-semibold text-sm transition-all ${
-              activeTab === 'comunidad'
-                ? 'bg-amber-500 text-white shadow-lg'
-                : 'text-blue-200 hover:text-white'
+            className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+              activeTab === 'comunidad' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            <Users className="inline w-4 h-4 mr-1" />
             NECESITAN ORACIÓN
           </button>
           <button
             onClick={() => setActiveTab('testimonios')}
-            className={`flex-1 py-2 px-4 rounded-md font-semibold text-sm transition-all ${
-              activeTab === 'testimonios'
-                ? 'bg-amber-500 text-white shadow-lg'
-                : 'text-blue-200 hover:text-white'
+            className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+              activeTab === 'testimonios' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            <Sparkles className="inline w-4 h-4 mr-1" />
             HISTORIAS DE FE
           </button>
         </div>
 
-        {/* Contenido */}
+        {/* CONTENIDO PRINCIPAL */}
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+            <Loader2 className="w-10 h-10 animate-spin mb-4 text-amber-500" />
+            <p>Cargando peticiones de la comunidad...</p>
           </div>
         ) : activeTab === 'comunidad' ? (
           <div className="space-y-4">
             {peticiones.length === 0 ? (
-              <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-                <CardContent className="p-8 text-center">
-                  <Flame className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Sé el primero
-                  </h3>
-                  <p className="text-blue-200 mb-4">
-                    Aún no hay peticiones. ¡Sé el primero en compartir la tuya!
-                  </p>
-                  <Button
-                    onClick={handleNuevaPeticion}
-                    className="bg-amber-500 hover:bg-amber-600 text-white"
-                  >
-                    Pedir oración
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="text-center py-16 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                <Heart className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500 font-medium">No hay peticiones activas en este momento.</p>
+                <p className="text-slate-400 text-sm mt-1">¡Sé el primero en compartir una necesidad!</p>
+              </div>
             ) : (
               peticiones.map((peticion) => (
-                <PrayerCard
-                  key={peticion.id}
-                  peticion={peticion}
-                  onOrar={handleOracionActualizada}
-                />
+                <PrayerCard key={peticion.id} peticion={peticion} onOrar={handleOracionActualizada} />
               ))
             )}
           </div>
         ) : (
           <div className="space-y-4">
             {testimonios.length === 0 ? (
-              <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-                <CardContent className="p-8 text-center">
-                  <Sparkles className="w-12 h-12 text-amber-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Próximamente
-                  </h3>
-                  <p className="text-blue-200">
-                    Las historias de fe aparecerán aquí cuando haya testimonios.
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="text-center py-16 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                <Sparkles className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500 font-medium">Aún no hay historias de fe compartidas.</p>
+              </div>
             ) : (
               testimonios.map((testimonio) => (
-                <TestimonyCard
-                  key={testimonio.id}
-                  testimonio={testimonio}
-                />
+                <TestimonyCard key={testimonio.id} testimonio={testimonio} />
               ))
             )}
           </div>
         )}
 
-        {/* Footer */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-blue-300 italic">
-            "Nadie debería enfrentar solo lo que está viviendo."
+        {/* FRASE FINAL EMOCIONAL */}
+        <div className="mt-16 mb-8 text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 text-amber-600 mb-4">
+            <HandHeart className="w-6 h-6" />
+          </div>
+          <p className="text-xl md:text-2xl font-bold text-slate-700 italic leading-relaxed max-w-xl mx-auto">
+            "No tienes que caminar solo. Hay personas que pueden orar contigo."
           </p>
         </div>
       </div>
 
-      {/* Modales */}
-      {showForm && (
-        <PrayerForm
-          onClose={() => setShowForm(false)}
-          onCreated={handlePeticionCreada}
-        />
-      )}
-
-      {showMyPrayers && (
-        <MyPrayers
-          onClose={() => setShowMyPrayers(false)}
-          onRefresh={cargarDatos}
-        />
-      )}
+      {/* MODALES */}
+      {showForm && <PrayerForm onClose={() => setShowForm(false)} onCreated={() => { setShowForm(false); cargarDatos(); }} />}
+      {showMyPrayers && <MyPrayers onClose={() => setShowMyPrayers(false)} onRefresh={cargarDatos} />}
     </div>
   )
 }
+

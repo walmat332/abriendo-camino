@@ -1,9 +1,9 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Heart, Clock, Users, MessageCircle } from 'lucide-react'
+import { Heart, Clock, Users, MessageCircle, Check } from 'lucide-react'
 import type { Peticion, CategoriaOracion } from '@/lib/oracion/types'
 import { CATEGORIAS, MENSAJES_ANIMO } from '@/lib/oracion/types'
 import { orarPorPeticion } from '@/lib/oracion/mutations'
@@ -40,7 +40,7 @@ function tiempoTranscurrido(fecha: string): string {
 
 export function PrayerCard({ peticion, onOrar }: PrayerCardProps) {
   const [yaOre, setYaOre] = useState(false)
-  const [oraciondo, setOraciondo] = useState(false)
+  const [orando, setOrando] = useState(false)
   const [mostrarAnimo, setMostrarAnimo] = useState(false)
   const [mostrarOradores, setMostrarOradores] = useState(false)
   const [mensajeSeleccionado, setMensajeSeleccionado] = useState<string | null>(null)
@@ -48,7 +48,7 @@ export function PrayerCard({ peticion, onOrar }: PrayerCardProps) {
 
   const handleOrar = async () => {
     const usuarioId = getOrCreateUserId()
-    setOraciondo(true)
+    setOrando(true)
 
     const resultado = await orarPorPeticion({
       peticion_id: peticion.id,
@@ -56,7 +56,7 @@ export function PrayerCard({ peticion, onOrar }: PrayerCardProps) {
       mensaje: mensajeCustom || mensajeSeleccionado || undefined,
     })
 
-    setOraciondo(false)
+    setOrando(false)
 
     if (resultado.ya_oro) {
       setYaOre(true)
@@ -76,156 +76,148 @@ export function PrayerCard({ peticion, onOrar }: PrayerCardProps) {
     setMensajeSeleccionado(null)
   }
 
+  // Detección visual simple para situaciones sensibles (palabras clave)
+  const esSensible = /depresion|morir|suicidio|crisis|dolor profundo/i.test(peticion.texto)
+
   return (
     <>
-      <Card className="bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all">
-        <CardContent className="p-5">
+      <Card className={`bg-white border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 rounded-2xl overflow-hidden ${esSensible ? 'border-amber-200 ring-1 ring-amber-100' : 'border-slate-100'}`}>
+        <CardContent className="p-5 md:p-6">
           {/* Categoría */}
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-lg">
-              {getEmojiCategoria(peticion.categoria)}
-            </span>
-            <span className="text-xs font-semibold text-amber-400 uppercase tracking-wide">
+            <span className="text-xl">{getEmojiCategoria(peticion.categoria)}</span>
+            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full ${esSensible ? 'bg-amber-100 text-amber-700' : 'bg-blue-50 text-blue-700'}`}>
               {getLabelCategoria(peticion.categoria)}
             </span>
           </div>
 
           {/* Texto de la petición */}
-          <p className="text-white text-base leading-relaxed mb-4 italic">
+          <p className="text-slate-700 text-base md:text-lg leading-relaxed font-medium mb-4 italic">
             "{peticion.texto}"
           </p>
 
           {/* Autor y tiempo */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-xs font-bold text-white">
-                {peticion.nombre_autor?.charAt(0).toUpperCase() || '?'}
+              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs">
+                {peticion.nombre_autor?.charAt(0).toUpperCase() || 'A'}
               </div>
-              <span className="text-sm text-blue-200 font-medium">
-                {peticion.nombre_autor || 'Anónimo'}
-              </span>
+              <div>
+                <p className="text-sm font-bold text-slate-800">{peticion.nombre_autor}</p>
+                <p className="text-xs text-slate-400 flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> {tiempoTranscurrido(peticion.created_at)}
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-1 text-xs text-blue-300">
-              <Clock className="w-3 h-3" />
-              {tiempoTranscurrido(peticion.created_at)}
-            </div>
+            
+            {/* Contador de oraciones */}
+            <button 
+              onClick={() => setMostrarOradores(!mostrarOradores)}
+              className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors"
+            >
+              <Users className="w-4 h-4" />
+              {peticion.oraciones_count} {peticion.oraciones_count === 1 ? 'persona ora' : 'personas oran'}
+            </button>
           </div>
 
-          {/* Contador de oraciones */}
-          <button
-            onClick={() => setMostrarOradores(true)}
-            className="flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300 mb-4 transition-colors"
+          {/* Botón de acción */}
+          <Button
+            onClick={handleOrar}
+            disabled={orando || yaOre}
+            className={`w-full py-6 rounded-xl font-bold text-base transition-all ${
+              yaOre 
+                ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 cursor-default' 
+                : 'bg-slate-800 hover:bg-slate-900 text-white shadow-md hover:shadow-lg'
+            }`}
           >
-            <Heart className="w-4 h-4 fill-amber-400" />
-            <span className="font-semibold">
-              {peticion.oraciones_count}{' '}
-              {peticion.oraciones_count === 1
-                ? 'persona está orando'
-                : 'personas están orando'}
-            </span>
-          </button>
-
-          {/* Botón de oración */}
-          {yaOre ? (
-            <div className="w-full py-3 px-4 rounded-lg bg-green-500/20 border border-green-500/30 text-center">
-              <span className="text-green-400 font-semibold text-sm">
-                ✅ Ya estás orando por esta petición
-              </span>
-            </div>
-          ) : (
-            <Button
-              onClick={handleOrar}
-              disabled={oraciondo}
-              className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-base shadow-lg shadow-amber-500/30 disabled:opacity-50"
-            >
-              {oraciondo ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Orando...
-                </>
-              ) : (
-                <>
-                  <Heart className="mr-2 h-5 w-5" />
-                  🙏 ORÉ POR ESTO
-                </>
-              )}
-            </Button>
-          )}
+            {orando ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                Orando...
+              </>
+            ) : yaOre ? (
+              <>
+                <Check className="w-5 h-5 mr-2" />
+                YA ORASTE POR ESTA PERSONA
+              </>
+            ) : (
+              <>
+                <Heart className="w-5 h-5 mr-2" />
+                🙏 YA ORÉ POR ESTO
+              </>
+            )}
+          </Button>
         </CardContent>
       </Card>
 
-      {/* Modal de ánimo */}
+      {/* Modal de apoyo (simplificado visualmente) */}
       {mostrarAnimo && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <Card className="max-w-md w-full bg-gradient-to-br from-blue-900 to-blue-950 border-white/20">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md bg-white border-0 shadow-2xl rounded-2xl">
             <CardContent className="p-6">
-              <div className="text-center mb-4">
-                <div className="text-4xl mb-2">🙏</div>
-                <h3 className="text-xl font-bold text-white mb-1">
-                  Estoy orando contigo
-                </h3>
-                <p className="text-sm text-blue-200">
-                  Gracias por acompañar a esta persona en oración.
-                </p>
-              </div>
-
-              <div className="mb-4">
-                <p className="text-sm text-white font-semibold mb-2">
-                  ¿Quieres enviarle ánimo?
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  {MENSAJES_ANIMO.map((msg) => (
-                    <button
-                      key={msg.texto}
-                      onClick={() => setMensajeSeleccionado(msg.texto)}
-                      className={`py-2 px-3 rounded-lg text-sm font-medium transition-all ${
-                        mensajeSeleccionado === msg.texto
-                          ? 'bg-amber-500 text-white'
-                          : 'bg-white/10 text-white hover:bg-white/20'
-                      }`}
-                    >
-                      {msg.emoji} {msg.texto}
-                    </button>
-                  ))}
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Heart className="w-8 h-8 text-amber-600" />
                 </div>
+                <h3 className="text-xl font-black text-slate-800 mb-2">¡Gracias por orar!</h3>
+                <p className="text-slate-500 text-sm">¿Quieres dejar un mensaje de ánimo?</p>
               </div>
 
-              <div className="mb-4">
-                <p className="text-sm text-white font-semibold mb-2">
-                  O escribe un mensaje...
-                </p>
-                <textarea
-                  value={mensajeCustom}
-                  onChange={(e) => setMensajeCustom(e.target.value)}
-                  placeholder="Escribe un mensaje corto de ánimo..."
-                  maxLength={140}
-                  className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-blue-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
-                  rows={2}
-                />
-                <div className="text-xs text-blue-300 text-right mt-1">
-                  {mensajeCustom.length}/140
-                </div>
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                {MENSAJES_ANIMO.slice(0, 4).map((msg, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setMensajeSeleccionado(msg.texto)}
+                    className={`p-3 rounded-xl text-xs font-semibold transition-all ${
+                      mensajeSeleccionado === msg.texto 
+                        ? 'bg-amber-100 text-amber-800 border-2 border-amber-300' 
+                        : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {msg.emoji} {msg.texto}
+                  </button>
+                ))}
               </div>
 
-              <Button
-                onClick={handleEnviarAnimo}
-                className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold"
-              >
-                <MessageCircle className="mr-2 h-4 w-4" />
-                Enviar ánimo
-              </Button>
+              <textarea
+                value={mensajeCustom}
+                onChange={(e) => setMensajeCustom(e.target.value)}
+                placeholder="O escribe tu propio mensaje..."
+                className="w-full p-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 mb-4 resize-none"
+                rows={3}
+              />
+
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={handleEnviarAnimo} className="flex-1 border-slate-200">
+                  Omitir
+                </Button>
+                <Button onClick={handleEnviarAnimo} className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold">
+                  Enviar ánimo
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {/* Modal de personas orando */}
+      {/* Modal de oradores */}
       {mostrarOradores && (
-        <PrayerSupporters
-          peticionId={peticion.id}
-          onClose={() => setMostrarOradores(false)}
-        />
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md bg-white border-0 shadow-2xl rounded-2xl">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-black text-slate-800">Personas orando</h3>
+                <button onClick={() => setMostrarOradores(false)} className="text-slate-400 hover:text-slate-600">
+                  <span className="text-2xl leading-none">&times;</span>
+                </button>
+              </div>
+              <PrayerSupporters peticionId={peticion.id} onClose={() => setMostrarOradores(false)} />
+            </CardContent>
+          </Card>
+        </div>
       )}
     </>
   )
 }
+
+
