@@ -18,7 +18,7 @@ const secciones = [
   { id: 'multiplicacion' as SeccionId, titulo: 'MI MULTIPLICACIÓN', descripcion: 'Forma a otros • Haz discípulos • Ayuda a otros a crecer', Icono: Users, bgCard: 'bg-purple-50', bgIcon: 'bg-purple-100', textTitle: 'text-purple-700', textDesc: 'text-purple-600', btnBg: 'bg-purple-600 hover:bg-purple-700' },
 ]
 
-export default function PropositoPage() {
+function PropositoInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -67,7 +67,6 @@ export default function PropositoPage() {
   }
 
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-slate-500">Cargando...</p></div>}>
     <div className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-amber-100 via-orange-50 to-amber-200">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80')] bg-cover bg-center opacity-40" />
@@ -159,7 +158,13 @@ export default function PropositoPage() {
       <VersiculoModal isOpen={showVersiculo} onClose={() => setShowVersiculo(false)} />
       <GruposModal isOpen={showGrupos} onClose={() => setShowGrupos(false)} />
     </div>
-    </Suspense>
   )
 }
 
+export default function PropositoPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-amber-50"><p className="text-slate-500">Cargando propósito...</p></div>}>
+      <PropositoInner />
+    </Suspense>
+  )
+}
