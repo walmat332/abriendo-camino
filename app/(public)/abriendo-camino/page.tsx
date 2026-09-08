@@ -195,9 +195,9 @@ export default function AbriendoCaminoIndex() {
             </button>
 
             {/* CAMBIO: De "Más/Dashboard" a "Propósito" */}
-            <button onClick={() => router.push('/abriendo-camino/proposito')} className="flex flex-col items-center gap-1 text-slate-400">
+            <button onClick={() => router.push('/abriendo-camino/mas')} className="flex flex-col items-center gap-1 text-slate-400">
               <Target className="h-5 w-5" />
-              <span className="text-[8px] font-bold">Propósito</span>
+              <span className="text-[8px] font-bold">Más</span>
             </button>
           </div>
         </nav>

@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Heart, Sprout, HandHeart, Users, ArrowRight, BookOpen, Mountain, Check } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -24,6 +24,21 @@ function PropositoInner() {
   
   const seccionDesdeURL = searchParams.get('seccion') as SeccionId
   const seccionValida = secciones.some(s => s.id === seccionDesdeURL) ? seccionDesdeURL : null
+
+  // Redirigir al inicio si no hay sección, para evitar la pantalla redundante de las 4 áreas
+  useEffect(() => {
+    if (!seccionValida) {
+      router.replace('/abriendo-camino')
+    }
+  }, [seccionValida, router])
+
+  if (!seccionValida) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f7f6]">
+        <p className="text-slate-500">Redirigiendo al inicio...</p>
+      </div>
+    )
+  }
   
   const [estado, setEstado] = useState<'intro' | 'diagnostico' | 'resultado'>(
     seccionValida ? 'diagnostico' : 'intro'
@@ -168,3 +183,4 @@ export default function PropositoPage() {
     </Suspense>
   )
 }
+
