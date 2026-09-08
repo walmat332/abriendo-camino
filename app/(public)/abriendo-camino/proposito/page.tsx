@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { Heart, Sprout, HandHeart, Users, ArrowRight, BookOpen, Mountain, Check } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -67,6 +67,7 @@ export default function PropositoPage() {
   }
 
   return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-slate-500">Cargando...</p></div>}>
     <div className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-amber-100 via-orange-50 to-amber-200">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80')] bg-cover bg-center opacity-40" />
@@ -158,5 +159,7 @@ export default function PropositoPage() {
       <VersiculoModal isOpen={showVersiculo} onClose={() => setShowVersiculo(false)} />
       <GruposModal isOpen={showGrupos} onClose={() => setShowGrupos(false)} />
     </div>
+    </Suspense>
   )
 }
+
