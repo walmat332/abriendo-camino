@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Heart, Sprout, HandHeart, Users, ArrowRight, BookOpen, Mountain, Check } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DiagnosticFlow } from './components/DiagnosticFlow'
+import { PropositoFlow } from './components/PropositoFlow'
+import { PropositoCard } from './components/PropositoCard'
 import { ResultMap } from './components/ResultMap'
 import { VersiculoModal } from '@/components/VersiculoModal'
 import { GruposModal } from './components/GruposModal'
@@ -24,6 +26,38 @@ function PropositoInner() {
   
   const seccionDesdeURL = searchParams.get('seccion') as SeccionId
   const seccionValida = secciones.some(s => s.id === seccionDesdeURL) ? seccionDesdeURL : null
+  const esEvaluacionCompleta = searchParams.get('evaluacion') === 'completa'
+
+  // Redirigir al inicio si no hay sección ni evaluación completa
+  useEffect(() => {
+    if (!seccionValida && !esEvaluacionCompleta) {
+      router.replace('/abriendo-camino')
+    }
+  }, [seccionValida, esEvaluacionCompleta, router])
+
+  if (!seccionValida && !esEvaluacionCompleta) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f7f6]">
+        <p className="text-slate-500">Redirigiendo al inicio...</p>
+      </div>
+    )
+  }
+
+  // --- FLUJO DE EVALUACIÓN COMPLETA (ORIGINAL RESTAURADO) ---
+  const [plan, setPlan] = useState<{ llamado: string; formado: string; enviado: string } | null>(null)
+
+  if (esEvaluacionCompleta && plan) {
+    return <PropositoCard plan={plan} onReiniciar={() => { setPlan(null); router.push('/abriendo-camino/mas') }} />
+  }
+
+  if (esEvaluacionCompleta) {
+    return (
+      <PropositoFlow 
+        onComplete={(nuevoPlan) => setPlan(nuevoPlan)} 
+        onBack={() => router.push('/abriendo-camino/mas')} 
+      />
+    )
+  }
 
   // Redirigir al inicio si no hay sección, para evitar la pantalla redundante de las 4 áreas
   useEffect(() => {
@@ -70,7 +104,7 @@ function PropositoInner() {
   const handleVolverAlInicio = () => {
     setEstado('intro')
     setSeccionActual(null)
-    router.push('/abriendo-camino/proposito')
+    router.push(esEvaluacionCompleta ? '/abriendo-camino/mas' : '/abriendo-camino')
   }
 
   if (estado === 'diagnostico' && seccionActual) {
@@ -183,4 +217,5 @@ export default function PropositoPage() {
     </Suspense>
   )
 }
+
 

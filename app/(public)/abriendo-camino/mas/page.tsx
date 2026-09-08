@@ -1,8 +1,7 @@
 ﻿'use client'
 
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { ArrowRight, Mountain, Users } from 'lucide-react'
+import { Mountain, Users, ArrowRight } from 'lucide-react'
 
 export default function MasPage() {
   const router = useRouter()
@@ -14,25 +13,21 @@ export default function MasPage() {
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-2">MÁS</h1>
         </div>
 
-        {/* ¿DÓNDE ESTÁS HOY? */}
-        <div className="bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/50 space-y-6">
+        {/* ¿DÓNDE ESTÁS HOY? - Toda la tarjeta es clickeable */}
+        <div 
+          onClick={() => router.push('/abriendo-camino/proposito?evaluacion=completa')}
+          className="bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/50 space-y-6 cursor-pointer hover:shadow-xl hover:scale-[1.01] transition-all duration-300 group"
+        >
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-600 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-emerald-600 flex items-center justify-center group-hover:bg-emerald-700 transition-colors">
               <Mountain className="w-8 h-8 text-white" />
             </div>
             <div>
               <h3 className="text-2xl font-black text-slate-800">¿DÓNDE ESTÁS HOY?</h3>
               <p className="text-slate-600">Descubre dónde estás hoy y cuál es tu siguiente paso.</p>
             </div>
+            <ArrowRight className="ml-auto w-6 h-6 text-emerald-600 group-hover:translate-x-1 transition-transform" />
           </div>
-          
-          <Button
-            onClick={() => router.push('/abriendo-camino')}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all text-lg"
-          >
-            DESCUBRIR MI CAMINO
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
         </div>
 
         {/* NO CAMINES SOLO */}
@@ -47,14 +42,13 @@ export default function MasPage() {
             </div>
           </div>
 
-          <Button
-            variant="outline"
+          <button
             onClick={() => router.push('/abriendo-camino/grupos')}
             className="w-full border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold py-6 rounded-2xl transition-all flex flex-col items-center gap-1"
           >
             <Users className="w-6 h-6 mb-1" />
             <span className="text-base">VER GRUPOS</span>
-          </Button>
+          </button>
         </div>
       </div>
     </div>
