@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { DEVOCIONALES } from '@/lib/devocionales'
+import { type Devocional } from '@/lib/devocionales'
 import { ArrowRight } from 'lucide-react'
 
 interface LeeStepProps {
@@ -55,4 +55,5 @@ export function LeeStep({ dia, onContinue }: LeeStepProps) {
     </Card>
   )
 }
+
 

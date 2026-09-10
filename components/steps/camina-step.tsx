@@ -66,3 +66,4 @@ export function CaminaStep({ devocional, onNext, completed }: CaminaStepProps) {
     </Card>
   )
 }
+

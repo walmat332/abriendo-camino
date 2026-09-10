@@ -137,3 +137,4 @@ export function DescubreStep({ devocional, onNext, completed }: DescubreStepProp
     </Card>
   )
 }
+

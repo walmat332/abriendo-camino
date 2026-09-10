@@ -147,3 +147,4 @@ export function CompletadoStep({ dia, devocional, progress, onNext }: Completado
     </Card>
   )
 }
+

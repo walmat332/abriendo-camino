@@ -52,3 +52,4 @@ export function ConectaStep({ devocional, onNext, completed }: ConectaStepProps)
     </Card>
   )
 }
+
