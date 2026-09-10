@@ -4,46 +4,29 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { DEVOCIONALES } from '@/lib/devocionales'
+import { getDevocional, type Devocional } from '@/lib/devocionales'
 import { 
   saveUsuario, getProgress, saveProgress, marcarDiaCompletado, 
-  getSiguienteDiaDisponible, puedeAccederAlDia, getHorasRestantes
+  puedeAccederAlDia, getHorasRestantes
 } from '@/lib/storage'
-import { ArrowRight, CheckCircle2, XCircle, Flame, Home, Clock, ArrowLeft, Users, Trophy, Star } from 'lucide-react'
+import { ArrowRight, CheckCircle2, XCircle, Home, Clock, Loader2, Users } from 'lucide-react'
 import { LoginModal } from '@/components/LoginModal'
 
-// Mensajes motivacionales por semana
 const MENSAJES_SEMANA: Record<number, { titulo: string; mensaje: string; emoji: string }> = {
-  1: {
-    titulo: "¡Semana 1 Completada!",
-    mensaje: "Has dado el primer paso. Volver a Dios es el inicio de una nueva vida. ¡Sigue firme!",
-    emoji: "🌱"
-  },
-  2: {
-    titulo: "¡Semana 2 Completada!",
-    mensaje: "Estás creciendo en la fe. Cada día te acerca más a Jesús. ¡No te detengas!",
-    emoji: "🌿"
-  },
-  3: {
-    titulo: "¡Semana 3 Completada!",
-    mensaje: "Servir a otros es servir a Cristo. Tu amor está transformando vidas. ¡Continúa!",
-    emoji: "🤝"
-  },
-  4: {
-    titulo: "¡Reto de 4 Semanas Completado!",
-    mensaje: "Has completado el camino. Ahora es tiempo de multiplicar lo que has aprendido. ¡Lleva a otros a Cristo!",
-    emoji: "🏆"
-  }
+  1: { titulo: "¡Semana 1 Completada!", mensaje: "Has dado el primer paso. Volver a Dios es el inicio de una nueva vida. ¡Sigue firme!", emoji: "🌱" },
+  2: { titulo: "¡Semana 2 Completada!", mensaje: "Estás creciendo en la fe. Cada día te acerca más a Jesús. ¡No te detengas!", emoji: "🌿" },
+  3: { titulo: "¡Semana 3 Completada!", mensaje: "Servir a otros es servir a Cristo. Tu amor está transformando vidas. ¡Continúa!", emoji: "🤝" }
 }
 
 export default function DiaPage() {
   const params = useParams()
   const router = useRouter()
-  const dia = parseInt(params.dia as string)
-  const devocional = DEVOCIONALES.find(d => d.dia === dia)
+  
+  const semana = parseInt(params.reto as string) || 1
+  const dia = parseInt(params.dia as string) || 1
 
-  const semanaNumero = devocional ? devocional.semana : Math.ceil(dia / 7)
-  const diaEnSemana = devocional ? ((devocional.dia - 1) % 7) + 1 : ((dia - 1) % 7) + 1
+  const [devocional, setDevocional] = useState<Devocional | null>(null)
+  const [loading, setLoading] = useState(true)
 
   const [paso, setPaso] = useState(0)
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(null)
@@ -53,17 +36,64 @@ export default function DiaPage() {
   const [noDisponible, setNoDisponible] = useState(false)
   const [horasRestantes, setHorasRestantes] = useState(0)
 
+  // 1. Cargar devocional desde Supabase
   useEffect(() => {
-    const currentProgress = getProgress()
-    setProgress(currentProgress)
-    if (currentProgress) {
-      const puedeAcceder = puedeAccederAlDia(dia, currentProgress)
-      if (!puedeAcceder) {
-        setNoDisponible(true)
-        setHorasRestantes(getHorasRestantes(currentProgress))
+    async function cargar() {
+      setLoading(true)
+      const data = await getDevocional(semana, dia)
+      setDevocional(data)
+      setLoading(false)
+    }
+    cargar()
+  }, [semana, dia])
+
+  // 2. Verificar progreso y acceso
+  useEffect(() => {
+    if (devocional) {
+      const currentProgress = getProgress()
+      setProgress(currentProgress)
+      if (currentProgress) {
+        const puedeAcceder = puedeAccederAlDia(dia, currentProgress)
+        if (!puedeAcceder) {
+          setNoDisponible(true)
+          setHorasRestantes(getHorasRestantes(currentProgress))
+        }
       }
     }
-  }, [dia])
+  }, [devocional, dia])
+
+  const handleLoginComplete = (nombre: string, telefono: string) => {
+    saveUsuario(nombre, telefono)
+    setShowLogin(false)
+    setProgress(getProgress())
+  }
+
+  const handleCompletarDia = () => {
+    marcarDiaCompletado(dia)
+    setProgress(getProgress())
+    
+    if (devocional && devocional.dia % 7 === 0) {
+      // Es fin de semana
+      router.push('/abriendo-camino')
+    } else {
+      router.push(`/abriendo-camino/reto/1/dia/${dia + 1}`)
+    }
+  }
+
+  const handleReiniciar = () => {
+    if (confirm('¿Estás seguro de que quieres reiniciar todo tu progreso?')) {
+      localStorage.removeItem('abriendo-camino-progress')
+      router.push('/abriendo-camino')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+      </div>
+    )
+  }
 
   if (!devocional) {
     return (
@@ -101,285 +131,184 @@ export default function DiaPage() {
     conecta: '🔗 FASE 1: CONECTA - Jesús llamó',
     crece: '🌱 FASE 2: CRECE - Jesús entrenó',
     sirve: '🤝 FASE 3: SIRVE - Jesús envió a servir',
-    multiplica: '🚀 FASE 4: MULTIPLICA - Jesús envió a hacer discípulos'
+    multiplica: '🚀 FASE 4: MULTIPLICA - Jesús formó discípulos'
   }
 
-  const faseColors: Record<string, string> = {
-    conecta: 'bg-blue-100 text-blue-700',
-    crece: 'bg-green-100 text-green-700',
-    sirve: 'bg-purple-100 text-purple-700',
-    multiplica: 'bg-amber-100 text-amber-700'
-  }
-
-  // CORRECCIÓN CLAVE: Detecta el día 7 de CUALQUIER semana (7, 14, 21, 28)
-  const esFinDeSemana = diaEnSemana === 7
-  const esUltimaSemana = semanaNumero === 4
-
-  const handleContinuar = () => {
-    setPaso(paso + 1)
-    setOpcionSeleccionada(null)
-    setFeedback(null)
-    if (paso === 3 && dia === 2 && !progress?.usuario) {
-      setTimeout(() => setShowLogin(true), 500)
-    }
-  }
-
-  const handleRespuestaDescubre = (opcionId: string) => {
-    setOpcionSeleccionada(opcionId)
-    const opcion = devocional.descubre.opciones.find(o => o.id === opcionId)
-    if (opcion?.esCorrecta) setFeedback('correcto')
-    else setFeedback('incorrecto')
-  }
-
-  const handleCompletarDia = () => {
-    let currentProgress = getProgress() || { dias: {}, startDate: new Date().toISOString(), lastAccess: new Date().toISOString() }
-    currentProgress = marcarDiaCompletado(currentProgress, dia, [])
-    saveProgress(currentProgress)
-    setProgress(currentProgress)
-    
-    if (dia === 2 && !currentProgress?.usuario) {
-      setShowLogin(true)
-      return
-    }
-    
-    // Si es fin de semana, no redirigir, mostrar felicitaciones
-    if (esFinDeSemana) return 
-
-    // Para días normales, ir al inicio
-    router.push('/abriendo-camino')
-  }
-
-  const handleLoginComplete = (nombre: string, telefono: string) => {
-    saveUsuario(nombre, telefono)
-    let currentProgress = getProgress() || { dias: {}, startDate: new Date().toISOString(), lastAccess: new Date().toISOString() }
-    currentProgress.usuario = { nombre, telefono }
-    saveProgress(currentProgress)
-    setShowLogin(false)
-    setProgress(currentProgress)
-    router.push('/abriendo-camino')
-  }
-
-  const handleReiniciar = () => {
-    localStorage.removeItem('abriendo-camino-progress')
-    router.push('/abriendo-camino/reto/1/dia/1')
-  }
-
-  const handleComenzarSiguienteSemana = () => {
-    router.push(`/abriendo-camino/reto/1/dia/${dia + 1}`)
-  }
-
-  const mensajeSemana = MENSAJES_SEMANA[semanaNumero] || MENSAJES_SEMANA[1]
+  const esFinDeSemana = devocional.dia % 7 === 0
+  const mensajeSemana = MENSAJES_SEMANA[devocional.semana]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex flex-col items-center justify-center relative overflow-hidden">
-      <div className="absolute top-4 left-4 z-20">
-        <button onClick={() => router.push('/abriendo-camino')} className="flex items-center gap-2 text-slate-600 hover:text-slate-900 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all border border-slate-200">
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm font-medium">Volver al inicio</span>
-        </button>
-      </div>
-
-      {[...Array(15)].map((_, i) => (
-        <div key={i} className="absolute w-2 h-2 bg-amber-400/20 rounded-full animate-pulse" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 5}s` }} />
-      ))}
-
-      <Card className="w-full max-w-2xl bg-white/90 backdrop-blur-md border-white/50 shadow-xl relative z-10 mt-12">
-        <CardHeader>
-          <div className="flex justify-between items-start gap-2">
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-slate-600 font-medium">Semana {semanaNumero} - Día {diaEnSemana}</span>
-              <span className={`text-xs px-2 py-1 rounded-full font-medium ${faseColors[devocional.fase] || 'bg-slate-100 text-slate-600'}`}>
-                {faseLabels[devocional.fase] || devocional.fase}
-              </span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-8">
+      <Card className="max-w-2xl mx-auto shadow-xl border-0">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between mb-4">
+            <Button variant="ghost" size="sm" onClick={() => router.push('/abriendo-camino')} className="text-slate-500">
+              <ArrowLeft className="mr-1 h-4 w-4" /> Inicio
+            </Button>
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              {faseLabels[devocional.fase] || devocional.fase}
             </div>
-            <span className="text-sm font-semibold text-slate-700 text-right">
-              {paso === 0 && '📖 LEE'}
-              {paso === 1 && '🔎 DESCUBRE'}
-              {paso === 2 && '💭 CONECTA'}
-              {paso === 3 && '🎯 CAMINA'}
-              {paso === 4 && '🎉 COMPLETADO'}
-            </span>
           </div>
-          <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
-            <div className="bg-gradient-to-r from-amber-400 to-amber-600 h-2 rounded-full transition-all duration-500" style={{ width: `${((paso + 1) / 5) * 100}%` }} />
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900">{devocional.titulo}</h1>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
+              Semana {devocional.semana}
+            </span>
+            <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
+              Día {devocional.dia}
+            </span>
           </div>
         </CardHeader>
 
-        <CardContent className="p-6">
+        <CardContent className="space-y-6">
+          {/* PASO 0: Lectura */}
           {paso === 0 && (
             <div className="space-y-4">
-              <h2 className="text-3xl font-bold text-slate-900 text-center">{devocional.titulo}</h2>
-              <p className="text-center text-slate-600 font-semibold text-lg">{devocional.lecturaRef}</p>
-              <div className="bg-slate-50 p-6 rounded-lg border border-slate-200">
-                <p className="text-lg leading-relaxed text-slate-800 whitespace-pre-line italic">{devocional.lecturaTexto}</p>
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                <p className="font-bold text-blue-900 mb-1">{devocional.lecturaRef}</p>
+                <p className="text-slate-700 italic leading-relaxed">"{devocional.lecturaTexto}"</p>
               </div>
-              <p className="text-center text-slate-500 italic text-sm font-medium">"{devocional.fraseDelDia}"</p>
+              <div className="bg-amber-50 p-4 rounded-lg">
+                <p className="text-amber-800 font-semibold text-center">"{devocional.fraseDelDia}"</p>
+              </div>
             </div>
           )}
 
+          {/* PASO 1: Descubre */}
           {paso === 1 && (
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-slate-900 text-center">🔎 ¿Qué dice el texto?</h3>
-              <p className="text-lg text-slate-700 text-center font-medium">{devocional.descubre.pregunta}</p>
-              <div className="space-y-3">
-                {devocional.descubre.opciones.map((opcion) => (
-                  <button key={opcion.id} onClick={() => handleRespuestaDescubre(opcion.id)} disabled={feedback === 'correcto'} className={`w-full p-4 rounded-lg border-2 text-left transition-all ${opcionSeleccionada === opcion.id ? (feedback === 'correcto' ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50') : 'border-slate-200 bg-white hover:border-amber-400'}`}>
-                    <span className="font-medium text-slate-800">{opcion.texto}</span>
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-blue-500" /> {devocional.descubre.pregunta}
+              </h3>
+              <div className="space-y-2">
+                {devocional.descubre.opciones.map((op) => (
+                  <button
+                    key={op.id}
+                    onClick={() => {
+                      setOpcionSeleccionada(op.id)
+                      setFeedback(op.esCorrecta ? 'correcto' : 'incorrecto')
+                    }}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                      opcionSeleccionada === op.id
+                        ? op.esCorrecta
+                          ? 'border-green-500 bg-green-50 text-green-800'
+                          : 'border-red-500 bg-red-50 text-red-800'
+                        : 'border-slate-200 hover:border-blue-300 hover:bg-blue-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{op.texto}</span>
+                      {opcionSeleccionada === op.id && (
+                        op.esCorrecta ? <CheckCircle2 className="w-5 h-5 text-green-600" /> : <XCircle className="w-5 h-5 text-red-600" />
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>
               {feedback === 'correcto' && (
-                <div className="bg-green-50 border-2 border-green-300 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle2 className="text-green-600 w-5 h-5" />
-                    <span className="font-bold text-green-900">¡Lo descubriste!</span>
-                  </div>
-                  <p className="text-green-800">{devocional.descubre.explicacion}</p>
-                  <p className="text-sm text-green-600 mt-2">— {devocional.descubre.versiculoApoyo}</p>
+                <div className="bg-green-50 border border-green-200 p-4 rounded-lg animate-in fade-in slide-in-from-bottom-2">
+                  <p className="text-green-800 font-medium mb-1">¡Correcto! 🎉</p>
+                  <p className="text-green-700 text-sm">{devocional.descubre.explicacion}</p>
+                  <p className="text-green-600 text-xs font-bold mt-2">{devocional.descubre.versiculoApoyo}</p>
                 </div>
               )}
               {feedback === 'incorrecto' && (
-                <div className="bg-red-50 border-2 border-red-300 p-4 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <XCircle className="text-red-500 w-5 h-5" />
-                    <span className="text-red-800">💡 Casi. Vuelve al texto y observa nuevamente...</span>
-                  </div>
+                <div className="bg-red-50 border border-red-200 p-4 rounded-lg animate-in fade-in slide-in-from-bottom-2">
+                  <p className="text-red-800 font-medium">No es la mejor opción. ¡Inténtalo de nuevo!</p>
                 </div>
               )}
             </div>
           )}
 
+          {/* PASO 2: Conecta */}
           {paso === 2 && (
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-slate-900 text-center">💭 Conecta con tu vida</h3>
-              <p className="text-lg text-slate-700 text-center">{devocional.conecta.pregunta}</p>
-              <div className="space-y-3">
-                {devocional.conecta.opciones.map((opcion) => (
-                  <button key={opcion.id} onClick={() => setOpcionSeleccionada(opcion.id)} className={`w-full p-4 rounded-lg border-2 text-left transition-all ${opcionSeleccionada === opcion.id ? 'border-amber-500 bg-amber-50' : 'border-slate-200 bg-white hover:border-amber-400'}`}>
-                    <span className="text-slate-800">{opcion.texto}</span>
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <Users className="w-5 h-5 text-purple-500" /> {devocional.conecta.pregunta}
+              </h3>
+              <div className="space-y-2">
+                {devocional.conecta.opciones.map((op) => (
+                  <button
+                    key={op.id}
+                    onClick={() => setOpcionSeleccionada(op.id)}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                      opcionSeleccionada === op.id
+                        ? 'border-purple-500 bg-purple-50 text-purple-800'
+                        : 'border-slate-200 hover:border-purple-300 hover:bg-purple-50'
+                    }`}
+                  >
+                    {op.texto}
                   </button>
                 ))}
               </div>
-              <p className="text-center text-slate-500 text-sm italic">No hay respuesta correcta. Es tu reflexión personal.</p>
             </div>
           )}
 
+          {/* PASO 3: Camina */}
           {paso === 3 && (
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-slate-900 text-center">🎯 Da un paso hoy</h3>
-              <div className="bg-amber-50 p-6 rounded-lg border-2 border-amber-200">
-                <p className="text-lg text-slate-800 text-center font-medium">{devocional.camina.desafio}</p>
-              </div>
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                <p className="text-sm text-slate-600 italic text-center">{devocional.camina.oracion}</p>
-              </div>
-            </div>
-          )}
-
-          {/* FELICITACIONES AL FINAL DE CADA SEMANA */}
-          {paso === 4 && esFinDeSemana && (
-            <div className="space-y-4 text-center py-4">
-              <div className="text-7xl animate-bounce">{mensajeSemana.emoji}</div>
-              <h3 className="text-3xl font-bold text-slate-900">¡¡¡LO LOGRASTE!!!</h3>
-              <div className="flex items-center justify-center gap-2">
-                {esUltimaSemana ? (
-                  <Trophy className="text-amber-500 w-6 h-6" />
-                ) : (
-                  <Star className="text-amber-500 w-6 h-6" />
-                )}
-                <p className="text-xl text-slate-800 font-bold">
-                  {esUltimaSemana ? '4 semanas completadas' : `${diaEnSemana} / 7 días completados`}
-                </p>
-              </div>
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border-2 border-green-200">
-                <p className="text-lg text-green-900 font-medium">{mensajeSemana.mensaje}</p>
-              </div>
-              
-              {/* Botón NO CAMINES SOLO */}
-              <div className="mt-6 p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
-                <div className="flex items-center gap-2 mb-2 justify-center">
-                  <Users className="w-5 h-5 text-purple-600" />
-                  <h4 className="font-bold text-purple-900">NO CAMINES SOLO</h4>
+              <div className="bg-slate-800 text-white p-6 rounded-2xl">
+                <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                  <Flame className="w-5 h-5 text-amber-400" /> Tu desafío de hoy
+                </h3>
+                <p className="text-slate-200 mb-6">{devocional.camina.desafio}</p>
+                <div className="bg-white/10 p-4 rounded-xl">
+                  <p className="text-sm font-bold text-amber-300 mb-1">Oremos juntos:</p>
+                  <p className="text-white italic">"{devocional.camina.oracion}"</p>
                 </div>
-                <p className="text-sm text-purple-800 mb-3">
-                  Únete a uno de nuestros grupos de conexión en tu distrito o de forma virtual. Tenemos horarios para todos.
-                </p>
-                <button 
-                  onClick={() => router.push('/abriendo-camino/grupos')}
-                  className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition"
-                >
-                  Ver grupos disponibles →
-                </button>
-              </div>
-              
-              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                <p className="text-amber-800 font-medium text-sm">💡 Recomendación: Únete a un Grupo de Conexión para seguir creciendo junto a otros.</p>
               </div>
             </div>
           )}
 
-          {/* DÍA NORMAL COMPLETADO (no es fin de semana) */}
-          {paso === 4 && !esFinDeSemana && (
-            <div className="space-y-4 text-center">
-              <div className="text-6xl">🎉</div>
-              <h3 className="text-2xl font-bold text-slate-900">¡Semana {semanaNumero} - Día {diaEnSemana} completado!</h3>
-              <p className="text-slate-600">Hoy no solamente leíste la Palabra. Diste un paso para caminar con Dios.</p>
+          {/* PASO 4: Completado */}
+          {paso === 4 && (
+            <div className="space-y-4 text-center py-8">
+              <div className="text-6xl mb-4">{mensajeSemana?.emoji || '🎉'}</div>
+              <h3 className="text-2xl font-bold text-slate-900">
+                {mensajeSemana?.titulo || `¡Día ${devocional.dia} completado!`}
+              </h3>
+              <p className="text-slate-600 max-w-md mx-auto">
+                {mensajeSemana?.mensaje || "Hoy no solamente leíste la Palabra. Diste un paso para caminar con Dios."}
+              </p>
               {dia === 2 && !progress?.usuario && (
-                <p className="text-sm text-amber-600 font-medium mt-4 bg-amber-50 p-2 rounded">En el siguiente paso podrás guardar tu progreso</p>
+                <p className="text-sm text-amber-600 font-medium mt-4 bg-amber-50 p-3 rounded-lg">
+                  💡 En el siguiente paso podrás guardar tu progreso con tu nombre.
+                </p>
               )}
             </div>
           )}
         </CardContent>
 
-        {/* FOOTER CON TODOS LOS BOTONES RESTAURADOS */}
-        <CardFooter className="p-6 pt-0">
+        <CardFooter className="p-6 pt-0 flex flex-col gap-3">
           {paso < 4 ? (
-            <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold" onClick={handleContinuar} disabled={(paso === 1 && feedback !== 'correcto') || (paso === 2 && !opcionSeleccionada)}>
+            <Button 
+              size="lg" 
+              className="w-full text-lg py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold" 
+              onClick={() => setPaso(paso + 1)} 
+              disabled={(paso === 1 && feedback !== 'correcto') || (paso === 2 && !opcionSeleccionada)}
+            >
               CONTINUAR <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          ) : esUltimaSemana && !progress?.dias[dia]?.completado ? (
-            <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold" onClick={handleCompletarDia}>
-              FINALIZAR 4 SEMANAS <CheckCircle2 className="ml-2 h-5 w-5" />
-            </Button>
-          ) : esUltimaSemana ? (
-            <div className="w-full space-y-3">
-              <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold" onClick={() => { window.open('https://chat.whatsapp.com/TU_LINK_DE_GRUPO_AQUI', '_blank') }}>
-                <Users className="mr-2 h-5 w-5" /> Únete a un Grupo de Conexión
-              </Button>
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 py-6" onClick={handleReiniciar}>
-                  🔄 Reiniciar
-                </Button>
-                <Button variant="outline" className="flex-1 py-6" onClick={() => router.push('/abriendo-camino')}>
-                  🏠 Inicio
-                </Button>
-              </div>
-            </div>
-          ) : esFinDeSemana && !progress?.dias[dia]?.completado ? (
-            <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold" onClick={handleCompletarDia}>
-              COMPLETAR SEMANA {semanaNumero} <CheckCircle2 className="ml-2 h-5 w-5" />
-            </Button>
-          ) : esFinDeSemana ? (
-            <div className="w-full space-y-3">
-              <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold" onClick={() => { window.open('https://chat.whatsapp.com/TU_LINK_DE_GRUPO_AQUI', '_blank') }}>
-                <Users className="mr-2 h-5 w-5" /> Únete a un Grupo de Conexión
-              </Button>
-              <div className="flex gap-3">
-                <Button variant="outline" className="flex-1 py-6" onClick={handleReiniciar}>
-                  🔄 Reiniciar
-                </Button>
-                <Button variant="outline" className="flex-1 py-6" onClick={() => router.push('/abriendo-camino')}>
-                  🏠 Inicio
-                </Button>
-              </div>
-              <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold" onClick={handleComenzarSiguienteSemana}>
-                Comenzar Semana {semanaNumero + 1} <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
           ) : (
-            <Button size="lg" className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold" onClick={handleCompletarDia}>
-              IR AL INICIO <Home className="ml-2 h-5 w-5" />
-            </Button>
+            <div className="w-full space-y-3">
+              <Button 
+                size="lg" 
+                className="w-full text-lg py-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold" 
+                onClick={handleCompletarDia}
+              >
+                {esFinDeSemana ? `COMPLETAR SEMANA ${devocional.semana}` : 'IR AL SIGUIENTE DÍA'} 
+                <CheckCircle2 className="ml-2 h-5 w-5" />
+              </Button>
+              
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1 py-6" onClick={handleReiniciar}>
+                  Reiniciar
+                </Button>
+                <Button variant="outline" className="flex-1 py-6" onClick={() => router.push('/abriendo-camino')}>
+                  Inicio
+                </Button>
+              </div>
+            </div>
           )}
         </CardFooter>
       </Card>
