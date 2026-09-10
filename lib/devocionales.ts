@@ -1,13 +1,18 @@
-﻿import { supabase } from '@/lib/supabase'
+﻿import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export interface Devocional {
   dia: number
   semana: number
   titulo: string
+  fase: string
   lecturaRef: string
   lecturaTexto: string
-  fraseDelDia: string
-  fase: 'conecta' | 'crece' | 'sirve' | 'multiplica'
+  fraseDelDia?: string
   descubre: {
     pregunta: string
     opciones: { id: string; texto: string; esCorrecta?: boolean }[]
@@ -24,28 +29,26 @@ export interface Devocional {
   }
 }
 
-export const TOTAL_SEMANAS = 4
-export const DIAS_POR_SEMANA = 7
-export const TOTAL_DIAS = 28
-
-// Función para obtener un devocional específico desde Supabase
 export async function getDevocional(semana: number, dia: number): Promise<Devocional | null> {
   try {
     // 1. Buscar el mes activo
-    const { data: mesActivo } = await supabase
+    const { data: mesActivo, error: mesError } = await supabase
       .from('meses_reto')
       .select('id')
       .eq('activo', true)
-      .single()
+      .maybeSingle()
 
-    if (!mesActivo) return null
+    if (mesError || !mesActivo) {
+      console.error('Error buscando mes activo:', mesError)
+      return null
+    }
 
     // 2. Buscar el día específico uniendo las tablas
     const { data, error } = await supabase
       .from('dias_reto')
       .select(`
         dia_numero,
-        semanas!inner(numero_semana),
+        semanas (numero_semana),
         titulo,
         fase,
         versiculo_referencia,
@@ -60,52 +63,59 @@ export async function getDevocional(semana: number, dia: number): Promise<Devoci
         oracion,
         accion
       `)
-      .eq('semanas.numero_semana', semana)
       .eq('dia_numero', dia)
+      .eq('semanas.numero_semana', semana)
       .eq('semanas.mes_id', mesActivo.id)
-      .single()
+      .maybeSingle()
 
-    if (error || !data) {
-      console.error('Error al obtener devocional:', error)
+    if (error) {
+      console.error('Error al obtener devocional de Supabase:', error)
       return null
     }
 
-    // 3. Mapear los datos de Supabase al formato que usa tu app
+    if (!data) {
+      console.warn(`No se encontró devocional para semana ${semana}, día ${dia} en el mes activo.`)
+      return null
+    }
+
+    // 3. Manejar la relación de semanas (Supabase puede devolverlo como objeto o array)
+    const semanaData = Array.isArray(data.semanas) ? data.semanas[0] : data.semanas
+
+    // Función segura para parsear JSON (las opciones vienen como string desde la BD)
+    const safeParse = (val: any) => {
+      if (!val) return []
+      if (typeof val === 'string') {
+        try { return JSON.parse(val) } catch { return [] }
+      }
+      return val
+    }
+
+    // 4. Mapear los datos al formato exacto que usa tu app
     return {
       dia: data.dia_numero,
-      semana: data.semanas[0]?.numero_semana,
+      semana: semanaData?.numero_semana || semana,
       titulo: data.titulo || `Día ${data.dia_numero}`,
-      lecturaRef: data.versiculo_referencia,
-      lecturaTexto: data.versiculo_texto,
+      fase: data.fase || 'conecta',
+      lecturaRef: data.versiculo_referencia || '',
+      lecturaTexto: data.versiculo_texto || data.reflexion || '',
       fraseDelDia: data.reflexion || '',
-      fase: (data.fase as any) || 'conecta',
       descubre: {
         pregunta: data.descubre_pregunta || '',
-        opciones: (data.descubre_opciones as any[]) || [],
+        opciones: safeParse(data.descubre_opciones),
         explicacion: data.descubre_explicacion || '',
-        versiculoApoyo: data.descubre_versiculo || '',
+        versiculoApoyo: data.descubre_versiculo || ''
       },
       conecta: {
         pregunta: data.conecta_pregunta || '',
-        opciones: (data.conecta_opciones as any[]) || [],
+        opciones: safeParse(data.conecta_opciones)
       },
       camina: {
         desafio: data.accion || '',
-        oracion: data.oracion || '',
-      },
+        oracion: data.oracion || ''
+      }
     }
   } catch (err) {
-    console.error('Error en getDevocional:', err)
+    console.error('Error inesperado en getDevocional:', err)
     return null
   }
-}
-
-// Función auxiliar para obtener todos los días de una semana (si la necesitas)
-export async function getSemanaCompleta(semana: number): Promise<Devocional[]> {
-  const dias: Devocional[] = []
-  for (let i = 1; i <= 7; i++) {
-    const devocional = await getDevocional(semana, i)
-    if (devocional) dias.push(devocional)
-  }
-  return dias
 }
