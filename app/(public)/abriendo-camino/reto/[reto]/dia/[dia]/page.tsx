@@ -195,9 +195,9 @@ export default function DiaPage() {
                   <p className="text-white italic">"{devocional.camina.oracion}"</p>
                 </div>
               </div>
-              <Button className="w-full" onClick={() => setPaso(4)}>
-                COMPLETAR DÍA <CheckCircle2 className="ml-2 h-5 w-5" />
-              </Button>
+<Button className="w-full" onClick={() => esFinDeSemana ? handleCompletarDia() : setPaso(4)}>
+  {esFinDeSemana ? "COMPLETAR SEMANA" : "COMPLETAR DÍA"} <CheckCircle2 className="ml-2 h-5 w-5" />
+</Button>
             </div>
           )}
 
