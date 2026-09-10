@@ -9,13 +9,14 @@ import {
   saveUsuario, getProgress, saveProgress, marcarDiaCompletado, 
   puedeAccederAlDia, getHorasRestantes
 } from '@/lib/storage'
-import { ArrowRight, CheckCircle2, XCircle, Home, Clock, Loader2, Users, ArrowLeft, Flame } from 'lucide-react'
+import { ArrowRight, CheckCircle2, XCircle, Home, Clock, Loader2, Users, ArrowLeft, Flame, Trophy } from 'lucide-react'
 import { LoginModal } from '@/components/LoginModal'
 
 const MENSAJES_SEMANA: Record<number, { titulo: string; mensaje: string; emoji: string }> = {
   1: { titulo: "¡Semana 1 Completada!", mensaje: "Has dado el primer paso. Volver a Dios es el inicio de una nueva vida. ¡Sigue firme!", emoji: "🌱" },
   2: { titulo: "¡Semana 2 Completada!", mensaje: "Estás creciendo en la fe. Cada día te acerca más a Jesús. ¡No te detengas!", emoji: "🌿" },
-  3: { titulo: "¡Semana 3 Completada!", mensaje: "Servir a otros es servir a Cristo. Tu amor está transformando vidas. ¡Continúa!", emoji: "🤝" }
+  3: { titulo: "¡Semana 3 Completada!", mensaje: "Servir a otros es servir a Cristo. Tu amor está transformando vidas. ¡Continúa!", emoji: "🤝" },
+  4: { titulo: "¡Reto Completado!", mensaje: "Has completado los 28 días. Tu vida ha sido transformada. ¡Sigue caminando con Dios!", emoji: "" }
 }
 
 export default function DiaPage() {
@@ -35,6 +36,7 @@ export default function DiaPage() {
   const [progress, setProgress] = useState<any>(null)
   const [noDisponible, setNoDisponible] = useState(false)
   const [horasRestantes, setHorasRestantes] = useState(0)
+  const [semanaCompletada, setSemanaCompletada] = useState(false)
 
   useEffect(() => {
     async function cargar() {
@@ -66,18 +68,31 @@ export default function DiaPage() {
     setProgress(getProgress())
   }
 
-  // CORRECCIÓN AQUÍ: Verificamos que currentProgress no sea null antes de usarlo
   const handleCompletarDia = () => {
     const currentProgress = getProgress();
-    if (!currentProgress) return; // Seguridad para TypeScript
+    if (!currentProgress) return;
     
     marcarDiaCompletado(currentProgress, dia, []);
     setProgress(getProgress());
     
+    // Si es fin de semana (día 7, 14, 21, 28), mostrar celebración
     if (devocional && devocional.dia % 7 === 0) {
+      setSemanaCompletada(true);
+      setPaso(5); // Paso especial para celebración de semana
+    } else {
+      // Ir al siguiente día
+      router.push(`/abriendo-camino/reto/1/dia/${dia + 1}`);
+    }
+  }
+
+  const handleComenzarSiguienteSemana = () => {
+    if (devocional && devocional.dia === 28) {
+      // Si completó el día 28, ir al inicio
       router.push('/abriendo-camino');
     } else {
-      router.push(`/abriendo-camino/reto/1/dia/${dia + 1}`);
+      // Ir al primer día de la siguiente semana
+      const siguienteDia = dia + 1;
+      router.push(`/abriendo-camino/reto/1/dia/${siguienteDia}`);
     }
   }
 
@@ -136,6 +151,7 @@ export default function DiaPage() {
   }
 
   const esFinDeSemana = devocional.dia % 7 === 0
+  const esUltimoDia = devocional.dia === 28
   const mensajeSemana = MENSAJES_SEMANA[devocional.semana]
 
   return (
@@ -162,6 +178,7 @@ export default function DiaPage() {
         </CardHeader>
 
         <CardContent className="space-y-6">
+          {/* PASO 0: Lectura */}
           {paso === 0 && (
             <div className="space-y-4">
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
@@ -174,6 +191,7 @@ export default function DiaPage() {
             </div>
           )}
 
+          {/* PASO 1: Descubre */}
           {paso === 1 && (
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -219,6 +237,7 @@ export default function DiaPage() {
             </div>
           )}
 
+          {/* PASO 2: Conecta */}
           {paso === 2 && (
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -242,6 +261,7 @@ export default function DiaPage() {
             </div>
           )}
 
+          {/* PASO 3: Camina */}
           {paso === 3 && (
             <div className="space-y-4">
               <div className="bg-slate-800 text-white p-6 rounded-2xl">
@@ -257,14 +277,15 @@ export default function DiaPage() {
             </div>
           )}
 
-          {paso === 4 && (
+          {/* PASO 4: Día completado (normal) */}
+          {paso === 4 && !esFinDeSemana && (
             <div className="space-y-4 text-center py-8">
-              <div className="text-6xl mb-4">{mensajeSemana?.emoji || '🎉'}</div>
+              <div className="text-6xl mb-4">🎉</div>
               <h3 className="text-2xl font-bold text-slate-900">
-                {mensajeSemana?.titulo || `¡Día ${devocional.dia} completado!`}
+                ¡Día {devocional.dia} completado!
               </h3>
               <p className="text-slate-600 max-w-md mx-auto">
-                {mensajeSemana?.mensaje || "Hoy no solamente leíste la Palabra. Diste un paso para caminar con Dios."}
+                Hoy no solamente leíste la Palabra. Diste un paso para caminar con Dios.
               </p>
               {dia === 2 && !progress?.usuario && (
                 <p className="text-sm text-amber-600 font-medium mt-4 bg-amber-50 p-3 rounded-lg">
@@ -273,10 +294,50 @@ export default function DiaPage() {
               )}
             </div>
           )}
+
+          {/* PASO 5: Semana completada (celebración especial) */}
+          {paso === 5 && esFinDeSemana && (
+            <div className="space-y-6 text-center py-8">
+              <div className="flex justify-center">
+                <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-6 rounded-full">
+                  <Trophy className="w-16 h-16 text-white" />
+                </div>
+              </div>
+              <div className="text-6xl">{mensajeSemana?.emoji || '🏆'}</div>
+              <h3 className="text-3xl font-black text-slate-900">
+                ¡Lo Lograste!
+              </h3>
+              <h4 className="text-xl font-bold text-amber-600">
+                {mensajeSemana?.titulo || `¡Semana ${devocional.semana} Completada!`}
+              </h4>
+              <p className="text-slate-600 max-w-md mx-auto text-lg">
+                {mensajeSemana?.mensaje || "Has completado esta semana. Tu fe está creciendo cada día."}
+              </p>
+              
+              {esUltimoDia ? (
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 p-6 rounded-xl mt-6">
+                  <p className="text-amber-900 font-bold text-lg mb-2">🎊 ¡Felicidades! 🎊</p>
+                  <p className="text-amber-800">
+                    Has completado los 28 días del reto "Abriendo Camino". Tu vida ha sido transformada.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 p-6 rounded-xl mt-6">
+                  <p className="text-blue-900 font-bold text-lg mb-2">
+                    🚀 Semana {devocional.semana + 1} te espera
+                  </p>
+                  <p className="text-blue-800">
+                    Estás a un paso de comenzar la siguiente semana. ¡No te detengas!
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
 
         <CardFooter className="p-6 pt-0 flex flex-col gap-3">
-          {paso < 4 ? (
+          {/* Botones para pasos 0-3 */}
+          {paso < 4 && (
             <Button 
               size="lg" 
               className="w-full text-lg py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold" 
@@ -285,15 +346,17 @@ export default function DiaPage() {
             >
               CONTINUAR <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-          ) : (
+          )}
+
+          {/* Botón para paso 4 (día normal completado) */}
+          {paso === 4 && !esFinDeSemana && (
             <div className="w-full space-y-3">
               <Button 
                 size="lg" 
                 className="w-full text-lg py-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold" 
                 onClick={handleCompletarDia}
               >
-                {esFinDeSemana ? `COMPLETAR SEMANA ${devocional.semana}` : 'IR AL SIGUIENTE DÍA'} 
-                <CheckCircle2 className="ml-2 h-5 w-5" />
+                IR AL SIGUIENTE DÍA <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               
               <div className="flex gap-3">
@@ -304,6 +367,43 @@ export default function DiaPage() {
                   Inicio
                 </Button>
               </div>
+            </div>
+          )}
+
+          {/* Botones para paso 5 (semana completada) */}
+          {paso === 5 && esFinDeSemana && (
+            <div className="w-full space-y-3">
+              {esUltimoDia ? (
+                <>
+                  <Button 
+                    size="lg" 
+                    className="w-full text-lg py-6 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold" 
+                    onClick={() => router.push('/abriendo-camino')}
+                  >
+                    <Trophy className="mr-2 h-5 w-5" />
+                    VOLVER AL INICIO
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    size="lg" 
+                    className="w-full text-lg py-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold" 
+                    onClick={handleComenzarSiguienteSemana}
+                  >
+                    COMENZAR SEMANA {devocional.semana + 1} <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                  
+                  <div className="flex gap-3">
+                    <Button variant="outline" className="flex-1 py-6" onClick={handleReiniciar}>
+                      Reiniciar
+                    </Button>
+                    <Button variant="outline" className="flex-1 py-6" onClick={() => router.push('/abriendo-camino')}>
+                      Inicio
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </CardFooter>
