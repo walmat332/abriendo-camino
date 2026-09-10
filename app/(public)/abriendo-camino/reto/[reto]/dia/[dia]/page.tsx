@@ -67,7 +67,7 @@ export default function DiaPage() {
   }
 
   const handleCompletarDia = () => {
-    marcarDiaCompletado(progress, dia, [])
+    marcarDiaCompletado(getProgress(), dia, [])
     setProgress(getProgress())
     
     if (devocional && devocional.dia % 7 === 0) {
