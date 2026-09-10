@@ -7,24 +7,19 @@ import { type Devocional } from '@/lib/devocionales'
 import { ArrowRight } from 'lucide-react'
 
 interface LeeStepProps {
-  dia: number
+  devocional: Devocional
   onContinue: () => void
 }
 
-export function LeeStep({ dia, onContinue }: LeeStepProps) {
-  const devocional = DEVOCIONALES.find(d => d.dia === dia)
+export function LeeStep({ devocional, onContinue }: LeeStepProps) {
   const [leido, setLeido] = useState(false)
-
-  if (!devocional) {
-    return <div>Devocional no encontrado</div>
-  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardContent className="p-6 space-y-4">
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-bold text-amber-900">
-            📖 Día {dia}: {devocional.titulo}
+            📖 Día {devocional.dia}: {devocional.titulo}
           </h2>
           <p className="text-sm text-amber-600 font-semibold">
             {devocional.lecturaRef}
@@ -46,7 +41,10 @@ export function LeeStep({ dia, onContinue }: LeeStepProps) {
         <Button
           size="lg"
           className="w-full text-lg py-6 bg-amber-600 hover:bg-amber-700"
-          onClick={onContinue}
+          onClick={() => {
+            setLeido(true)
+            onContinue()
+          }}
         >
           {leido ? 'CONTINUAR' : 'YA LEÍ EL PASAJE'}
           <ArrowRight className="ml-2 h-5 w-5" />
@@ -55,5 +53,3 @@ export function LeeStep({ dia, onContinue }: LeeStepProps) {
     </Card>
   )
 }
-
-
