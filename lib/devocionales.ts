@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+﻿import { supabase } from '@/lib/supabase'
 
 export interface Devocional {
   dia: number
@@ -73,7 +73,7 @@ export async function getDevocional(semana: number, dia: number): Promise<Devoci
     // 3. Mapear los datos de Supabase al formato que usa tu app
     return {
       dia: data.dia_numero,
-      semana: data.semanas.numero_semana,
+      semana: data.semanas[0]?.numero_semana,
       titulo: data.titulo || `Día ${data.dia_numero}`,
       lecturaRef: data.versiculo_referencia,
       lecturaTexto: data.versiculo_texto,
