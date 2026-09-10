@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button"
+﻿import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { DEVOCIONALES } from "@/lib/devocionales"
+import { type Devocional } from "@/lib/devocionales"
 import { getNextDia, getModoRetos, getHorasRestantes } from "@/lib/storage"
 import type { UserProgress } from "@/lib/types"
 import { ArrowRight, Share2, Home, Clock } from "lucide-react"
@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 
 interface CompletadoStepProps {
   dia: number
-  devocional: typeof DEVOCIONALES[0]
+  devocional: Devocional
   progress: UserProgress
   onNext: () => void
 }

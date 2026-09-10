@@ -1,11 +1,11 @@
-import { useState } from "react"
+﻿import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { DEVOCIONALES } from "@/lib/devocionales"
+import { type Devocional } from "@/lib/devocionales"
 import { ArrowRight } from "lucide-react"
 
 interface ConectaStepProps {
-  devocional: typeof DEVOCIONALES[0]
+  devocional: Devocional
   onNext: () => void
   completed: boolean
 }
