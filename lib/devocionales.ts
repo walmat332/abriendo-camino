@@ -45,7 +45,7 @@ export async function getDevocional(semana: number, dia: number): Promise<Devoci
       .from('dias_reto')
       .select(`
         dia_numero,
-        semana!inner(numero_semana),
+        semanas!inner(numero_semana),
         titulo,
         fase,
         versiculo_referencia,
@@ -60,9 +60,9 @@ export async function getDevocional(semana: number, dia: number): Promise<Devoci
         oracion,
         accion
       `)
-      .eq('semana.numero_semana', semana)
+      .eq('semanas.numero_semana', semana)
       .eq('dia_numero', dia)
-      .eq('semana.mes_id', mesActivo.id)
+      .eq('semanas.mes_id', mesActivo.id)
       .single()
 
     if (error || !data) {
@@ -73,7 +73,7 @@ export async function getDevocional(semana: number, dia: number): Promise<Devoci
     // 3. Mapear los datos de Supabase al formato que usa tu app
     return {
       dia: data.dia_numero,
-      semana: data.semana.numero_semana,
+      semana: data.semanas.numero_semana,
       titulo: data.titulo || `Día ${data.dia_numero}`,
       lecturaRef: data.versiculo_referencia,
       lecturaTexto: data.versiculo_texto,

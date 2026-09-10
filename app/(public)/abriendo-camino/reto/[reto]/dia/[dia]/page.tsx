@@ -9,7 +9,7 @@ import {
   saveUsuario, getProgress, saveProgress, marcarDiaCompletado, 
   puedeAccederAlDia, getHorasRestantes
 } from '@/lib/storage'
-import { ArrowRight, CheckCircle2, XCircle, Home, Clock, Loader2, Users } from 'lucide-react'
+import { ArrowRight, CheckCircle2, XCircle, Home, Clock, Loader2, Users, ArrowLeft, Flame } from 'lucide-react'
 import { LoginModal } from '@/components/LoginModal'
 
 const MENSAJES_SEMANA: Record<number, { titulo: string; mensaje: string; emoji: string }> = {
@@ -36,7 +36,6 @@ export default function DiaPage() {
   const [noDisponible, setNoDisponible] = useState(false)
   const [horasRestantes, setHorasRestantes] = useState(0)
 
-  // 1. Cargar devocional desde Supabase
   useEffect(() => {
     async function cargar() {
       setLoading(true)
@@ -47,7 +46,6 @@ export default function DiaPage() {
     cargar()
   }, [semana, dia])
 
-  // 2. Verificar progreso y acceso
   useEffect(() => {
     if (devocional) {
       const currentProgress = getProgress()
@@ -73,7 +71,6 @@ export default function DiaPage() {
     setProgress(getProgress())
     
     if (devocional && devocional.dia % 7 === 0) {
-      // Es fin de semana
       router.push('/abriendo-camino')
     } else {
       router.push(`/abriendo-camino/reto/1/dia/${dia + 1}`)
@@ -130,8 +127,8 @@ export default function DiaPage() {
   const faseLabels: Record<string, string> = {
     conecta: '🔗 FASE 1: CONECTA - Jesús llamó',
     crece: '🌱 FASE 2: CRECE - Jesús entrenó',
-    sirve: '🤝 FASE 3: SIRVE - Jesús envió a servir',
-    multiplica: '🚀 FASE 4: MULTIPLICA - Jesús formó discípulos'
+    sirve: ' FASE 3: SIRVE - Jesús envió a servir',
+    multiplica: ' FASE 4: MULTIPLICA - Jesús formó discípulos'
   }
 
   const esFinDeSemana = devocional.dia % 7 === 0
@@ -161,7 +158,6 @@ export default function DiaPage() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* PASO 0: Lectura */}
           {paso === 0 && (
             <div className="space-y-4">
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
@@ -174,7 +170,6 @@ export default function DiaPage() {
             </div>
           )}
 
-          {/* PASO 1: Descubre */}
           {paso === 1 && (
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -207,7 +202,7 @@ export default function DiaPage() {
               </div>
               {feedback === 'correcto' && (
                 <div className="bg-green-50 border border-green-200 p-4 rounded-lg animate-in fade-in slide-in-from-bottom-2">
-                  <p className="text-green-800 font-medium mb-1">¡Correcto! 🎉</p>
+                  <p className="text-green-800 font-medium mb-1">¡Correcto! </p>
                   <p className="text-green-700 text-sm">{devocional.descubre.explicacion}</p>
                   <p className="text-green-600 text-xs font-bold mt-2">{devocional.descubre.versiculoApoyo}</p>
                 </div>
@@ -220,7 +215,6 @@ export default function DiaPage() {
             </div>
           )}
 
-          {/* PASO 2: Conecta */}
           {paso === 2 && (
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -244,7 +238,6 @@ export default function DiaPage() {
             </div>
           )}
 
-          {/* PASO 3: Camina */}
           {paso === 3 && (
             <div className="space-y-4">
               <div className="bg-slate-800 text-white p-6 rounded-2xl">
@@ -260,7 +253,6 @@ export default function DiaPage() {
             </div>
           )}
 
-          {/* PASO 4: Completado */}
           {paso === 4 && (
             <div className="space-y-4 text-center py-8">
               <div className="text-6xl mb-4">{mensajeSemana?.emoji || '🎉'}</div>
