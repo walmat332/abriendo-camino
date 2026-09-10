@@ -27,6 +27,16 @@ export default function AbriendoCaminoIndex() {
   const [showLogin, setShowLogin] = useState(false)
 
   useEffect(() => {
+    // Desregistrar Service Workers residuales (causan pantalla blanca en móvil)
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) {
+          registration.unregister()
+          console.log("✅ SW desregistrado:", registration.scope)
+        }
+      })
+    }
+
     const data = getProgress()
     setProgress(data)
     setMounted(true)
@@ -209,4 +219,5 @@ export default function AbriendoCaminoIndex() {
 }
 
 // Force rebuild 09/10/2026 16:39:24
+
 
