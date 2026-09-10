@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -23,6 +23,17 @@ export default function DiaPage() {
   const [feedback, setFeedback] = useState(false)
 
   useEffect(() => {
+    // 1. DESREGISTRAR SERVICE WORKERS RESIDUALES (Solución pantalla blanca en móvil)
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) {
+          registration.unregister()
+          console.log("✅ SW desregistrado:", registration.scope)
+        }
+      })
+    }
+
+    // 2. Lógica original de carga
     async function cargar() {
       try {
         setLoading(true)
@@ -74,6 +85,7 @@ export default function DiaPage() {
       setFeedback(false)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
+      // Aquí podríamos agregar la lógica de fin de semana (día 7, 14, 21, 28) más adelante
       router.push('/abriendo-camino/reto/1/dia/' + siguienteDia)
     }
   }
