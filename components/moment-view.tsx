@@ -77,7 +77,7 @@ export function MomentView({
     case "lee":
       return (
         <LeeStep
-          dia={dia}
+          devocional={devocional}
           onContinue={handleNextMoment}
         />
       )
