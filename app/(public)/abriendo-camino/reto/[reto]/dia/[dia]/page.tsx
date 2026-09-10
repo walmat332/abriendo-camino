@@ -13,7 +13,7 @@ import { ArrowRight, CheckCircle2, XCircle, Home, Clock, Loader2, Users, ArrowLe
 import { LoginModal } from '@/components/LoginModal'
 
 const MENSAJES_SEMANA: Record<number, { titulo: string; mensaje: string; emoji: string }> = {
-  1: { titulo: "¡Semana 1 Completada!", mensaje: "Has dado el primer paso. Volver a Dios es el inicio de una nueva vida. ¡Sigue firme!", emoji: "" },
+  1: { titulo: "¡Semana 1 Completada!", mensaje: "Has dado el primer paso. Volver a Dios es el inicio de una nueva vida. ¡Sigue firme!", emoji: "🌱" },
   2: { titulo: "¡Semana 2 Completada!", mensaje: "Estás creciendo en la fe. Cada día te acerca más a Jesús. ¡No te detengas!", emoji: "🌿" },
   3: { titulo: "¡Semana 3 Completada!", mensaje: "Servir a otros es servir a Cristo. Tu amor está transformando vidas. ¡Continúa!", emoji: "🤝" }
 }
@@ -66,14 +66,18 @@ export default function DiaPage() {
     setProgress(getProgress())
   }
 
+  // CORRECCIÓN AQUÍ: Verificamos que currentProgress no sea null antes de usarlo
   const handleCompletarDia = () => {
-    marcarDiaCompletado(getProgress(), dia, [])
-    setProgress(getProgress())
+    const currentProgress = getProgress();
+    if (!currentProgress) return; // Seguridad para TypeScript
+    
+    marcarDiaCompletado(currentProgress, dia, []);
+    setProgress(getProgress());
     
     if (devocional && devocional.dia % 7 === 0) {
-      router.push('/abriendo-camino')
+      router.push('/abriendo-camino');
     } else {
-      router.push(`/abriendo-camino/reto/1/dia/${dia + 1}`)
+      router.push(`/abriendo-camino/reto/1/dia/${dia + 1}`);
     }
   }
 
@@ -126,7 +130,7 @@ export default function DiaPage() {
 
   const faseLabels: Record<string, string> = {
     conecta: '🔗 FASE 1: CONECTA - Jesús llamó',
-    crece: ' FASE 2: CRECE - Jesús entrenó',
+    crece: '🌱 FASE 2: CRECE - Jesús entrenó',
     sirve: '🤝 FASE 3: SIRVE - Jesús envió a servir',
     multiplica: '🚀 FASE 4: MULTIPLICA - Jesús formó discípulos'
   }
