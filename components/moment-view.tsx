@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 
 import type { MomentData, UserProgress, DayProgress } from "@/lib/types"
-import { DEVOCIONALES } from "@/lib/devocionales"
+import { type Devocional } from "@/lib/devocionales"
 import { LeeStep } from "./steps/lee-step"
 import { DescubreStep } from "./steps/descubre-step"
 import { ConectaStep } from "./steps/conecta-step"
@@ -17,7 +17,7 @@ export function MomentView({
   moments,
 }: {
   dia: number
-  devocional: typeof DEVOCIONALES[0]
+  devocional: Devocional
   moments: MomentData[]
 }) {
   const router = useRouter()
