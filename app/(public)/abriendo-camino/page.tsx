@@ -9,10 +9,8 @@ import {
   Heart,
   Sprout,
   HandHeart,
-  UserRound,
   MessageCircle,
   Target,
-  Share2,
   Flame,
   ChevronRight,
 } from 'lucide-react'
@@ -27,12 +25,11 @@ export default function AbriendoCaminoIndex() {
   const [showLogin, setShowLogin] = useState(false)
 
   useEffect(() => {
-    // Desregistrar Service Workers residuales (causan pantalla blanca en móvil)
+    // Desregistrar Service Workers residuales
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const registration of registrations) {
           registration.unregister()
-          console.log("✅ SW desregistrado:", registration.scope)
         }
       })
     }
@@ -86,8 +83,9 @@ export default function AbriendoCaminoIndex() {
         </button>
       </div>
 
-      {/* Contenido principal */}
-      <div className="px-6 -mt-8 relative z-20">
+      {/* Contenido principal (pb-24 agrega espacio para que la barra inferior no tape nada) */}
+      <div className="px-6 -mt-8 relative z-20 pb-24">
+        
         {/* Card de reto actual */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <div className="flex items-center gap-3 mb-4">
@@ -113,7 +111,7 @@ export default function AbriendoCaminoIndex() {
           </button>
         </div>
 
-        {/* Mi Camino - 4 fases */}
+        {/* Mi Camino - 4 fases (Botones grandes) */}
         <div className="mb-6">
           <h3 className="text-lg font-bold text-gray-900 mb-2">Mi Camino</h3>
           <p className="text-sm text-gray-600 mb-4">Un paso cada día para crecer con Dios.</p>
@@ -181,27 +179,27 @@ export default function AbriendoCaminoIndex() {
         </div>
       </div>
 
-      {/* Navegación inferior */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 flex justify-around">
+      {/* Navegación inferior (Fija y siempre visible) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 flex justify-around items-center z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <button
           onClick={() => router.push('/abriendo-camino')}
           className="flex flex-col items-center gap-1 text-green-600"
         >
-          <Flame className="w-5 h-5" />
+          <Flame className="w-6 h-6" />
           <span className="text-xs font-semibold">Reto</span>
         </button>
         <button
           onClick={() => router.push('/abriendo-camino/oracion')}
           className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600"
         >
-          <MessageCircle className="w-5 h-5" />
+          <MessageCircle className="w-6 h-6" />
           <span className="text-xs font-semibold">Oración</span>
         </button>
         <button
           onClick={() => router.push('/abriendo-camino/mas')}
           className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600"
         >
-          <Target className="w-5 h-5" />
+          <Target className="w-6 h-6" />
           <span className="text-xs font-semibold">Más</span>
         </button>
       </div>
