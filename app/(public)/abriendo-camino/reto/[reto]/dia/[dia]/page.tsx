@@ -96,10 +96,7 @@ export default function DiaPage() {
       if (esFinDeSemana) {
         setShowCelebration(true)
       } else {
-        const siguienteDiaAbs = diaAbsoluto + 1
-        const siguienteSemana = Math.ceil(siguienteDiaAbs / 7)
-        const siguienteDia = ((siguienteDiaAbs - 1) % 7) + 1
-        router.push(`/abriendo-camino/reto/${siguienteSemana}/dia/${siguienteDia}`)
+        router.push('/abriendo-camino')
       }
     }
   }
@@ -197,7 +194,7 @@ export default function DiaPage() {
                 <>
                   <h1 className="text-3xl font-bold text-slate-800 mb-2">¡Semana {semana} Completada!</h1>
                   <p className="text-lg text-slate-600 mb-6">¡Fase {nombreFase} completada!</p>
-                  <Button className="w-full" size="lg" onClick={() => { setShowCelebration(false); router.push(`/abriendo-camino/reto/${semana + 1}/dia/1`) }}>
+                  <Button className="w-full" size="lg" onClick={() => { setShowCelebration(false); router.push('/abriendo-camino') }}>
                     Empezar Semana {semana + 1}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
