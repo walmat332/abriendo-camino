@@ -20,214 +20,446 @@ import { LoginModal } from '@/components/LoginModal'
 
 export default function AbriendoCaminoIndex() {
   const router = useRouter()
+
   const [progress, setProgress] = useState<any>(null)
   const [mounted, setMounted] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
 
   useEffect(() => {
-    // Desregistrar Service Workers residuales
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        for (const registration of registrations) {
-          registration.unregister()
-        }
-      })
-    }
-
     const data = getProgress()
+
     setProgress(data)
     setMounted(true)
+
     if (data?.dias && Object.keys(data.dias).length >= 2 && !data.usuario) {
       setShowLogin(true)
     }
   }, [])
 
-  if (!mounted) return null
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-white" />
+    )
+  }
 
-  const diasCompletados = progress?.dias ? Object.keys(progress.dias).length : 0
-  const siguienteDia = Math.min(diasCompletados + 1, 7)
+  const diasCompletados = progress?.dias
+    ? Object.keys(progress.dias).length
+    : 0
+
+  const siguienteDia =
+    diasCompletados >= 7
+      ? 7
+      : Math.min(diasCompletados + 1, 7)
+
+  const retoCompletado = diasCompletados >= 7
+
+  const progresoPorcentaje = Math.min(
+    (diasCompletados / 7) * 100,
+    100
+  )
 
   const handleContinuar = () => {
     router.push(`/abriendo-camino/reto/1/dia/${siguienteDia}`)
   }
 
-  const handleLoginComplete = (nombre: string, telefono: string) => {
+  const handleLoginComplete = (
+    nombre: string,
+    telefono: string
+  ) => {
     saveUsuario(nombre, telefono)
     setShowLogin(false)
     setProgress(getProgress())
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header con imagen hero - Diseño compacto como en móvil */}
-      <div className="relative bg-gradient-to-b from-blue-600 to-purple-700 overflow-hidden">
+    <main className="min-h-screen bg-[#F7F8F6] pb-24">
+
+      {/* =====================================================
+          HERO
+      ===================================================== */}
+      <section className="relative min-h-[500px] overflow-hidden">
+
+        {/* Imagen principal */}
         <Image
           src="/hero-crece.jpg"
-          alt="Hero"
-          width={400}
-          height={600}
-          className="w-full h-auto object-cover opacity-60"
+          alt="Persona avanzando por una montaña"
+          fill
           priority
+          sizes="100vw"
+          className="object-cover object-center"
         />
-        
-        {/* Logo CRECE */}
-        <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-          <div className="flex items-center gap-2 text-white">
-            <div className="bg-white/20 backdrop-blur-sm p-2 rounded-full">
-              <Sprout className="w-6 h-6" />
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/25" />
+
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/15 to-[#173F32]" />
+
+        {/* Contenido superior */}
+        <div className="relative z-10 px-5 pt-6">
+
+          <div className="flex items-start justify-between">
+
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-md border border-white/20">
+                <Sprout className="h-6 w-6 text-white" />
+              </div>
+
+              <div>
+                <h1 className="text-2xl font-bold tracking-wide text-white">
+                  CRECE
+                </h1>
+
+                <p className="text-[11px] font-medium tracking-wide text-white/80">
+                  Descubre · Conecta · Crece
+                </p>
+              </div>
+
             </div>
-            <div>
-              <h1 className="text-xl font-bold">CRECE</h1>
-              <p className="text-xs text-white/80">Descubre · Conecta · Crece</p>
-            </div>
+
+            {/* Grupos */}
+            <button
+              onClick={() =>
+                router.push('/abriendo-camino/grupos')
+              }
+              className="flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition hover:bg-white/25 active:scale-95"
+            >
+              <Users className="h-4 w-4" />
+              <span>Grupos</span>
+            </button>
+
           </div>
-          <button
-            onClick={() => router.push('/abriendo-camino/grupos')}
-            className="bg-white/20 backdrop-blur-sm p-2 rounded-full hover:bg-white/30 transition"
-          >
-            <Users className="w-5 h-5 text-white" />
-          </button>
         </div>
 
-        {/* Texto principal sobre la imagen */}
-        <div className="relative z-10 px-4 pt-24 pb-8">
-          <p className="text-green-300 text-sm font-semibold mb-2">TU CAMINO DE HOY</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">
-            No te quedes donde estás.
+        {/* Mensaje principal */}
+        <div className="relative z-10 mx-auto flex min-h-[390px] max-w-3xl flex-col justify-end px-5 pb-10">
+
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-1 w-8 rounded-full bg-emerald-300" />
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-200">
+              Tu camino de hoy
+            </span>
+          </div>
+
+          <h2 className="max-w-xl text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl">
+            No te quedes
+            <br />
+            donde estás.
           </h2>
-          <p className="text-white/90 text-sm md:text-base max-w-md">
-            Crece en tu relación con Dios, crece en su Palabra, crece para vivir tu propósito.
+
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 md:text-lg">
+            Crece con Dios, descubre tu propósito y
+            vive para transformar a otros.
+          </p>
+
+        </div>
+      </section>
+
+      {/* =====================================================
+          RETO ACTUAL
+      ===================================================== */}
+      <section className="relative z-20 mx-auto -mt-8 max-w-3xl px-4">
+
+        <div className="overflow-hidden rounded-[28px] bg-[#174936] shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
+
+          <div className="p-5 sm:p-6">
+
+            {/* Cabecera */}
+            <div className="flex items-start gap-4">
+
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-orange-500 shadow-lg shadow-orange-900/20">
+                <Flame className="h-6 w-6 text-white" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-200">
+                  Reto actual
+                </p>
+
+                <h3 className="mt-1 text-xl font-bold text-white">
+                  7 días — Volver a Dios
+                </h3>
+
+                <p className="mt-1 text-sm leading-relaxed text-white/70">
+                  Un encuentro que puede cambiar tu camino.
+                </p>
+
+              </div>
+
+              <div className="hidden shrink-0 rounded-full bg-emerald-300 px-3 py-1.5 text-xs font-bold text-[#174936] sm:block">
+                Día {siguienteDia} de 7
+              </div>
+
+            </div>
+
+            {/* Indicador móvil */}
+            <div className="mt-5 flex items-center justify-between sm:hidden">
+              <span className="text-xs font-medium text-white/60">
+                Tu progreso
+              </span>
+
+              <span className="rounded-full bg-emerald-300 px-3 py-1 text-xs font-bold text-[#174936]">
+                Día {siguienteDia} de 7
+              </span>
+            </div>
+
+            {/* Barra de progreso */}
+            <div className="mt-5">
+
+              <div className="mb-2 flex justify-between text-xs">
+                <span className="text-white/60">
+                  {diasCompletados} de 7 días completados
+                </span>
+
+                <span className="font-semibold text-emerald-200">
+                  {Math.round(progresoPorcentaje)}%
+                </span>
+              </div>
+
+              <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-emerald-300 transition-all duration-500"
+                  style={{
+                    width: `${progresoPorcentaje}%`,
+                  }}
+                />
+              </div>
+
+            </div>
+
+            {/* CTA */}
+            <button
+              onClick={handleContinuar}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-5 py-4 text-sm font-bold text-[#123B2C] shadow-lg transition hover:bg-emerald-300 active:scale-[0.98]"
+            >
+              {retoCompletado
+                ? 'Volver a vivir el reto'
+                : 'Continuar mi camino'}
+
+              <ArrowRight className="h-5 w-5" />
+            </button>
+
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          MI CAMINO
+      ===================================================== */}
+      <section className="mx-auto max-w-3xl px-4 pt-10">
+
+        <div className="mb-5">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">
+            Tu proceso
+          </p>
+
+          <h3 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+            Mi camino
+          </h3>
+
+          <p className="mt-1 text-sm text-gray-500">
+            Un paso cada día para crecer con Dios.
           </p>
         </div>
 
-        {/* Card del reto actual - Superpuesta sobre la imagen */}
-        <div className="relative z-20 bg-gradient-to-br from-green-800/90 to-teal-900/90 backdrop-blur-sm rounded-t-3xl px-4 pt-6 pb-4 -mt-4">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="bg-orange-500 p-2 rounded-full">
-              <Flame className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-grow">
-              <p className="text-xs text-white/80 uppercase font-semibold">Reto Actual</p>
-              <h3 className="text-lg font-bold text-white">7 días — Volver a Dios</h3>
-              <p className="text-sm text-white/80">Un encuentro que puede cambiar tu camino.</p>
-            </div>
-            <div className="bg-green-400 text-green-900 px-3 py-1 rounded-full text-sm font-semibold">
-              Día {siguienteDia} de 7
-            </div>
-          </div>
+        {/* Tarjetas */}
+        <div className="grid grid-cols-2 gap-3">
 
+          {/* CONEXIÓN */}
           <button
-            onClick={handleContinuar}
-            className="w-full bg-green-500 hover:bg-green-400 text-white font-semibold py-4 rounded-2xl flex items-center justify-center gap-2 transition-colors shadow-lg"
+            onClick={() =>
+              router.push('/abriendo-camino/proposito')
+            }
+            className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]"
           >
-            Continuar mi camino
-            <ArrowRight className="w-5 h-5" />
+            <div className="mb-8 flex items-center justify-between">
+
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-50">
+                <Heart className="h-5 w-5 text-pink-500" />
+              </div>
+
+              <ChevronRight className="h-4 w-4 text-gray-300 transition group-hover:translate-x-1" />
+
+            </div>
+
+            <h4 className="text-sm font-bold text-gray-900">
+              CONEXIÓN
+            </h4>
+
+            <p className="mt-1 text-xs leading-relaxed text-gray-500">
+              Conoce a Cristo. Conecta con otros.
+            </p>
           </button>
+
+          {/* CRECIMIENTO */}
+          <button
+            onClick={() =>
+              router.push('/abriendo-camino/reto/1/dia/1')
+            }
+            className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]"
+          >
+            <div className="mb-8 flex items-center justify-between">
+
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50">
+                <Sprout className="h-5 w-5 text-emerald-600" />
+              </div>
+
+              <ChevronRight className="h-4 w-4 text-gray-300 transition group-hover:translate-x-1" />
+
+            </div>
+
+            <h4 className="text-sm font-bold text-gray-900">
+              CRECIMIENTO
+            </h4>
+
+            <p className="mt-1 text-xs leading-relaxed text-gray-500">
+              Lee la Palabra. Desarrolla tu fe.
+            </p>
+          </button>
+
+          {/* SERVICIO */}
+          <button
+            onClick={() =>
+              router.push('/abriendo-camino/oracion')
+            }
+            className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]"
+          >
+            <div className="mb-8 flex items-center justify-between">
+
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50">
+                <HandHeart className="h-5 w-5 text-orange-500" />
+              </div>
+
+              <ChevronRight className="h-4 w-4 text-gray-300 transition group-hover:translate-x-1" />
+
+            </div>
+
+            <h4 className="text-sm font-bold text-gray-900">
+              SERVICIO
+            </h4>
+
+            <p className="mt-1 text-xs leading-relaxed text-gray-500">
+              Descubre tus dones. Sirve a otros.
+            </p>
+          </button>
+
+          {/* MULTIPLICACIÓN */}
+          <button
+            onClick={() =>
+              router.push('/abriendo-camino/grupos')
+            }
+            className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]"
+          >
+            <div className="mb-8 flex items-center justify-between">
+
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50">
+                <Users className="h-5 w-5 text-violet-600" />
+              </div>
+
+              <ChevronRight className="h-4 w-4 text-gray-300 transition group-hover:translate-x-1" />
+
+            </div>
+
+            <h4 className="text-sm font-bold text-gray-900">
+              MULTIPLICACIÓN
+            </h4>
+
+            <p className="mt-1 text-xs leading-relaxed text-gray-500">
+              Comparte a Jesús. Haz discípulos.
+            </p>
+          </button>
+
         </div>
-      </div>
+      </section>
 
-      {/* Contenido principal */}
-      <div className="px-4 py-6 max-w-2xl mx-auto">
-        {/* Mi Camino - 4 fases en grid 2x2 */}
-        <div className="mb-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-1">MI CAMINO</h3>
-          <p className="text-sm text-gray-600 mb-4">Un paso cada día para crecer con Dios.</p>
+      {/* =====================================================
+          FRASE FINAL
+      ===================================================== */}
+      <section className="mx-auto max-w-3xl px-4 pb-8 pt-8">
 
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => router.push('/abriendo-camino/proposito')}
-              className="bg-pink-50 hover:bg-pink-100 p-4 rounded-2xl text-left transition-colors group"
-            >
-              <div className="bg-pink-100 p-3 rounded-full w-fit mb-3 group-hover:scale-110 transition-transform">
-                <Heart className="w-6 h-6 text-pink-600" />
-              </div>
-              <h4 className="font-bold text-gray-900 text-sm mb-1">CONEXIÓN</h4>
-              <p className="text-xs text-gray-600 leading-relaxed">Conoce a Cristo. Conecta con otros.</p>
-              <ChevronRight className="w-4 h-4 text-gray-400 mt-2" />
-            </button>
+        <div className="relative overflow-hidden rounded-3xl bg-[#EAF3EE] p-6">
 
-            <button
-              onClick={() => router.push('/abriendo-camino/reto/1/dia/1')}
-              className="bg-green-50 hover:bg-green-100 p-4 rounded-2xl text-left transition-colors group"
-            >
-              <div className="bg-green-100 p-3 rounded-full w-fit mb-3 group-hover:scale-110 transition-transform">
-                <Sprout className="w-6 h-6 text-green-600" />
-              </div>
-              <h4 className="font-bold text-gray-900 text-sm mb-1">CRECIMIENTO</h4>
-              <p className="text-xs text-gray-600 leading-relaxed">Lee la Palabra. Desarrolla tu fe.</p>
-              <ChevronRight className="w-4 h-4 text-gray-400 mt-2" />
-            </button>
+          <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-200/40" />
 
-            <button
-              onClick={() => router.push('/abriendo-camino/oracion')}
-              className="bg-orange-50 hover:bg-orange-100 p-4 rounded-2xl text-left transition-colors group"
-            >
-              <div className="bg-orange-100 p-3 rounded-full w-fit mb-3 group-hover:scale-110 transition-transform">
-                <HandHeart className="w-6 h-6 text-orange-600" />
-              </div>
-              <h4 className="font-bold text-gray-900 text-sm mb-1">SERVICIO</h4>
-              <p className="text-xs text-gray-600 leading-relaxed">Descubre tus dones. Sirve a otros.</p>
-              <ChevronRight className="w-4 h-4 text-gray-400 mt-2" />
-            </button>
+          <div className="relative">
 
-            <button
-              onClick={() => router.push('/abriendo-camino/grupos')}
-              className="bg-purple-50 hover:bg-purple-100 p-4 rounded-2xl text-left transition-colors group"
-            >
-              <div className="bg-purple-100 p-3 rounded-full w-fit mb-3 group-hover:scale-110 transition-transform">
-                <Users className="w-6 h-6 text-purple-600" />
-              </div>
-              <h4 className="font-bold text-gray-900 text-sm mb-1">MULTIPLICACIÓN</h4>
-              <p className="text-xs text-gray-600 leading-relaxed">Comparte a Jesús. Haz discípulos.</p>
-              <ChevronRight className="w-4 h-4 text-gray-400 mt-2" />
-            </button>
+            <Sprout className="mb-4 h-6 w-6 text-emerald-700" />
+
+            <p className="text-base font-medium leading-relaxed text-[#244438]">
+              “Porque yo sé los planes que tengo para ustedes...”
+            </p>
+
+            <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">
+              Jeremías 29:11
+            </p>
+
           </div>
+
         </div>
 
-        {/* Versículo inspirador */}
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-4 flex items-start gap-3 border border-green-100">
-          <div className="bg-green-100 p-2 rounded-full flex-shrink-0">
-            <Sprout className="w-4 h-4 text-green-600" />
-          </div>
-          <div>
-            <p className="text-sm text-gray-700 italic">"Porque yo sé los planes que tengo para ustedes..."</p>
-            <p className="text-xs text-gray-500 mt-1 font-semibold">JEREMÍAS 29:11</p>
-          </div>
+      </section>
+
+      {/* =====================================================
+          NAVEGACIÓN INFERIOR
+      ===================================================== */}
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200/80 bg-white/95 px-4 pb-[max(10px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl">
+
+        <div className="mx-auto flex max-w-3xl items-center justify-around">
+
+          {/* RETO */}
+          <button
+            onClick={() =>
+              router.push('/abriendo-camino')
+            }
+            className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-emerald-700 transition active:scale-95"
+          >
+            <Flame className="h-5 w-5" />
+            <span className="text-[11px] font-bold">
+              Reto
+            </span>
+          </button>
+
+          {/* ORACIÓN */}
+          <button
+            onClick={() =>
+              router.push('/abriendo-camino/oracion')
+            }
+            className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-gray-400 transition hover:text-orange-500 active:scale-95"
+          >
+            <MessageCircle className="h-5 w-5" />
+            <span className="text-[11px] font-semibold">
+              Oración
+            </span>
+          </button>
+
+          {/* PROPÓSITO */}
+          <button
+            onClick={() =>
+              router.push('/abriendo-camino/proposito')
+            }
+            className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-gray-400 transition hover:text-violet-600 active:scale-95"
+          >
+            <Target className="h-5 w-5" />
+            <span className="text-[11px] font-semibold">
+              Propósito
+            </span>
+          </button>
+
         </div>
-      </div>
+      </nav>
 
-      {/* Navegación inferior - Siempre visible */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 flex justify-around items-center z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <button
-          onClick={() => router.push('/abriendo-camino')}
-          className="flex flex-col items-center gap-1 text-green-600"
-        >
-          <Flame className="w-6 h-6" />
-          <span className="text-xs font-semibold">Reto</span>
-        </button>
-        <button
-          onClick={() => router.push('/abriendo-camino/oracion')}
-          className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 transition"
-        >
-          <MessageCircle className="w-6 h-6" />
-          <span className="text-xs font-semibold">Oración</span>
-        </button>
-        <button
-          onClick={() => router.push('/abriendo-camino/mas')}
-          className="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 transition"
-        >
-          <Target className="w-6 h-6" />
-          <span className="text-xs font-semibold">Más</span>
-        </button>
-      </div>
-
-      {/* Modal de Login */}
+      {/* =====================================================
+          LOGIN
+      ===================================================== */}
       {showLogin && (
         <LoginModal
           onClose={() => setShowLogin(false)}
           onComplete={handleLoginComplete}
         />
       )}
-    </div>
+
+    </main>
   )
 }
