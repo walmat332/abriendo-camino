@@ -301,3 +301,38 @@ export function getNextDia(
 ): number {
   return getSiguienteDiaDisponible(progress)
 }
+
+// Obtener semana y día relativo a partir de un día absoluto (1-28)
+export function getSemanaDia(diaAbsoluto: number): { semana: number; dia: number } {
+  const semana = Math.ceil(diaAbsoluto / 7)
+  const dia = ((diaAbsoluto - 1) % 7) + 1
+  return { semana, dia }
+}
+
+// Obtener día absoluto a partir de semana y día relativo (1-7)
+export function getDiaAbsoluto(semana: number, dia: number): number {
+  return (semana - 1) * 7 + dia
+}
+
+// Obtener progreso de una semana específica
+export function getProgresoSemanal(
+  progress: ProgressData | null,
+  semana: number
+): { completados: number; total: number; porcentaje: number } {
+  const total = 7
+  let completados = 0
+  const inicioDia = (semana - 1) * 7 + 1
+  const finDia = semana * 7
+
+  for (let i = inicioDia; i <= finDia; i++) {
+    if (progress?.dias[i]?.completado) {
+      completados++
+    }
+  }
+
+  return {
+    completados,
+    total,
+    porcentaje: Math.round((completados / total) * 100)
+  }
+}

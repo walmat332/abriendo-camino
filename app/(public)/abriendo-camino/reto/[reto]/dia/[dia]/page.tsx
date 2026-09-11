@@ -14,6 +14,9 @@ export default function DiaPage() {
 
   const semana = parseInt(params.reto as string) || 1
   const dia = parseInt(params.dia as string) || 1
+  const diaAbsoluto = (semana - 1) * 7 + dia
+  const esFinDeSemana = diaAbsoluto % 7 === 0
+  const esSemana4 = semana === 4
 
   const [devocional, setDevocional] = useState<Devocional | null>(null)
   const [loading, setLoading] = useState(true)
@@ -21,6 +24,7 @@ export default function DiaPage() {
   const [paso, setPaso] = useState(1)
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(null)
   const [feedback, setFeedback] = useState(false)
+  const [showCelebration, setShowCelebration] = useState(false)
 
   useEffect(() => {
     // 1. DESREGISTRAR SERVICE WORKERS RESIDUALES (Solución pantalla blanca en móvil)
@@ -64,13 +68,17 @@ export default function DiaPage() {
     cargar()
   }, [semana, dia])
 
-  const siguienteDia = dia + 1
-
   const completarDia = async () => {
     try {
-      const progress = getProgress()
-      if (!progress) return
-      await marcarDiaCompletado(progress, dia, [])
+      let progress = getProgress()
+      if (!progress) {
+        progress = {
+          dias: {},
+          startDate: new Date().toISOString(),
+          lastAccess: new Date().toISOString()
+        }
+      }
+      await marcarDiaCompletado(progress, diaAbsoluto, [])
     } catch (error) {
       console.error('Error guardando progreso:', error)
     }
@@ -85,8 +93,14 @@ export default function DiaPage() {
       setFeedback(false)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
-      // Aquí podríamos agregar la lógica de fin de semana (día 7, 14, 21, 28) más adelante
-      router.push('/abriendo-camino/reto/1/dia/' + siguienteDia)
+      if (esFinDeSemana) {
+        setShowCelebration(true)
+      } else {
+        const siguienteDiaAbs = diaAbsoluto + 1
+        const siguienteSemana = Math.ceil(siguienteDiaAbs / 7)
+        const siguienteDia = ((siguienteDiaAbs - 1) % 7) + 1
+        router.push(`/abriendo-camino/reto/${siguienteSemana}/dia/${siguienteDia}`)
+      }
     }
   }
 
@@ -145,28 +159,71 @@ export default function DiaPage() {
     setFeedback(true)
   }
 
+  const faseLabels: Record<number, string> = {
+    1: 'CONECTA',
+    2: 'CRECE',
+    3: 'SIRVE',
+    4: 'MULTIPLICA'
+  }
+
+  const nombreFase = faseLabels[semana] || devocional.fase.toUpperCase()
+
   return (
     <main className="min-h-screen bg-slate-50">
+      {showCelebration && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md">
+            <CardContent className="p-8 text-center">
+              <div className="text-6xl mb-4">🎉</div>
+              {esSemana4 ? (
+                <>
+                  <h1 className="text-2xl font-bold text-slate-800 mb-1">¡Felicidades!</h1>
+                  <h2 className="text-xl font-bold text-slate-700 mb-2">Reto Completado</h2>
+                  <div className="my-4 py-3 bg-slate-50 rounded-xl">
+                    <p className="text-lg font-bold text-slate-800">SEMANA 4 DE 4</p>
+                    <p className="text-lg font-bold text-slate-800">DÍA 7 DE 7</p>
+                    <p className="text-sm font-semibold text-emerald-600 mt-1">FASE 4: MULTIPLICA</p>
+                  </div>
+                  <p className="text-sm text-slate-600 mb-1">Jesús envía a hacer discípulos</p>
+                  <p className="text-sm font-bold text-emerald-700 mb-3">4 semanas completadas</p>
+                  <p className="text-sm text-slate-500 mb-4">
+                    Has dado un gran paso en tu caminar con Dios. El siguiente nivel es crecer en comunidad.
+                  </p>
+                  <Button className="w-full" size="lg" onClick={() => router.push('/abriendo-camino/grupos')}>
+                    FINALIZAR 4 SEMANAS
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <h1 className="text-3xl font-bold text-slate-800 mb-2">¡Semana {semana} Completada!</h1>
+                  <p className="text-lg text-slate-600 mb-6">¡Fase {nombreFase} completada!</p>
+                  <Button className="w-full" size="lg" onClick={() => { setShowCelebration(false); router.push(`/abriendo-camino/reto/${semana + 1}/dia/1`) }}>
+                    Empezar Semana {semana + 1}
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div className="mx-auto max-w-2xl px-4 py-6 pb-12">
         <div className="mb-6 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/abriendo-camino')}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Salir
+          <Button variant="ghost" size="sm" onClick={() => router.push('/abriendo-camino')}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Salir
           </Button>
 
-          <span className="text-sm font-medium text-slate-500">
-            Día {dia}
-          </span>
+          <div className="text-center">
+            <span className="text-sm font-medium text-slate-500">
+              Semana {semana} de 4 · Día {dia} de 7
+            </span>
+          </div>
         </div>
 
         <div className="mb-6">
-          <div className="mb-2 flex justify-between text-xs text-slate-500">
-            <span>Paso {paso} de 3</span>
-            <span>{Math.round((paso / 3) * 100)}%</span>
+          <div className="mb-2 text-xs text-slate-500">
+            Paso {paso} de 3
           </div>
 
           <div className="h-2 overflow-hidden rounded-full bg-slate-200">

@@ -39,13 +39,19 @@ export default function AbriendoCaminoIndex() {
     return <div className="min-h-screen bg-white" />
   }
 
-  const diasCompletados = progress?.dias ? Object.keys(progress.dias).length : 0
-  const siguienteDia = diasCompletados >= 7 ? 7 : Math.min(diasCompletados + 1, 7)
-  const retoCompletado = diasCompletados >= 7
-  const progresoPorcentaje = Math.min((diasCompletados / 7) * 100, 100)
+  const diasCompletadosGlobales = progress?.dias ? Object.keys(progress.dias).filter((d) => progress.dias[parseInt(d)]?.completado === true).length : 0
+  const totalDias = 28
+  const diasCompletados = diasCompletadosGlobales >= totalDias ? totalDias : diasCompletadosGlobales
+  const semanaActual = Math.ceil(diasCompletados / 7) || 1
+  const diaSemanaActual = ((diasCompletados - 1) % 7) + 1
+  const siguienteDiaAbsoluto = diasCompletados >= totalDias ? totalDias : diasCompletados + 1
+  const siguienteSemana = Math.ceil(siguienteDiaAbsoluto / 7)
+  const siguienteDiaSemana = ((siguienteDiaAbsoluto - 1) % 7) + 1
+  const retoCompletado = diasCompletadosGlobales >= totalDias
+  const progresoPorcentaje = Math.min((diasCompletadosGlobales / totalDias) * 100, 100)
 
   const handleContinuar = () => {
-    router.push(`/abriendo-camino/reto/1/dia/${siguienteDia}`)
+    router.push(`/abriendo-camino/reto/${siguienteSemana}/dia/${siguienteDiaSemana}`)
   }
 
   const handleLoginComplete = (nombre: string, telefono: string) => {
@@ -107,14 +113,14 @@ export default function AbriendoCaminoIndex() {
                 <h3 className="mt-1 text-xl font-bold text-white">7 días — Volver a Dios</h3>
                 <p className="mt-1 text-sm leading-relaxed text-white/70">Un encuentro que puede cambiar tu camino.</p>
               </div>
-              <div className="hidden shrink-0 rounded-full bg-emerald-300 px-3 py-1.5 text-xs font-bold text-[#174936] sm:block">
-                Día {siguienteDia} de 7
-              </div>
+<div className="hidden shrink-0 rounded-full bg-emerald-300 px-3 py-1.5 text-xs font-bold text-[#174936] sm:block">
+              Día {siguienteDiaSemana} de 7
+            </div>
             </div>
 
             <div className="mt-5 flex items-center justify-between sm:hidden">
               <span className="text-xs font-medium text-white/60">Tu progreso</span>
-              <span className="rounded-full bg-emerald-300 px-3 py-1 text-xs font-bold text-[#174936]">Día {siguienteDia} de 7</span>
+              <span className="rounded-full bg-emerald-300 px-3 py-1 text-xs font-bold text-[#174936]">Día {siguienteDiaSemana} de 7</span>
             </div>
 
             <div className="mt-5">

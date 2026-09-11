@@ -66,16 +66,44 @@ export default function DashboardPage() {
     )
   }
 
-  const diasCompletados = Object.keys(progress.dias).length
+const faseLabels: Record<number, string> = {
+    1: 'CONECTA',
+    2: 'CRECE',
+    3: 'SIRVE',
+    4: 'MULTIPLICA'
+  }
+
+  const diasCompletadosArray = Object.keys(progress.dias)
+    .map(Number)
+    .filter((d) => progress.dias[d]?.completado === true)
+
+  const ultimoDiaCompletado =
+    diasCompletadosArray.length > 0
+      ? Math.max(...diasCompletadosArray)
+      : 0
+
+  const totalDiasGlobales = 28
+  const semanaActual =
+    ultimoDiaCompletado === 0
+      ? 1
+      : Math.min(Math.ceil(ultimoDiaCompletado / 7), 4)
+
+  const diaSemanaActual =
+    ultimoDiaCompletado === 0
+      ? 0
+      : ((ultimoDiaCompletado - 1) % 7) + 1
+
   const totalDias = 7
-  const porcentaje = (diasCompletados / totalDias) * 100
-  
+  const porcentaje = (diaSemanaActual / 7) * 100
+
   // Calcular racha
   const diasConsecutivos = calcularRacha(progress.dias)
-  
-  // Obtener último día completado
-  const ultimoDia = Math.max(0, ...Object.keys(progress.dias).map(Number))
-  const siguienteDia = Math.min(ultimoDia + 1, totalDias)
+
+  const siguienteDiaAbsoluto = Math.min(ultimoDiaCompletado + 1, totalDiasGlobales)
+  const siguienteSemana = Math.ceil(siguienteDiaAbsoluto / 7)
+  const siguienteDiaSemana = ((siguienteDiaAbsoluto - 1) % 7) + 1
+
+  const retoCompletado = ultimoDiaCompletado >= totalDiasGlobales
 
   const handleReiniciar = () => {
     if (confirm('¿Estás seguro de reiniciar todo tu progreso? Esta acción no se puede deshacer.')) {
@@ -114,9 +142,9 @@ export default function DashboardPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium mb-1">Días Completados</p>
+                  <p className="text-blue-100 text-sm font-medium mb-1">Semana {semanaActual} de 4</p>
                   <p className="text-4xl font-black">
-                    {diasCompletados} <span className="text-2xl text-blue-200">/ {totalDias}</span>
+                    {diaSemanaActual} <span className="text-2xl text-blue-200">/ {totalDias}</span>
                   </p>
                 </div>
                 <Calendar className="w-12 h-12 text-blue-200" />
@@ -156,13 +184,14 @@ export default function DashboardPage() {
         {/* Progreso de los 7 días */}
         <Card className="border-0 shadow-xl">
           <CardContent className="p-8">
-            <h2 className="text-2xl font-bold text-slate-800 mb-6">
-              Tus 7 Días de Transformación
+             <h2 className="text-2xl font-bold text-slate-800 mb-6">
+              Semana {semanaActual} de 4 — Tu progreso
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
               {[1, 2, 3, 4, 5, 6, 7].map((dia) => {
-                const completado = progress.dias[dia]
+                const diaAbsoluto = (semanaActual - 1) * 7 + dia
+                const completado = progress.dias[diaAbsoluto]?.completado || false
                 return (
                   <div
                     key={dia}
@@ -195,7 +224,7 @@ export default function DashboardPage() {
             {/* Barra de progreso */}
             <div className="mt-6">
               <div className="flex justify-between text-sm text-slate-600 mb-2">
-                <span>Progreso general</span>
+                <span>Progreso de la semana</span>
                 <span className="font-bold">{Math.round(porcentaje)}%</span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-3">
@@ -212,22 +241,17 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Button
             size="lg"
-            onClick={() => router.push(`/abriendo-camino/reto/1/dia/${siguienteDia}`)}
+            onClick={() => router.push(`/abriendo-camino/reto/${siguienteSemana}/dia/${siguienteDiaSemana}`)}
             className="bg-slate-900 hover:bg-slate-800 text-white py-6 text-lg font-bold shadow-lg"
           >
-            {diasCompletados === 0 ? (
-              <>
-                Comenzar Día 1
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </>
-            ) : diasCompletados === totalDias ? (
+            {retoCompletado ? (
               <>
                 Ver de Nuevo
                 <ArrowRight className="ml-2 h-5 w-5" />
               </>
             ) : (
               <>
-                Continuar Día {siguienteDia}
+                Continuar · Semana {siguienteSemana} · Día {siguienteDiaSemana} de 7
                 <ArrowRight className="ml-2 h-5 w-5" />
               </>
             )}
