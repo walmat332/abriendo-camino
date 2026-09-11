@@ -145,7 +145,7 @@ export default function AbriendoCaminoIndex() {
 
         <div className="grid grid-cols-2 gap-3">
           {/* CONEXIÓN */}
-          <button onClick={() => router.push('/abriendo-camino/proposito')} className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
+          <button onClick={() => router.push('/abriendo-camino/proposito?seccion=conexion')} className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
             <div className="mb-8 flex items-center justify-between">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-50"><Heart className="h-5 w-5 text-pink-500" /></div>
               <ChevronRight className="h-4 w-4 text-gray-300 transition group-hover:translate-x-1" />
@@ -155,7 +155,7 @@ export default function AbriendoCaminoIndex() {
           </button>
 
           {/* CRECIMIENTO */}
-          <button onClick={() => router.push('/abriendo-camino/reto/1/dia/1')} className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
+          <button onClick={() => router.push('/abriendo-camino/proposito?seccion=crecimiento')} className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
             <div className="mb-8 flex items-center justify-between">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50"><Sprout className="h-5 w-5 text-emerald-600" /></div>
               <ChevronRight className="h-4 w-4 text-gray-300 transition group-hover:translate-x-1" />
@@ -165,7 +165,7 @@ export default function AbriendoCaminoIndex() {
           </button>
 
           {/* SERVICIO */}
-          <button onClick={() => router.push('/abriendo-camino/oracion')} className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
+          <button onClick={() => router.push('/abriendo-camino/proposito?seccion=servicio')} className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
             <div className="mb-8 flex items-center justify-between">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50"><HandHeart className="h-5 w-5 text-orange-500" /></div>
               <ChevronRight className="h-4 w-4 text-gray-300 transition group-hover:translate-x-1" />
@@ -175,7 +175,7 @@ export default function AbriendoCaminoIndex() {
           </button>
 
           {/* MULTIPLICACIÓN */}
-          <button onClick={() => router.push('/abriendo-camino/grupos')} className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
+          <button onClick={() => router.push('/abriendo-camino/proposito?seccion=multiplicacion')} className="group relative overflow-hidden rounded-3xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-md active:scale-[0.98]">
             <div className="mb-8 flex items-center justify-between">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50"><Users className="h-5 w-5 text-violet-600" /></div>
               <ChevronRight className="h-4 w-4 text-gray-300 transition group-hover:translate-x-1" />
@@ -209,7 +209,7 @@ export default function AbriendoCaminoIndex() {
             <MessageCircle className="h-5 w-5" />
             <span className="text-[11px] font-semibold">Oración</span>
           </button>
-          <button onClick={() => router.push('/abriendo-camino/proposito')} className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-gray-400 transition hover:text-violet-600 active:scale-95">
+          <button onClick={() => router.push('/abriendo-camino/mas')} className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-gray-400 transition hover:text-violet-600 active:scale-95">
             <Target className="h-5 w-5" />
             <span className="text-[11px] font-semibold">Propósito</span>
           </button>
