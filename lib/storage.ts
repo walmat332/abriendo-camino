@@ -198,7 +198,8 @@ async function sincronizarConSupabase(
           .from('registros')
           .update({
             nombre: progress.usuario.nombre,
-            dia_completado: ultimoDiaCompletado
+            dia_completado: ultimoDiaCompletado,
+            ultimo_acceso: progress.lastAccess
           })
           .eq(
             'telefono',
@@ -220,7 +221,8 @@ async function sincronizarConSupabase(
           .insert({
             nombre: progress.usuario.nombre,
             telefono: progress.usuario.telefono,
-            dia_completado: ultimoDiaCompletado
+            dia_completado: ultimoDiaCompletado,
+            ultimo_acceso: progress.lastAccess
           })
 
       if (insertError) {

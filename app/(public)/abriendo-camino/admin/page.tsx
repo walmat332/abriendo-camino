@@ -6,10 +6,32 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { supabase } from '@/lib/supabase'
-import { Users, MessageCircle, LogOut, Lock, Loader2, ArrowLeft } from 'lucide-react'
+import { Users, MessageCircle, LogOut, Lock, Loader2, ArrowLeft, Clock } from 'lucide-react'
 
-// 🔒 CONTRASEÑA DEL ADMIN (Cámbiala por la que tú quieras)
 const ADMIN_PASSWORD = 'admin2024'
+
+function formatRelativeTime(isoString: string | null): string {
+  if (!isoString) return 'Nunca'
+
+  const date = new Date(isoString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMins < 1) return 'Ahora'
+  if (diffMins < 60) return `Hace ${diffMins} min`
+  if (diffHours < 1) return `Hace ${diffHours}h`
+  if (diffDays === 0) {
+    return `Hoy, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
+  }
+  if (diffDays === 1) {
+    return `Ayer, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
+  }
+  if (diffDays < 7) return `Hace ${diffDays} días`
+  return date.toLocaleDateString('es-ES')
+}
 
 export default function AdminPage() {
   const router = useRouter()
@@ -170,6 +192,7 @@ export default function AdminPage() {
                       <th className="p-4 font-semibold text-slate-700">Nombre</th>
                       <th className="p-4 font-semibold text-slate-700">Teléfono</th>
                       <th className="p-4 font-semibold text-slate-700">Progreso</th>
+                      <th className="p-4 font-semibold text-slate-700">Último acceso</th>
                       <th className="p-4 font-semibold text-slate-700">Fecha Registro</th>
                       <th className="p-4 font-semibold text-slate-700 text-right">Acción</th>
                     </tr>
@@ -190,11 +213,14 @@ export default function AdminPage() {
                             ) : (
                               <span className="text-slate-400 text-sm">No ha iniciado</span>
                             )}
-                          </td>
-                          <td className="p-4 text-slate-500 text-sm">
-                            {user.created_at ? new Date(user.created_at).toLocaleDateString('es-ES') : 'N/A'}
-                          </td>
-                          <td className="p-4 text-right">
+                           </td>
+                           <td className="p-4 text-slate-500 text-sm">
+                             {formatRelativeTime(user.ultimo_acceso)}
+                           </td>
+                           <td className="p-4 text-slate-500 text-sm">
+                             {user.created_at ? new Date(user.created_at).toLocaleDateString('es-ES') : 'N/A'}
+                           </td>
+                           <td className="p-4 text-right">
                             {user.telefono && dia > 0 && dia < 28 && (
                               <Button
                                 size="sm"
