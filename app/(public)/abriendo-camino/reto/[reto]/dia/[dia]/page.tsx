@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { getDevocional, type Devocional } from '@/lib/devocionales'
 import { getProgress, marcarDiaCompletado } from '@/lib/storage'
 import { ArrowLeft, ArrowRight, CheckCircle2, Heart, BookOpen } from 'lucide-react'
+import { WeeklyCompletionCelebration } from '@/components/WeeklyCompletionCelebration'
 
 export default function DiaPage() {
   const params = useParams()
@@ -168,41 +169,11 @@ export default function DiaPage() {
   return (
     <main className="min-h-screen bg-slate-50">
       {showCelebration && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-md">
-            <CardContent className="p-8 text-center">
-              <div className="text-6xl mb-4">🎉</div>
-              {esSemana4 ? (
-                <>
-                  <h1 className="text-2xl font-bold text-slate-800 mb-1">¡Felicidades!</h1>
-                  <h2 className="text-xl font-bold text-slate-700 mb-2">Reto Completado</h2>
-                  <div className="my-4 py-3 bg-slate-50 rounded-xl">
-                    <p className="text-lg font-bold text-slate-800">SEMANA 4 DE 4</p>
-                    <p className="text-lg font-bold text-slate-800">DÍA 7 DE 7</p>
-                    <p className="text-sm font-semibold text-emerald-600 mt-1">FASE 4: MULTIPLICA</p>
-                  </div>
-                  <p className="text-sm text-slate-600 mb-1">Jesús envía a hacer discípulos</p>
-                  <p className="text-sm font-bold text-emerald-700 mb-3">4 semanas completadas</p>
-                  <p className="text-sm text-slate-500 mb-4">
-                    Has dado un gran paso en tu caminar con Dios. El siguiente nivel es crecer en comunidad.
-                  </p>
-                  <Button className="w-full" size="lg" onClick={() => router.push('/abriendo-camino/grupos')}>
-                    FINALIZAR 4 SEMANAS
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <h1 className="text-3xl font-bold text-slate-800 mb-2">¡Semana {semana} Completada!</h1>
-                  <p className="text-lg text-slate-600 mb-6">¡Fase {nombreFase} completada!</p>
-                  <Button className="w-full" size="lg" onClick={() => { setShowCelebration(false); router.push('/abriendo-camino') }}>
-                    Empezar Semana {semana + 1}
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        <WeeklyCompletionCelebration
+          semana={semana}
+          esSemana4={esSemana4}
+          onNavigate={router.push}
+        />
       )}
 
       <div className="mx-auto max-w-2xl px-4 py-6 pb-12">
