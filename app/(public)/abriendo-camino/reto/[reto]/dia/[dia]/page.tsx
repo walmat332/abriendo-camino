@@ -213,7 +213,7 @@ export default function DiaPage() {
 
           <div className="text-center">
             <span className="text-sm font-medium text-slate-500">
-              Semana {semana} de 4 · Día {dia} de 7
+              Semana {semana} · Día {dia}
             </span>
           </div>
         </div>
