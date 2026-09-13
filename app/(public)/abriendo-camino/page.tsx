@@ -63,21 +63,39 @@ export default function AbriendoCaminoIndex() {
   return (
     <main className="min-h-screen bg-[#F7F8F6] pb-24">
       {/* HERO */}
-      <section className="relative min-h-[520px] overflow-hidden">
+      <section className="relative min-h-[500px] overflow-hidden">
         <Image src="/hero-crece.jpg" alt="Persona avanzando" fill priority sizes="100vw" className="object-cover object-center" />
-        <div className="absolute inset-0 bg-black/35" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/15 to-transparent" />
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/15 to-[#173F32]" />
 
-        <div className="relative z-10 flex flex-col items-center pt-20 px-5 pb-10">
-          <div className="mb-6 flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md border border-white/15 px-4 py-1.5">
-            <Sprout className="h-4 w-4 text-emerald-300" />
-            <span className="text-xs font-medium tracking-wide text-white/90">CRECE</span>
+        <div className="relative z-10 px-5 pt-6">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-md border border-white/20">
+                <Sprout className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold tracking-wide text-white">CRECE</h1>
+                <p className="text-[11px] font-medium tracking-wide text-white/80">Descubre · Conecta · Crece</p>
+              </div>
+            </div>
+            <button onClick={() => router.push('/abriendo-camino/grupos')} className="flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-2.5 text-sm font-medium text-white backdrop-blur-md transition hover:bg-white/25 active:scale-95">
+              <Users className="h-4 w-4" />
+              <span>Grupos</span>
+            </button>
           </div>
-          <h2 className="max-w-lg text-center text-3xl font-bold leading-[1.1] tracking-tight text-white md:text-4xl">
-            Un encuentro que puede cambiar tu camino.
+        </div>
+
+        <div className="relative z-10 mx-auto flex min-h-[390px] max-w-3xl flex-col justify-end px-5 pb-10">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-1 w-8 rounded-full bg-emerald-300" />
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-200">Tu camino de hoy</span>
+          </div>
+          <h2 className="max-w-xl text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl">
+            No te quedes <br /> donde estás.
           </h2>
-          <p className="mt-5 max-w-md text-center text-base leading-relaxed text-white/85 md:text-lg">
-            Un paso cada día para crecer con Dios y descubrir tu propósito.
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 md:text-lg">
+            Crece con Dios, descubre tu propósito y vive para transformar a otros.
           </p>
         </div>
       </section>
@@ -93,8 +111,9 @@ export default function AbriendoCaminoIndex() {
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-200">Reto actual</p>
                 <h3 className="mt-1 text-xl font-bold text-white">7 días — Volver a Dios</h3>
-</div>
-            <div className="hidden shrink-0 rounded-full bg-emerald-300 px-3 py-1.5 text-xs font-bold text-[#174936] sm:block">
+                <p className="mt-1 text-sm leading-relaxed text-white/70">Un encuentro que puede cambiar tu camino.</p>
+              </div>
+<div className="hidden shrink-0 rounded-full bg-emerald-300 px-3 py-1.5 text-xs font-bold text-[#174936] sm:block">
               Día {siguienteDiaSemana} de 7
             </div>
             </div>
@@ -185,25 +204,23 @@ export default function AbriendoCaminoIndex() {
         </div>
       </section>
 
-{/* NAVEGACIÓN INFERIOR */}
-       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200/80 bg-white px-4 pb-[max(10px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
-         <div className="mx-auto flex max-w-3xl items-center justify-around">
-           <button onClick={() => router.push('/abriendo-camino')} className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-emerald-600 transition active:scale-95">
-             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
-               <Flame className="h-6 w-6" />
-             </div>
-             <span className="text-[11px] font-bold">Reto</span>
-           </button>
-           <button onClick={() => router.push('/abriendo-camino/oracion')} className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-sky-500 transition hover:text-sky-600 active:scale-95">
-             <MessageCircle className="h-6 w-6" />
-             <span className="text-[11px] font-semibold">Oración</span>
-           </button>
-           <button onClick={() => router.push('/abriendo-camino/proposito')} className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-amber-500 transition hover:text-amber-600 active:scale-95">
-             <Target className="h-6 w-6" />
-             <span className="text-[11px] font-semibold">Propósito</span>
-           </button>
-         </div>
-       </nav>
+      {/* NAVEGACIÓN INFERIOR */}
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200/80 bg-white/95 px-4 pb-[max(10px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl">
+        <div className="mx-auto flex max-w-3xl items-center justify-around">
+          <button onClick={() => router.push('/abriendo-camino')} className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-emerald-700 transition active:scale-95">
+            <Flame className="h-5 w-5" />
+            <span className="text-[11px] font-bold">Reto</span>
+          </button>
+          <button onClick={() => router.push('/abriendo-camino/oracion')} className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-gray-400 transition hover:text-orange-500 active:scale-95">
+            <MessageCircle className="h-5 w-5" />
+            <span className="text-[11px] font-semibold">Oración</span>
+          </button>
+          <button onClick={() => router.push('/abriendo-camino/mas')} className="flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-gray-400 transition hover:text-violet-600 active:scale-95">
+            <Target className="h-5 w-5" />
+            <span className="text-[11px] font-semibold">Propósito</span>
+          </button>
+        </div>
+      </nav>
 
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} onComplete={handleLoginComplete} />}
     </main>
