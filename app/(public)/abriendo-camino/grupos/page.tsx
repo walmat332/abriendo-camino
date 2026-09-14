@@ -35,10 +35,10 @@ export default function GruposPage() {
     },
     {
       id: 3,
-      nombre: 'Conexión Virtual Matutina',
+      nombre: 'Conexión Virtual Nocturna',
       distrito: 'Virtual',
       dia: 'Miércoles',
-      hora: '7:00 AM',
+      hora: '7:00 PM',
       tipo: 'Virtual',
       link: 'https://zoom.us/j/123456789',
       lider: 'Walter',
@@ -57,7 +57,7 @@ export default function GruposPage() {
     },
     {
       id: 5,
-      nombre: 'Conexión Virtual Nocturna',
+      nombre: 'Conexión Virtual Matutina',
       distrito: 'Virtual',
       dia: 'Sábado',
       hora: '10:00 AM',
@@ -232,7 +232,7 @@ export default function GruposPage() {
                const mensaje = encodeURIComponent(
                  `Hola, quisiera información sobre un grupo de conexión. Me gustaría conocer cómo puedo participar. 🙏`
                );
-               window.open(`https://wa.me/525551234567?text=${mensaje}`, '_blank')
+               window.open(`https://wa.me/51939945787?text=${mensaje}`, '_blank')
              }}
            >
             <Phone className="mr-2 h-4 w-4" />
