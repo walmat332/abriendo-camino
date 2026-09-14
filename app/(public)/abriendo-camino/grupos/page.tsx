@@ -196,7 +196,13 @@ export default function GruposPage() {
                     ) : (
                       <Button 
                         className="bg-purple-600 hover:bg-purple-700"
-                        onClick={() => window.open(`https://wa.me/${grupo.telefono.replace(/\D/g, '')}`, '_blank')}
+                        onClick={() => {
+                          const telefonoLimpio = grupo.telefono.replace(/\D/g, '');
+                          const mensaje = encodeURIComponent(
+                            `Hola, quisiera información sobre el grupo ${grupo.nombre}. Me gustaría conocer más sobre el grupo y cómo puedo participar. 🙏`
+                          );
+                          window.open(`https://wa.me/${telefonoLimpio}?text=${mensaje}`, '_blank')
+                        }}
                       >
                         <Phone className="mr-2 h-4 w-4" />
                         Contactar líder
@@ -220,10 +226,15 @@ export default function GruposPage() {
           <p className="text-slate-600 mb-4">
             ¿No encuentras un grupo que se ajuste a tu horario?
           </p>
-          <Button 
-            variant="outline"
-            onClick={() => window.open('https://wa.me/525551234567', '_blank')}
-          >
+<Button 
+             variant="outline"
+             onClick={() => {
+               const mensaje = encodeURIComponent(
+                 `Hola, quisiera información sobre un grupo de conexión. Me gustaría conocer cómo puedo participar. 🙏`
+               );
+               window.open(`https://wa.me/525551234567?text=${mensaje}`, '_blank')
+             }}
+           >
             <Phone className="mr-2 h-4 w-4" />
             Contáctanos para más información
           </Button>
