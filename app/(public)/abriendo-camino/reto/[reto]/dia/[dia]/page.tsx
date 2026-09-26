@@ -341,15 +341,20 @@ export default function DiaPage() {
                         type="button"
                         onClick={() => setOpcionSeleccionada(opcion.id)}
                         className={
-                          'w-full rounded-xl border p-4 text-left transition ' +
+                          'w-full rounded-xl border-2 p-4 text-left transition-all duration-200 flex items-center justify-between ' +
                           (opcionSeleccionada === opcion.id
-                            ? 'border-slate-800 bg-slate-100'
-                            : 'border-slate-200 bg-white hover:bg-slate-50')
+                            ? 'border-blue-600 bg-blue-600 shadow-md scale-[1.02]'
+                            : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50')
                         }
                       >
-                        <span className="font-medium text-slate-800">
+                        <span className={`font-medium ${opcionSeleccionada === opcion.id ? 'text-white' : 'text-slate-800'}`}>
                           {opcion.texto}
                         </span>
+                        {opcionSeleccionada === opcion.id && (
+                          <svg className="w-5 h-5 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
                       </button>
                     ))}
                   </div>
