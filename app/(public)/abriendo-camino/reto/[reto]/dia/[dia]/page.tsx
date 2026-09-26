@@ -172,6 +172,7 @@ export default function DiaPage() {
         <WeeklyCompletionCelebration
           semana={semana}
           esSemana4={esSemana4}
+          tipo="semana"
           onNavigate={router.push}
         />
       )}
