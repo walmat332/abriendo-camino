@@ -16,10 +16,67 @@ export interface ProgressData {
   lastAccess: string
   usuario?: Usuario
   modoRetos?: 'diario' | 'intensivo'
+  mesReto?: string
 }
 
 const STORAGE_KEY = 'abriendo-camino-progress'
 const MODO_KEY = 'abriendo-camino-modo'
+const MES_ACTIVO_KEY = 'abriendo-camino-mes-activo'
+
+let mesActivoCache: string | null = null
+let cacheInicializado = false
+
+async function inicializarCacheMesActivo(): Promise<void> {
+  if (cacheInicializado) return
+
+  try {
+    const { data, error } = await supabase
+      .from('meses_reto')
+      .select('id')
+      .eq('activo', true)
+      .limit(1)
+      .maybeSingle()
+
+    if (!error && data?.id) {
+      mesActivoCache = data.id
+      localStorage.setItem(MES_ACTIVO_KEY, data.id)
+    }
+  } catch {
+  } finally {
+    cacheInicializado = true
+  }
+}
+
+function obtenerMesActivoCache(): string | null {
+  if (mesActivoCache) return mesActivoCache
+
+  const cached = localStorage.getItem(MES_ACTIVO_KEY)
+  if (cached) {
+    mesActivoCache = cached
+    return cached
+  }
+
+  if (!cacheInicializado) {
+    inicializarCacheMesActivo().catch(() => {})
+  }
+
+  return null
+}
+
+function normalizarSegunCache(progress: ProgressData): ProgressData {
+  const mesActivo = obtenerMesActivoCache()
+  if (!mesActivo) return progress
+
+  if (progress.mesReto === mesActivo) return progress
+
+  return {
+    ...progress,
+    dias: {},
+    startDate: new Date().toISOString(),
+    lastAccess: new Date().toISOString(),
+    mesReto: mesActivo
+  }
+}
 
 // Obtener progreso actual
 export function getProgress(): ProgressData | null {
@@ -29,10 +86,28 @@ export function getProgress(): ProgressData | null {
   if (!data) return null
 
   try {
-    return JSON.parse(data)
+    const progress = JSON.parse(data)
+    const normalized = normalizarSegunCache(progress)
+
+    if (normalized !== progress) {
+      saveProgress(normalized)
+    }
+
+    return normalized
   } catch {
     return null
   }
+}
+
+export async function normalizarProgresoMes(progress: ProgressData): Promise<ProgressData> {
+  await inicializarCacheMesActivo()
+  const normalized = normalizarSegunCache(progress)
+
+  if (normalized !== progress) {
+    saveProgress(normalized)
+  }
+
+  return normalized
 }
 
 // Guardar progreso
@@ -56,13 +131,11 @@ export function getModoRetos(): 'diario' | 'intensivo' {
   return modo === 'intensivo' ? 'intensivo' : 'diario'
 }
 
-// Guardar modo de retos
 export function setModoRetos(modo: 'diario' | 'intensivo'): void {
   if (typeof window === 'undefined') return
   localStorage.setItem(MODO_KEY, modo)
 }
 
-// Guardar usuario y sincronizar con Supabase
 export function saveUsuario(nombre: string, telefono: string): void {
   const progress = getProgress() || {
     dias: {},
@@ -77,7 +150,6 @@ export function saveUsuario(nombre: string, telefono: string): void {
   sincronizarConSupabase(progress)
 }
 
-// Marcar día como completado
 export function marcarDiaCompletado(
   progress: ProgressData,
   dia: number,
@@ -108,7 +180,6 @@ export function marcarDiaCompletado(
   return newProgress
 }
 
-// Obtener el siguiente día disponible
 export function getSiguienteDiaDisponible(
   progress: ProgressData | null
 ): number {
@@ -123,7 +194,6 @@ export function getSiguienteDiaDisponible(
   return 28
 }
 
-// Verificar si puede acceder al día
 export function puedeAccederAlDia(
   dia: number,
   progress: ProgressData | null
@@ -141,7 +211,6 @@ export function puedeAccederAlDia(
   return dia <= siguienteDia
 }
 
-// Obtener horas restantes para el siguiente día
 export function getHorasRestantes(progress: ProgressData): number {
   if (!progress.lastAccess) return 0
 
@@ -154,7 +223,6 @@ export function getHorasRestantes(progress: ProgressData): number {
   return Math.max(0, Math.ceil(24 - horasTranscurridas))
 }
 
-// Sincronizar con Supabase automáticamente
 async function sincronizarConSupabase(
   progress: ProgressData
 ): Promise<void> {
@@ -242,7 +310,6 @@ async function sincronizarConSupabase(
   }
 }
 
-// Marcar momento como completado
 export function markMomentCompleted(
   momentId: string,
   dia?: number,
@@ -276,7 +343,6 @@ export function markMomentCompleted(
   }
 }
 
-// Comprobar si un momento ya fue completado
 export function isMomentCompleted(
   momentId: string
 ): boolean {
@@ -297,26 +363,22 @@ export function isMomentCompleted(
   return false
 }
 
-// Obtener siguiente día
 export function getNextDia(
   progress: ProgressData | null
 ): number {
   return getSiguienteDiaDisponible(progress)
 }
 
-// Obtener semana y día relativo a partir de un día absoluto (1-28)
 export function getSemanaDia(diaAbsoluto: number): { semana: number; dia: number } {
   const semana = Math.ceil(diaAbsoluto / 7)
   const dia = ((diaAbsoluto - 1) % 7) + 1
   return { semana, dia }
 }
 
-// Obtener día absoluto a partir de semana y día relativo (1-7)
 export function getDiaAbsoluto(semana: number, dia: number): number {
   return (semana - 1) * 7 + dia
 }
 
-// Obtener progreso de una semana específica
 export function getProgresoSemanal(
   progress: ProgressData | null,
   semana: number

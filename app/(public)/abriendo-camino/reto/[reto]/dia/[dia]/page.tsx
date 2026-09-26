@@ -288,17 +288,17 @@ export default function DiaPage() {
                   <div className="mt-5 rounded-xl bg-slate-100 p-4">
                     <p className="font-medium text-slate-800">
                       {opcionSeleccionada === opcionCorrecta?.id
-                        ? '¡Muy bien!'
-                        : 'Tómate un momento para volver a pensar en la pregunta.'}
+                        ? '🎉 ¡Lo descubriste!'
+                        : 'Aún no. Inténtalo nuevamente.'}
                     </p>
 
-                    {devocional.descubre.explicacion && (
+                    {opcionSeleccionada === opcionCorrecta?.id && devocional.descubre.explicacion && (
                       <p className="mt-2 text-sm leading-6 text-slate-600">
                         {devocional.descubre.explicacion}
                       </p>
                     )}
 
-                    {devocional.descubre.versiculoApoyo && (
+                    {opcionSeleccionada === opcionCorrecta?.id && devocional.descubre.versiculoApoyo && (
                       <p className="mt-3 text-sm font-medium text-slate-700">
                         {devocional.descubre.versiculoApoyo}
                       </p>
