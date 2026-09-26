@@ -148,7 +148,7 @@ export default function AbriendoCaminoIndex() {
             No te quedes <br /> donde estás.
           </h2>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 md:text-lg">
-            Crece con Dios, descubre tu propósito y vive para transformar a otros.
+            Vive tu propósito y sé parte de la transformación de otros.
           </p>
         </div>
       </section>
@@ -251,8 +251,9 @@ export default function AbriendoCaminoIndex() {
           <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-200/40" />
           <div className="relative">
             <Sprout className="mb-4 h-6 w-6 text-emerald-700" />
-            <p className="text-base font-medium leading-relaxed text-[#244438]">“Porque yo sé los planes que tengo para ustedes...”</p>
-            <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">Jeremías 29:11</p>
+            <p className="text-base font-medium leading-relaxed text-[#244438]">“Sé que el Señor siempre está conmigo.
+    No seré sacudido, porque él está aquí a mi lado.”</p>
+            <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">Salmos 16:8</p>
           </div>
         </div>
       </section>
