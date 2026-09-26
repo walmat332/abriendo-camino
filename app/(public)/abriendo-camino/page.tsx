@@ -14,10 +14,13 @@ import {
   Target,
   Flame,
   ChevronRight,
+  X,
 } from 'lucide-react'
 
 import { getProgress, saveUsuario } from '@/lib/storage'
 import { LoginModal } from '@/components/LoginModal'
+import { getPeticionesPublicas } from '@/lib/oracion/queries'
+import type { Peticion } from '@/lib/oracion/types'
 
 export default function AbriendoCaminoIndex() {
   const router = useRouter()
@@ -26,6 +29,10 @@ export default function AbriendoCaminoIndex() {
   const [progress, setProgress] = useState<any>(null)
   const [mounted, setMounted] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
+  const [showNotification, setShowNotification] = useState(false)
+  const [notificationPeticion, setNotificationPeticion] = useState<Peticion | null>(null)
+  const [dismissedNotification, setDismissedNotification] = useState(false)
+  const [notificationVisible, setNotificationVisible] = useState(false)
 
   useEffect(() => {
     const data = getProgress()
@@ -36,6 +43,50 @@ export default function AbriendoCaminoIndex() {
       setShowLogin(true)
     }
   }, [])
+
+  // Fetch latest public prayer request for notification
+  useEffect(() => {
+    async function fetchNotificationData() {
+      try {
+        const data = await getPeticionesPublicas(1)
+        if (data && data.length > 0) {
+          setNotificationPeticion(data[0])
+        }
+      } catch (error) {
+        console.error('Error fetching notification data:', error)
+      }
+    }
+    fetchNotificationData()
+  }, [])
+
+  // Show notification after 1 second
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>
+    timer = setTimeout(() => {
+      setShowNotification(true)
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Auto-dismiss notification after 8 seconds
+  useEffect(() => {
+    let autoTimer: ReturnType<typeof setTimeout>
+    if (showNotification && !dismissedNotification && notificationPeticion) {
+      autoTimer = setTimeout(() => {
+        setDismissedNotification(true)
+      }, 8000)
+    }
+    return () => {
+      if (autoTimer) clearTimeout(autoTimer)
+    }
+  }, [showNotification, dismissedNotification, notificationPeticion])
+
+  // Controlar animación de entrada/salida
+  useEffect(() => {
+    if (showNotification && notificationPeticion && !dismissedNotification && !notificationVisible) {
+      setNotificationVisible(true)
+    }
+  }, [showNotification, notificationPeticion, dismissedNotification, notificationVisible])
 
   if (!mounted) {
     return <div className="min-h-screen bg-white" />
@@ -226,7 +277,37 @@ export default function AbriendoCaminoIndex() {
         </div>
       </nav>
 
-      {showLogin && <LoginModal onClose={() => setShowLogin(false)} onComplete={handleLoginComplete} />}
+      {showNotification && notificationPeticion && (
+  <div className={`fixed bottom-24 right-4 z-40 max-w-sm w-full bg-white rounded-2xl shadow-lg border border-emerald-100 p-4 transform transition-all duration-500 ease-out ${notificationVisible && !dismissedNotification ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+    <div className="flex items-start gap-3">
+      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
+        <span className="text-lg">🙏</span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-bold text-gray-900 truncate">
+          Alguien está pidiendo tu oración
+        </p>
+        <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+          "{notificationPeticion.texto}"
+        </p>
+        <button
+          onClick={() => router.push('/abriendo-camino/oracion')}
+          className="mt-2 text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
+        >
+          Ver petición →
+        </button>
+      </div>
+      <button
+        onClick={() => setDismissedNotification(true)}
+        className="flex-shrink-0 text-gray-400 hover:text-gray-600 hover:scale-105 transition-transform duration-150"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  </div>
+)}
+
+{showLogin && <LoginModal onClose={() => setShowLogin(false)} onComplete={handleLoginComplete} />}
     </main>
   )
 }
