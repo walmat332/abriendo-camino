@@ -75,7 +75,8 @@ export function WeeklyCompletionCelebration({
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-violet-950 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 overflow-hidden bg-slate-950 flex items-center justify-center p-4 bg-cover bg-center"
+style={{ backgroundImage: "url('/9573392.png')" }}
       role="dialog"
       aria-modal="true"
       aria-label={esReto ? "Reto completado" : "Semana completada"}
