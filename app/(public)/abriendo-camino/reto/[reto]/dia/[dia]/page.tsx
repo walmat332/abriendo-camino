@@ -215,8 +215,8 @@ export default function DiaPage() {
                   {devocional.titulo}
                 </h1>
 
-                <div className="mt-6 rounded-2xl bg-slate-100 p-5">
-                  <p className="text-sm font-semibold text-slate-700">
+                <div className="mt-6 rounded-2xl bg-emerald-50 border border-emerald-100 p-5">
+                  <p className="text-sm font-semibold text-emerald-800">
                     {devocional.lecturaRef}
                   </p>
 
@@ -228,9 +228,9 @@ export default function DiaPage() {
             </Card>
 
             {devocional.fraseDelDia && (
-              <Card className="mb-5">
+              <Card className="mb-5 bg-amber-50 border-amber-100">
                 <CardContent className="p-6">
-                  <Heart className="mb-3 h-6 w-6 text-slate-700" />
+                  <Heart className="mb-3 h-6 w-6 text-amber-600" />
 
                   <p className="text-lg font-medium leading-7 text-slate-800">
                     {devocional.fraseDelDia}
