@@ -251,9 +251,8 @@ export default function AbriendoCaminoIndex() {
           <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-200/40" />
           <div className="relative">
             <Sprout className="mb-4 h-6 w-6 text-emerald-700" />
-            <p className="text-base font-medium leading-relaxed text-[#244438]">“Sé que el Señor siempre está conmigo.
-    No seré sacudido, porque él está aquí a mi lado.”</p>
-            <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">Salmos 16:8</p>
+            <p className="text-base font-medium leading-relaxed text-[#244438]">“Tu conformismo no solo te detiene a ti; puede detener a otros. No hagas de tus límites el límite de los demás, porque hay una tierra que alcanzar y un propósito que conquistar.”</p>
+            <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">Josué 1:2-3</p>
           </div>
         </div>
       </section>
