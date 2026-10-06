@@ -292,7 +292,7 @@ export default function DiaPage() {
                   <textarea
                     value={compromisoTexto}
                     onChange={(e) => setCompromisoTexto(e.target.value)}
-                    placeholder="Escribe aquí tu compromiso práctico para hoy..."
+                    placeholder="Escribe tu acción práctica para hoy..."
                     className="w-full rounded-xl border-2 border-slate-300 bg-white p-4 text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all min-h-[100px] resize-y"
                   />
                 </div>
