@@ -80,7 +80,7 @@ export default function DiaPage() {
       // Guardamos las opciones marcadas y el texto del compromiso
       const respuestasFinales = [
         ...opcionesSeleccionadas,
-        compromisoTexto.trim() ? `Compromiso: ${compromisoTexto.trim()}` : ""
+        compromisoTexto.trim() ? `Acción: ${compromisoTexto.trim()}` : ""
       ].filter(Boolean)
 
       await marcarDiaCompletado(progress, diaAbsoluto, respuestasFinales)
