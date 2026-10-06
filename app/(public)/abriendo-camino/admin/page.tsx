@@ -6,52 +6,34 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { supabase } from '@/lib/supabase'
-import { Users, MessageCircle, LogOut, Lock, Loader2, ArrowLeft, Clock } from 'lucide-react'
+import { Users, MessageCircle, LogOut, Lock, Loader2, ArrowLeft } from 'lucide-react'
 
 const ADMIN_PASSWORD = 'admin2024'
 
 function formatRelativeTime(isoString: string | null): string {
   if (!isoString) return 'Nunca'
-
   const date = new Date(isoString)
   const now = new Date()
-
-  // Obtener la zona horaria local del navegador
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-
-  // Formatear ambas fechas en la zona local para comparación correcta
-  const dateFormatter = new Intl.DateTimeFormat('en-US', {
-    timeZone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  })
-
+  const dateFormatter = new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
   const dateParts = dateFormatter.formatToParts(date)
   const nowParts = dateFormatter.formatToParts(now)
-
-  const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
-    parts.find(p => p.type === type)?.value || '0'
-
-  const dateYear = parseInt(getPart(dateParts, 'year'))
-  const dateMonth = parseInt(getPart(dateParts, 'month')) - 1
-  const dateDay = parseInt(getPart(dateParts, 'day'))
-  const dateHour = parseInt(getPart(dateParts, 'hour'))
-  const dateMinute = parseInt(getPart(dateParts, 'minute'))
-
-  const nowYear = parseInt(getPart(nowParts, 'year'))
-  const nowMonth = parseInt(getPart(nowParts, 'month')) - 1
-  const nowDay = parseInt(getPart(nowParts, 'day'))
-  const nowHour = parseInt(getPart(nowParts, 'hour'))
-  const nowMinute = parseInt(getPart(nowParts, 'minute'))
-
-  // Crear fechas en zona local para comparación
-  const localDate = new Date(dateYear, dateMonth, dateDay, dateHour, dateMinute)
-  const localNow = new Date(nowYear, nowMonth, nowDay, nowHour, nowMinute)
+  const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => parts.find(p => p.type === type)?.value || '0'
+  
+  const localDate = new Date(
+    parseInt(getPart(dateParts, 'year')),
+    parseInt(getPart(dateParts, 'month')) - 1,
+    parseInt(getPart(dateParts, 'day')),
+    parseInt(getPart(dateParts, 'hour')),
+    parseInt(getPart(dateParts, 'minute'))
+  )
+  const localNow = new Date(
+    parseInt(getPart(nowParts, 'year')),
+    parseInt(getPart(nowParts, 'month')) - 1,
+    parseInt(getPart(nowParts, 'day')),
+    parseInt(getPart(nowParts, 'hour')),
+    parseInt(getPart(nowParts, 'minute'))
+  )
 
   const diffMs = localNow.getTime() - localDate.getTime()
   const diffMins = Math.floor(diffMs / 60000)
@@ -60,12 +42,8 @@ function formatRelativeTime(isoString: string | null): string {
 
   if (diffMins < 1) return 'Ahora'
   if (diffMins < 60) return `Hace ${diffMins} min`
-  if (diffHours < 24 && diffDays === 0) {
-    return `Hoy, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
-  }
-  if (diffDays === 1) {
-    return `Ayer, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
-  }
+  if (diffHours < 24 && diffDays === 0) return `Hoy, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
+  if (diffDays === 1) return `Ayer, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
   if (diffDays < 7) return `Hace ${diffDays} días`
   return date.toLocaleDateString('es-ES')
 }
@@ -78,7 +56,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Verificar si ya está autenticado en esta sesión
   useEffect(() => {
     const auth = sessionStorage.getItem('admin_auth')
     if (auth === 'true') {
@@ -109,16 +86,12 @@ export default function AdminPage() {
     setLoading(true)
     setError('')
     try {
-      const { data, error } = await supabase
-        .from('registros')
-        .select('*')
-        .order('created_at', { ascending: false })
-
+      const { data, error } = await supabase.from('registros').select('*').order('created_at', { ascending: false })
       if (error) throw error
       setUsers(data || [])
     } catch (err: any) {
       console.error('Error al cargar usuarios:', err)
-      setError('Error al cargar los datos. Verifica que la tabla "registros" exista en Supabase.')
+      setError('Error al cargar los datos.')
     } finally {
       setLoading(false)
     }
@@ -126,15 +99,10 @@ export default function AdminPage() {
 
   const sendWhatsApp = (nombre: string, telefono: string, dia: number) => {
     const cleanPhone = telefono.replace(/\D/g, '')
-    const message = encodeURIComponent(
-      `Hola ${nombre} 👋, vimos que llegaste al Día ${dia} del reto *Abriendo Camino*. \n\n` +
-      `¡No te rindas! Cada paso cuenta y estamos aquí para animarte a continuar. \n\n` +
-      `¿Necesitas ayuda o tienes alguna pregunta? ¡Estamos contigo! ✨`
-    )
+    const message = encodeURIComponent(`Hola ${nombre} 👋, vimos que llegaste al Día ${dia} del reto *Abriendo Camino*. \n\n¡No te rindas! Cada paso cuenta y estamos aquí para animarte a continuar. \n\n¿Necesitas ayuda o tienes alguna pregunta? ¡Estamos contigo! ✨`)
     window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank')
   }
 
-  // --- VISTA DE LOGIN ---
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -148,23 +116,10 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
-              <Input
-                type="password"
-                placeholder="Contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="text-center text-lg"
-              />
+              <Input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} className="text-center text-lg" />
               {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-              <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
-                Ingresar
-              </Button>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                className="w-full"
-                onClick={() => router.push('/abriendo-camino')}
-              >
+              <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">Ingresar</Button>
+              <Button type="button" variant="ghost" className="w-full" onClick={() => router.push('/abriendo-camino')}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> Volver al inicio
               </Button>
             </form>
@@ -174,25 +129,19 @@ export default function AdminPage() {
     )
   }
 
-  // --- VISTA DEL DASHBOARD ---
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
+      <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
-              <Users className="w-8 h-8 text-purple-600" />
-              Panel de Admin
+              <Users className="w-8 h-8 text-purple-600" /> Panel de Admin
             </h1>
-            <p className="text-slate-600 mt-1">
-              Total de registrados: <span className="font-bold text-purple-600">{users.length}</span>
-            </p>
+            <p className="text-slate-600 mt-1">Total de registrados: <span className="font-bold text-purple-600">{users.length}</span></p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={fetchUsers} disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              Actualizar
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null} Actualizar
             </Button>
             <Button variant="destructive" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" /> Salir
@@ -200,25 +149,14 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Tabla de Usuarios */}
         <Card>
           <CardContent className="p-0">
             {loading && users.length === 0 ? (
-              <div className="p-12 text-center text-slate-500">
-                <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
-                Cargando usuarios...
-              </div>
+              <div className="p-12 text-center text-slate-500"><Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" /> Cargando usuarios...</div>
             ) : error ? (
-              <div className="p-12 text-center text-red-500">
-                <p>{error}</p>
-                <p className="text-sm text-slate-500 mt-2">
-                  Tip: Asegúrate de que la tabla en Supabase se llame <code>registros</code> y tenga las columnas: <code>nombre</code>, <code>telefono</code>, <code>dia</code> (o <code>dia_completado</code>).
-                </p>
-              </div>
+              <div className="p-12 text-center text-red-500"><p>{error}</p></div>
             ) : users.length === 0 ? (
-              <div className="p-12 text-center text-slate-500">
-                No hay usuarios registrados aún.
-              </div>
+              <div className="p-12 text-center text-slate-500">No hay usuarios registrados aún.</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
@@ -227,6 +165,7 @@ export default function AdminPage() {
                       <th className="p-4 font-semibold text-slate-700">Nombre</th>
                       <th className="p-4 font-semibold text-slate-700">Teléfono</th>
                       <th className="p-4 font-semibold text-slate-700">Progreso</th>
+                      <th className="p-4 font-semibold text-slate-700 max-w-md">Respuestas / Compromiso</th>
                       <th className="p-4 font-semibold text-slate-700">Último acceso</th>
                       <th className="p-4 font-semibold text-slate-700">Fecha Registro</th>
                       <th className="p-4 font-semibold text-slate-700 text-right">Acción</th>
@@ -248,28 +187,22 @@ export default function AdminPage() {
                             ) : (
                               <span className="text-slate-400 text-sm">No ha iniciado</span>
                             )}
-                           </td>
-                           <td className="p-4 text-slate-500 text-sm">
-                             {formatRelativeTime(user.ultimo_acceso)}
-                           </td>
-                           <td className="p-4 text-slate-500 text-sm">
-                             {user.created_at ? new Date(user.created_at).toLocaleDateString('es-ES') : 'N/A'}
-                           </td>
-                           <td className="p-4 text-right">
+                          </td>
+                          <td className="p-4 text-slate-600 text-sm max-w-md">
+                            <div className="line-clamp-3" title={user.respuestas_ultimo_dia || 'Sin respuestas'}>
+                              {user.respuestas_ultimo_dia || 'Sin respuestas'}
+                            </div>
+                          </td>
+                          <td className="p-4 text-slate-500 text-sm">{formatRelativeTime(user.ultimo_acceso)}</td>
+                          <td className="p-4 text-slate-500 text-sm">{user.created_at ? new Date(user.created_at).toLocaleDateString('es-ES') : 'N/A'}</td>
+                          <td className="p-4 text-right">
                             {user.telefono && dia > 0 && dia < 28 && (
-                              <Button
-                                size="sm"
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                                onClick={() => sendWhatsApp(user.nombre, user.telefono, dia)}
-                              >
-                                <MessageCircle className="mr-2 h-4 w-4" />
-                                Animar
+                              <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => sendWhatsApp(user.nombre, user.telefono, dia)}>
+                                <MessageCircle className="mr-2 h-4 w-4" /> Animar
                               </Button>
                             )}
                             {dia >= 28 && (
-                              <span className="text-green-600 text-sm font-medium flex items-center justify-end gap-1">
-                                ✅ Completado
-                              </span>
+                              <span className="text-green-600 text-sm font-medium flex items-center justify-end gap-1">✅ Completado</span>
                             )}
                           </td>
                         </tr>
