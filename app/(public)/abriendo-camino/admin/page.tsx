@@ -165,7 +165,7 @@ export default function AdminPage() {
                       <th className="p-4 font-semibold text-slate-700">Nombre</th>
                       <th className="p-4 font-semibold text-slate-700">Teléfono</th>
                       <th className="p-4 font-semibold text-slate-700">Progreso</th>
-                      <th className="p-4 font-semibold text-slate-700 max-w-md">Respuestas / Compromiso</th>
+                      <th className="p-4 font-semibold text-slate-700 max-w-md">Respuestas / Acción</th>
                       <th className="p-4 font-semibold text-slate-700">Último acceso</th>
                       <th className="p-4 font-semibold text-slate-700">Fecha Registro</th>
                       <th className="p-4 font-semibold text-slate-700 text-right">Acción</th>
