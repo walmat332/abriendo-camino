@@ -15,15 +15,52 @@ function formatRelativeTime(isoString: string | null): string {
 
   const date = new Date(isoString)
   const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
+
+  // Obtener la zona horaria local del navegador
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+  // Formatear ambas fechas en la zona local para comparación correcta
+  const dateFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  })
+
+  const dateParts = dateFormatter.formatToParts(date)
+  const nowParts = dateFormatter.formatToParts(now)
+
+  const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => 
+    parts.find(p => p.type === type)?.value || '0'
+
+  const dateYear = parseInt(getPart(dateParts, 'year'))
+  const dateMonth = parseInt(getPart(dateParts, 'month')) - 1
+  const dateDay = parseInt(getPart(dateParts, 'day'))
+  const dateHour = parseInt(getPart(dateParts, 'hour'))
+  const dateMinute = parseInt(getPart(dateParts, 'minute'))
+
+  const nowYear = parseInt(getPart(nowParts, 'year'))
+  const nowMonth = parseInt(getPart(nowParts, 'month')) - 1
+  const nowDay = parseInt(getPart(nowParts, 'day'))
+  const nowHour = parseInt(getPart(nowParts, 'hour'))
+  const nowMinute = parseInt(getPart(nowParts, 'minute'))
+
+  // Crear fechas en zona local para comparación
+  const localDate = new Date(dateYear, dateMonth, dateDay, dateHour, dateMinute)
+  const localNow = new Date(nowYear, nowMonth, nowDay, nowHour, nowMinute)
+
+  const diffMs = localNow.getTime() - localDate.getTime()
   const diffMins = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
 
   if (diffMins < 1) return 'Ahora'
   if (diffMins < 60) return `Hace ${diffMins} min`
-  if (diffHours < 1) return `Hace ${diffHours}h`
-  if (diffDays === 0) {
+  if (diffHours < 24 && diffDays === 0) {
     return `Hoy, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
   }
   if (diffDays === 1) {
@@ -72,7 +109,6 @@ export default function AdminPage() {
     setLoading(true)
     setError('')
     try {
-      // Ajusta 'registros' si tu tabla se llama diferente (ej: 'usuarios', 'progreso')
       const { data, error } = await supabase
         .from('registros')
         .select('*')
@@ -89,12 +125,11 @@ export default function AdminPage() {
   }
 
   const sendWhatsApp = (nombre: string, telefono: string, dia: number) => {
-    // Limpiar el teléfono de caracteres no numéricos
     const cleanPhone = telefono.replace(/\D/g, '')
     const message = encodeURIComponent(
       `Hola ${nombre} 👋, vimos que llegaste al Día ${dia} del reto *Abriendo Camino*. \n\n` +
       `¡No te rindas! Cada paso cuenta y estamos aquí para animarte a continuar. \n\n` +
-      `¿Necesitas ayuda o tienes alguna pregunta? ¡Estamos contigo! 🙏✨`
+      `¿Necesitas ayuda o tienes alguna pregunta? ¡Estamos contigo! ✨`
     )
     window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank')
   }
