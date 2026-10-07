@@ -44,7 +44,6 @@ export default function AbriendoCaminoIndex() {
     }
   }, [])
 
-  // Fetch latest public prayer request for notification
   useEffect(() => {
     async function fetchNotificationData() {
       try {
@@ -59,7 +58,6 @@ export default function AbriendoCaminoIndex() {
     fetchNotificationData()
   }, [])
 
-  // Show notification after 1 second
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>
     timer = setTimeout(() => {
@@ -68,7 +66,6 @@ export default function AbriendoCaminoIndex() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Auto-dismiss notification after 8 seconds
   useEffect(() => {
     let autoTimer: ReturnType<typeof setTimeout>
     if (showNotification && !dismissedNotification && notificationPeticion) {
@@ -81,7 +78,6 @@ export default function AbriendoCaminoIndex() {
     }
   }, [showNotification, dismissedNotification, notificationPeticion])
 
-  // Controlar animación de entrada/salida
   useEffect(() => {
     if (showNotification && notificationPeticion && !dismissedNotification && !notificationVisible) {
       setNotificationVisible(true)
@@ -113,10 +109,9 @@ export default function AbriendoCaminoIndex() {
     setProgress(getProgress())
   }
 
-  // FUNCIÓN PARA COMPARTIR EN WHATSAPP
   const compartirEnWhatsApp = () => {
-    const mensaje = "¡Hola! 👋 Únete al reto *CRECE*, un devocional de 7 días para caminar con Dios y crecer en fe. ¡Me encantaría que lo hiciéramos juntos! 🙏✨\n\nIngresa aquí: https://abriendo-camino-eight.vercel.app/abriendo-camino";
-    window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
+    const mensaje = "¡Hola! 👋 Únete al reto *CRECE*, un devocional de 7 días para caminar con Dios y crecer en fe. ¡Me encantaría que lo hiciéramos juntos! 🙏✨\n\nIngresa aquí: https://abriendo-camino-eight.vercel.app/abriendo-camino"
+    window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank')
   }
 
   return (
@@ -200,18 +195,6 @@ export default function AbriendoCaminoIndex() {
         </div>
       </section>
 
-      {/* BURBUJA FLOTANTE DE WHATSAPP */}
-      <button
-        onClick={compartirEnWhatsApp}
-        className="fixed bottom-28 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 shadow-lg shadow-green-600/30 transition hover:scale-110 hover:bg-green-600 active:scale-95 sm:bottom-8"
-        title="Invitar a un amigo"
-      >
-        <MessageCircle className="h-7 w-7 text-white" />
-      </button>
-          </div>
-        </div>
-      </section>
-
       {/* MI CAMINO */}
       <section className="mx-auto max-w-3xl px-4 pt-10">
         <div className="mb-5">
@@ -221,7 +204,6 @@ export default function AbriendoCaminoIndex() {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          {/* CONEXIÓN */}
           <button onClick={() => router.push('/abriendo-camino/proposito?seccion=conexion')} className="group relative overflow-hidden rounded-3xl bg-pink-500 p-5 text-left shadow-lg transition hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]">
             <div className="mb-8 flex items-center justify-between">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white"><Heart className="h-5 w-5 text-pink-500" /></div>
@@ -231,7 +213,6 @@ export default function AbriendoCaminoIndex() {
             <p className="mt-1 text-xs leading-relaxed text-white/90">Conoce a Cristo. Conecta con otros.</p>
           </button>
 
-          {/* CRECIMIENTO */}
           <button onClick={() => router.push('/abriendo-camino/proposito?seccion=crecimiento')} className="group relative overflow-hidden rounded-3xl bg-emerald-500 p-5 text-left shadow-lg transition hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]">
             <div className="mb-8 flex items-center justify-between">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white"><Sprout className="h-5 w-5 text-emerald-600" /></div>
@@ -241,7 +222,6 @@ export default function AbriendoCaminoIndex() {
             <p className="mt-1 text-xs leading-relaxed text-white/90">Lee la Palabra. Desarrolla tu fe.</p>
           </button>
 
-          {/* SERVICIO */}
           <button onClick={() => router.push('/abriendo-camino/proposito?seccion=servicio')} className="group relative overflow-hidden rounded-3xl bg-orange-500 p-5 text-left shadow-lg transition hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]">
             <div className="mb-8 flex items-center justify-between">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white"><HandHeart className="h-5 w-5 text-orange-500" /></div>
@@ -251,7 +231,6 @@ export default function AbriendoCaminoIndex() {
             <p className="mt-1 text-xs leading-relaxed text-white/90">Descubre tus dones. Sirve a otros.</p>
           </button>
 
-          {/* MULTIPLICACIÓN */}
           <button onClick={() => router.push('/abriendo-camino/proposito?seccion=multiplicacion')} className="group relative overflow-hidden rounded-3xl bg-violet-500 p-5 text-left shadow-lg transition hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]">
             <div className="mb-8 flex items-center justify-between">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white"><Users className="h-5 w-5 text-violet-600" /></div>
@@ -269,11 +248,20 @@ export default function AbriendoCaminoIndex() {
           <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-200/40" />
           <div className="relative">
             <Sprout className="mb-4 h-6 w-6 text-emerald-700" />
-            <p className="text-base font-medium leading-relaxed text-[#244438]">“Tu conformismo no solo te detiene a ti; puede detener a otros. No hagas de tus límites el límite de los demás, porque hay una tierra que alcanzar y un propósito que conquistar.”</p>
+            <p className="text-base font-medium leading-relaxed text-[#244438]">"Tu conformismo no solo te detiene a ti; puede detener a otros. No hagas de tus límites el límite de los demás, porque hay una tierra que alcanzar y un propósito que conquistar."</p>
             <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">Josué 1:2-3</p>
           </div>
         </div>
       </section>
+
+      {/* BURBUJA FLOTANTE DE WHATSAPP */}
+      <button
+        onClick={compartirEnWhatsApp}
+        className="fixed bottom-28 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 shadow-lg shadow-green-600/30 transition hover:scale-110 hover:bg-green-600 active:scale-95 sm:bottom-8"
+        title="Invitar a un amigo"
+      >
+        <MessageCircle className="h-7 w-7 text-white" />
+      </button>
 
       {/* NAVEGACIÓN INFERIOR */}
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200/80 bg-white px-4 pb-[max(10px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
