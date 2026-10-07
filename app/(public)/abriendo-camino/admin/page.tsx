@@ -12,38 +12,42 @@ const ADMIN_PASSWORD = 'admin2024'
 
 function formatRelativeTime(isoString: string | null): string {
   if (!isoString) return 'Nunca'
+
   const date = new Date(isoString)
   const now = new Date()
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-  const dateFormatter = new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
-  const dateParts = dateFormatter.formatToParts(date)
-  const nowParts = dateFormatter.formatToParts(now)
-  const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => parts.find(p => p.type === type)?.value || '0'
-  
-  const localDate = new Date(
-    parseInt(getPart(dateParts, 'year')),
-    parseInt(getPart(dateParts, 'month')) - 1,
-    parseInt(getPart(dateParts, 'day')),
-    parseInt(getPart(dateParts, 'hour')),
-    parseInt(getPart(dateParts, 'minute'))
-  )
-  const localNow = new Date(
-    parseInt(getPart(nowParts, 'year')),
-    parseInt(getPart(nowParts, 'month')) - 1,
-    parseInt(getPart(nowParts, 'day')),
-    parseInt(getPart(nowParts, 'hour')),
-    parseInt(getPart(nowParts, 'minute'))
-  )
 
-  const diffMs = localNow.getTime() - localDate.getTime()
+  // Función auxiliar para obtener la fecha en formato YYYY-MM-DD en la zona horaria local del navegador
+  const getLocalDateKey = (d: Date) => {
+    return d.toLocaleDateString('en-CA', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })
+  }
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  const yesterday = new Date()
+  yesterday.setDate(today.getDate() - 1)
+
+  const dateKey = getLocalDateKey(date)
+  const todayKey = getLocalDateKey(today)
+  const yesterdayKey = getLocalDateKey(yesterday)
+
+  const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
 
   if (diffMins < 1) return 'Ahora'
   if (diffMins < 60) return `Hace ${diffMins} min`
-  if (diffHours < 24 && diffDays === 0) return `Hoy, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
-  if (diffDays === 1) return `Ayer, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
+  
+  // Comparación por día calendario real, no por horas transcurridas
+  if (dateKey === todayKey) {
+    return `Hoy, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
+  }
+  
+  if (dateKey === yesterdayKey) {
+    return `Ayer, ${date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`
+  }
+
   if (diffDays < 7) return `Hace ${diffDays} días`
   return date.toLocaleDateString('es-ES')
 }
