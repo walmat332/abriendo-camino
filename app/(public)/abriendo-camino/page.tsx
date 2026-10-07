@@ -113,6 +113,12 @@ export default function AbriendoCaminoIndex() {
     setProgress(getProgress())
   }
 
+  // FUNCIÓN PARA COMPARTIR EN WHATSAPP
+  const compartirEnWhatsApp = () => {
+    const mensaje = "¡Hola! 👋 Estoy participando en el reto *Abriendo Camino*, un devocional de 28 días para crecer espiritualmente. ¡Me encantaría que lo hiciéramos juntos! 🙏✨\n\nIngresa aquí: https://abriendo-camino-eight.vercel.app/abriendo-camino";
+    window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
+  }
+
   return (
     <main className="min-h-screen bg-[#F7F8F6] pb-24">
       {/* HERO */}
@@ -166,9 +172,9 @@ export default function AbriendoCaminoIndex() {
                 <h3 className="mt-1 text-xl font-bold text-white">7 días — Volver a Dios</h3>
                 <p className="mt-1 text-sm leading-relaxed text-white/70">Un encuentro que puede cambiar tu camino.</p>
               </div>
-<div className="hidden shrink-0 rounded-full bg-emerald-300 px-3 py-1.5 text-xs font-bold text-[#174936] sm:block">
-              Día {siguienteDiaSemana} de 7
-            </div>
+              <div className="hidden shrink-0 rounded-full bg-emerald-300 px-3 py-1.5 text-xs font-bold text-[#174936] sm:block">
+                Día {siguienteDiaSemana} de 7
+              </div>
             </div>
 
             <div className="mt-5 flex items-center justify-between sm:hidden">
@@ -189,6 +195,15 @@ export default function AbriendoCaminoIndex() {
             <button onClick={handleContinuar} className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-5 py-4 text-sm font-bold text-[#123B2C] shadow-lg transition hover:bg-emerald-300 active:scale-[0.98]">
               {retoCompletado ? 'Volver a vivir el reto' : 'Continuar mi camino'}
               <ArrowRight className="h-5 w-5" />
+            </button>
+
+            {/* BOTÓN PARA COMPARTIR EN WHATSAPP */}
+            <button 
+              onClick={compartirEnWhatsApp} 
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-600 bg-white px-5 py-4 text-sm font-bold text-green-700 shadow-sm transition hover:bg-green-50 active:scale-[0.98]"
+            >
+              <MessageCircle className="h-5 w-5" />
+              Invitar a un amigo por WhatsApp
             </button>
           </div>
         </div>
@@ -278,36 +293,36 @@ export default function AbriendoCaminoIndex() {
       </nav>
 
       {showNotification && notificationPeticion && (
-  <div className={`fixed bottom-24 right-4 z-40 max-w-sm w-full bg-white rounded-2xl shadow-lg border border-emerald-100 p-4 transform transition-all duration-500 ease-out ${notificationVisible && !dismissedNotification ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
-    <div className="flex items-start gap-3">
-      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
-        <span className="text-lg">🙏</span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-gray-900 truncate">
-          Alguien está pidiendo tu oración
-        </p>
-        <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-          "{notificationPeticion.texto}"
-        </p>
-        <button
-          onClick={() => router.push('/abriendo-camino/oracion')}
-          className="mt-2 text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
-        >
-          Ver petición →
-        </button>
-      </div>
-      <button
-        onClick={() => setDismissedNotification(true)}
-        className="flex-shrink-0 text-gray-400 hover:text-gray-600 hover:scale-105 transition-transform duration-150"
-      >
-        <X className="h-4 w-4" />
-      </button>
-    </div>
-  </div>
-)}
+        <div className={`fixed bottom-24 right-4 z-40 max-w-sm w-full bg-white rounded-2xl shadow-lg border border-emerald-100 p-4 transform transition-all duration-500 ease-out ${notificationVisible && !dismissedNotification ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
+              <span className="text-lg">🙏</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-gray-900 truncate">
+                Alguien está pidiendo tu oración
+              </p>
+              <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                "{notificationPeticion.texto}"
+              </p>
+              <button
+                onClick={() => router.push('/abriendo-camino/oracion')}
+                className="mt-2 text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors flex items-center gap-1"
+              >
+                Ver petición →
+              </button>
+            </div>
+            <button
+              onClick={() => setDismissedNotification(true)}
+              className="flex-shrink-0 text-gray-400 hover:text-gray-600 hover:scale-105 transition-transform duration-150"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
-{showLogin && <LoginModal onClose={() => setShowLogin(false)} onComplete={handleLoginComplete} />}
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} onComplete={handleLoginComplete} />}
     </main>
   )
 }
