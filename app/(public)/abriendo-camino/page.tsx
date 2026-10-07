@@ -115,7 +115,7 @@ export default function AbriendoCaminoIndex() {
 
   // FUNCIÓN PARA COMPARTIR EN WHATSAPP
   const compartirEnWhatsApp = () => {
-    const mensaje = "¡Hola! 👋 Estoy participando en el reto *Abriendo Camino*, un devocional de 28 días para crecer espiritualmente. ¡Me encantaría que lo hiciéramos juntos! 🙏✨\n\nIngresa aquí: https://abriendo-camino-eight.vercel.app/abriendo-camino";
+    const mensaje = "¡Hola! 👋 Únete al reto *CRECE*, un devocional de 7 días para caminar con Dios y crecer en fe. ¡Me encantaría que lo hiciéramos juntos! 🙏✨\n\nIngresa aquí: https://abriendo-camino-eight.vercel.app/abriendo-camino";
     window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
   }
 
