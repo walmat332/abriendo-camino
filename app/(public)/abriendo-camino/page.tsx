@@ -110,13 +110,12 @@ export default function AbriendoCaminoIndex() {
   }
 
   const compartirEnWhatsApp = () => {
-    const mensaje = "¡Hola! 👋 Únete al reto *CRECE*, un devocional de 7 días para caminar con Dios y crecer en fe. ¡Me encantaría que lo hiciéramos juntos! 🙏✨\n\nIngresa aquí: https://abriendo-camino-eight.vercel.app/abriendo-camino"
+    const mensaje = "¡Hola! 👋 Únete al reto *CRECE*, un devocional de 7 días para caminar con Dios y crecer en fe. ¡Me encantaría que lo hiciéramos juntos! ✨\n\nIngresa aquí: https://abriendo-camino-eight.vercel.app/abriendo-camino"
     window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank')
   }
 
   return (
     <main className="min-h-screen bg-[#F7F8F6] pb-24">
-      {/* HERO */}
       <section className="relative min-h-[500px] overflow-hidden">
         <Image src="/hero-crece.jpg" alt="Persona avanzando" fill priority sizes="100vw" className="object-cover object-center" />
         <div className="absolute inset-0 bg-black/25" />
@@ -154,7 +153,6 @@ export default function AbriendoCaminoIndex() {
         </div>
       </section>
 
-      {/* RETO ACTUAL */}
       <section className="relative z-20 mx-auto -mt-8 max-w-3xl px-4">
         <div className="overflow-hidden rounded-[28px] bg-[#174936] shadow-[0_20px_50px_rgba(0,0,0,0.18)]">
           <div className="p-5 sm:p-6">
@@ -195,7 +193,6 @@ export default function AbriendoCaminoIndex() {
         </div>
       </section>
 
-      {/* MI CAMINO */}
       <section className="mx-auto max-w-3xl px-4 pt-10">
         <div className="mb-5">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Tu proceso</p>
@@ -242,7 +239,6 @@ export default function AbriendoCaminoIndex() {
         </div>
       </section>
 
-      {/* FRASE FINAL */}
       <section className="mx-auto max-w-3xl px-4 pb-8 pt-8">
         <div className="relative overflow-hidden rounded-3xl bg-[#EAF3EE] p-6">
           <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-200/40" />
@@ -254,7 +250,6 @@ export default function AbriendoCaminoIndex() {
         </div>
       </section>
 
-      {/* BURBUJA FLOTANTE DE WHATSAPP */}
       <button
         onClick={compartirEnWhatsApp}
         className="fixed bottom-28 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 shadow-lg shadow-green-600/30 transition hover:scale-110 hover:bg-green-600 active:scale-95 sm:bottom-8"
@@ -263,7 +258,6 @@ export default function AbriendoCaminoIndex() {
         <MessageCircle className="h-7 w-7 text-white" />
       </button>
 
-      {/* NAVEGACIÓN INFERIOR */}
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200/80 bg-white px-4 pb-[max(10px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
         <div className="mx-auto flex max-w-3xl items-center justify-around">
           <button onClick={() => router.push('/abriendo-camino')} className={`flex min-w-[80px] flex-col items-center gap-1 rounded-2xl px-4 py-2 text-emerald-600 transition active:scale-95 ${currentPath === '/abriendo-camino' ? 'bg-emerald-100 shadow-[0_4px_12px_rgba(16,185,129,0.15)]' : 'bg-gray-100'}`}>
