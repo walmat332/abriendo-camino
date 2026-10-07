@@ -196,15 +196,18 @@ export default function AbriendoCaminoIndex() {
               {retoCompletado ? 'Volver a vivir el reto' : 'Continuar mi camino'}
               <ArrowRight className="h-5 w-5" />
             </button>
+          </div>
+        </div>
+      </section>
 
-            {/* BOTÓN PARA COMPARTIR EN WHATSAPP */}
-            <button 
-              onClick={compartirEnWhatsApp} 
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-600 bg-white px-5 py-4 text-sm font-bold text-green-700 shadow-sm transition hover:bg-green-50 active:scale-[0.98]"
-            >
-              <MessageCircle className="h-5 w-5" />
-              Invitar a un amigo por WhatsApp
-            </button>
+      {/* BURBUJA FLOTANTE DE WHATSAPP */}
+      <button
+        onClick={compartirEnWhatsApp}
+        className="fixed bottom-28 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-green-500 shadow-lg shadow-green-600/30 transition hover:scale-110 hover:bg-green-600 active:scale-95 sm:bottom-8"
+        title="Invitar a un amigo"
+      >
+        <MessageCircle className="h-7 w-7 text-white" />
+      </button>
           </div>
         </div>
       </section>
