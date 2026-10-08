@@ -282,7 +282,7 @@ const faseLabels: Record<number, string> = {
             variant="outline"
             onClick={() => {
               const dias = Object.keys(progress.dias).length
-              const texto = `🔥 ¡Hola! Estoy en el día ${dias} del reto *Abriendo Camino* (7 días para volver a caminar con Dios). \n\nMe está ayudando mucho a crecer. ¿Te animas a hacerlo conmigo?\n\n👉 ${typeof window !== 'undefined' ? window.location.origin + '/abriendo-camino' : ''}`
+              const texto = `🔥 ¡Hola! Estoy en el día ${dias} del reto *Abriendo Camino* (7 días para volver a caminar con Dios). \n\nMe está ayudando mucho a crecer. ¿Te animas a hacerlo conmigo?\n\n👉 ${typeof window !== 'undefined' ? window.location.origin + '/abriendo-camino' : ''}` // CORRECCION EMOJIS
               const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(texto)}`
               window.open(whatsappUrl, '_blank')
             }}
