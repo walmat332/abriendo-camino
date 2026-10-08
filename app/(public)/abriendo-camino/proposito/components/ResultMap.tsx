@@ -58,7 +58,7 @@ const secciones = [
 ]
 
 function getNivel(respuestas: string[]): { nivel: string; color: string; siguientePaso: string } {
-  const si = respuestas.filter(r => r === 'si').length
+  const si = respuestas.filter((r: string) => r === 'si').length
   const total = respuestas.length
   const porcentaje = total > 0 ? si / total : 0
 
@@ -79,12 +79,12 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
     const servicioNivel = getNivel(resultados.servicio).nivel
     const multiplicacionNivel = getNivel(resultados.multiplicacion).nivel
 
-    // Emojis explícitos y seguros para el mensaje de WhatsApp
+    // Usamos secuencias de escape Unicode (\u{...}) para que los emojis NUNCA se corrompan por la codificación del archivo
     const mensaje = `*Acabo de descubrir mi Camino de Propósito* \n\n` +
-      `🧭 Conexión: ${conexionNivel}\n` +
-      `🌱 Crecimiento: ${crecimientoNivel}\n` +
-      `🤝 Servicio: ${servicioNivel}\n` +
-      `🚀 Multiplicación: ${multiplicacionNivel}\n\n` +
+      `\u{1F9ED} Conexión: ${conexionNivel}\n` +
+      `\u{1F331} Crecimiento: ${crecimientoNivel}\n` +
+      `\u{1F91D} Servicio: ${servicioNivel}\n` +
+      `\u{1F680} Multiplicación: ${multiplicacionNivel}\n\n` +
       `Jesús llamó, formó, envió y multiplicó. ¡Tú también puedes vivir tu propósito!\n\n` +
       `Descubre el tuyo aquí: ${typeof window !== 'undefined' ? window.location.origin + '/abriendo-camino/proposito' : ''}`
 
@@ -93,7 +93,7 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
   }
 
   const areasOrdenadas = secciones
-    .map(s => ({ ...s, nivel: getNivel(resultados[s.id as keyof typeof resultados]) }))
+    .map((s) => ({ ...s, nivel: getNivel(resultados[s.id as keyof typeof resultados]) }))
     .sort((a, b) => {
       const orden: Record<string, number> = { 'Área de crecimiento': 0, 'En desarrollo': 1, 'Fuerte': 2 }
       return orden[a.nivel.nivel] - orden[b.nivel.nivel]
@@ -138,7 +138,7 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
                       </div>
                       <p className="text-slate-600 text-sm mb-3">{siguientePaso}</p>
                       <div className="flex gap-1 mb-3">
-                        {respuestas.map((r, idx) => (
+                        {respuestas.map((r: string, idx: number) => (
                           <div key={idx} className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
                             r === 'si' ? 'bg-emerald-200 text-emerald-700' : r === 'mas_o_menos' ? 'bg-amber-200 text-amber-700' : 'bg-slate-200 text-slate-600'
                           }`}>
@@ -146,7 +146,6 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
                           </div>
                         ))}
                       </div>
-                      {/* Acción concreta usando el Icono de Lucide (NUNCA se rompe) */}
                       <div className="bg-white/60 rounded-lg p-3 border border-white">
                         <p className="text-sm font-semibold text-slate-800 flex items-center">
                           <Icono className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -189,7 +188,7 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
 
             <div className="grid grid-cols-2 gap-3">
               <Button
-                onClick={() => window.location.href = '/abriendo-camino/dashboard'}
+                onClick={() => (window.location.href = '/abriendo-camino/dashboard')}
                 variant="outline"
                 className="border-slate-200 text-slate-700 hover:bg-slate-50 py-4"
               >
@@ -222,7 +221,7 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
 
             <Button
               variant="ghost"
-              onClick={() => window.location.href = '/abriendo-camino'}
+              onClick={() => (window.location.href = '/abriendo-camino')}
               className="w-full text-slate-500 hover:text-slate-700 hover:bg-slate-50"
             >
               Volver al inicio
