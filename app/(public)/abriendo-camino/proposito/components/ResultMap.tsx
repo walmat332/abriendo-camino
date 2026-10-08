@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -73,21 +73,9 @@ function getNivel(respuestas: string[]): { nivel: string; color: string; siguien
 
 export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
   
+  // FUNCIÓN LIMPIA Y SIN EMOJIS PARA EVITAR PROBLEMAS DE CODIFICACIÓN
   const handleCompartirWhatsApp = () => {
-    const conexionNivel = getNivel(resultados.conexion).nivel
-    const crecimientoNivel = getNivel(resultados.crecimiento).nivel
-    const servicioNivel = getNivel(resultados.servicio).nivel
-    const multiplicacionNivel = getNivel(resultados.multiplicacion).nivel
-
-    // Usamos secuencias de escape Unicode (\u{...}) para que los emojis NUNCA se corrompan por la codificación del archivo
-    const mensaje = `*Acabo de descubrir mi Camino de Propósito* \n\n` +
-      `\u{1F9ED} Conexión: ${conexionNivel}\n` +
-      `\u{1F331} Crecimiento: ${crecimientoNivel}\n` +
-      `\u{1F91D} Servicio: ${servicioNivel}\n` +
-      `\u{1F680} Multiplicación: ${multiplicacionNivel}\n\n` +
-      `Jesús llamó, formó, envió y multiplicó. ¡Tú también puedes vivir tu propósito!\n\n` +
-      `Descubre el tuyo aquí: ${typeof window !== 'undefined' ? window.location.origin + '/abriendo-camino/proposito' : ''}`
-
+    const mensaje = `¡Acabo de descubrir mi Camino de Propósito! Tú también puedes descubrir y vivir el tuyo.\n\n${typeof window !== 'undefined' ? window.location.origin + '/abriendo-camino/proposito' : ''}`
     const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`
     window.open(url, '_blank')
   }
