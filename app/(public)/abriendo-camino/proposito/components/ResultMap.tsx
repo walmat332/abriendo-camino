@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Heart, Sprout, HandHeart, Users, ArrowRight, RotateCcw, Check, AlertCircle, Share2, Play, Calendar, MessageCircle } from 'lucide-react'
+import { Heart, Sprout, HandHeart, Users, ArrowRight, RotateCcw, Check, AlertCircle, Share2, Play, MessageCircle } from 'lucide-react'
 
 interface ResultMapProps {
   resultados: {
@@ -24,7 +24,6 @@ const secciones = [
     acento: 'text-blue-600',
     iconoBg: 'bg-blue-100',
     accion: 'Únete a un grupo de conexión esta semana',
-    accionIcono: '👥',
   },
   {
     id: 'crecimiento',
@@ -35,7 +34,6 @@ const secciones = [
     acento: 'text-green-600',
     iconoBg: 'bg-green-100',
     accion: 'Dedica 15 min diarios a la Palabra',
-    accionIcono: '',
   },
   {
     id: 'servicio',
@@ -46,7 +44,6 @@ const secciones = [
     acento: 'text-orange-600',
     iconoBg: 'bg-orange-100',
     accion: 'Sirve a alguien esta semana con tus dones',
-    accionIcono: '',
   },
   {
     id: 'multiplicacion',
@@ -57,7 +54,6 @@ const secciones = [
     acento: 'text-purple-600',
     iconoBg: 'bg-purple-100',
     accion: 'Invita a 1 persona a conocer a Jesús',
-    accionIcono: '',
   },
 ]
 
@@ -83,10 +79,11 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
     const servicioNivel = getNivel(resultados.servicio).nivel
     const multiplicacionNivel = getNivel(resultados.multiplicacion).nivel
 
-    const mensaje = ` *Acabo de descubrir mi Camino de Propósito* \n\n` +
-      ` Conexión: ${conexionNivel}\n` +
+    // Emojis explícitos y seguros para el mensaje de WhatsApp
+    const mensaje = `*Acabo de descubrir mi Camino de Propósito* \n\n` +
+      `🧭 Conexión: ${conexionNivel}\n` +
       `🌱 Crecimiento: ${crecimientoNivel}\n` +
-      ` Servicio: ${servicioNivel}\n` +
+      `🤝 Servicio: ${servicioNivel}\n` +
       `🚀 Multiplicación: ${multiplicacionNivel}\n\n` +
       `Jesús llamó, formó, envió y multiplicó. ¡Tú también puedes vivir tu propósito!\n\n` +
       `Descubre el tuyo aquí: ${typeof window !== 'undefined' ? window.location.origin + '/abriendo-camino/proposito' : ''}`
@@ -95,13 +92,12 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
     window.open(url, '_blank')
   }
 
-  // Identificar el área más débil para priorizar
   const areasOrdenadas = secciones
-  .map(s => ({ ...s, nivel: getNivel(resultados[s.id as keyof typeof resultados]) }))
-  .sort((a, b) => {
-    const orden: Record<string, number> = { 'Área de crecimiento': 0, 'En desarrollo': 1, 'Fuerte': 2 }
-    return orden[a.nivel.nivel] - orden[b.nivel.nivel]
-  })
+    .map(s => ({ ...s, nivel: getNivel(resultados[s.id as keyof typeof resultados]) }))
+    .sort((a, b) => {
+      const orden: Record<string, number> = { 'Área de crecimiento': 0, 'En desarrollo': 1, 'Fuerte': 2 }
+      return orden[a.nivel.nivel] - orden[b.nivel.nivel]
+    })
 
   const areaPrioritaria = areasOrdenadas[0]
 
@@ -150,10 +146,10 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
                           </div>
                         ))}
                       </div>
-                      {/* Acción concreta */}
+                      {/* Acción concreta usando el Icono de Lucide (NUNCA se rompe) */}
                       <div className="bg-white/60 rounded-lg p-3 border border-white">
-                        <p className="text-sm font-semibold text-slate-800">
-                          <span className="mr-2">{seccion.accionIcono}</span>
+                        <p className="text-sm font-semibold text-slate-800 flex items-center">
+                          <Icono className="w-4 h-4 mr-2 flex-shrink-0" />
                           {seccion.accion}
                         </p>
                       </div>
@@ -173,8 +169,9 @@ export function ResultMap({ resultados, onReiniciar }: ResultMapProps) {
               <div className="flex-1">
                 <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Tu próximo paso prioritario</p>
                 <h4 className="text-xl font-black mb-2">{areaPrioritaria.titulo}</h4>
-                <p className="text-slate-200 leading-relaxed">
-                  {areaPrioritaria.accionIcono} {areaPrioritaria.accion}
+                <p className="text-slate-200 leading-relaxed flex items-center">
+                  <areaPrioritaria.Icono className="w-5 h-5 mr-2 flex-shrink-0" /> 
+                  {areaPrioritaria.accion}
                 </p>
               </div>
             </div>
