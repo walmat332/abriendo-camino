@@ -76,7 +76,7 @@ export function WeeklyCompletionCelebration({
   return (
     <div
       className="fixed inset-0 z-50 overflow-hidden bg-slate-950 flex items-center justify-center p-4 bg-cover bg-center"
-style={{ backgroundImage: "url('/9573392.png')" }}
+      style={{ backgroundImage: "url('/9573392.png')" }}
       role="dialog"
       aria-modal="true"
       aria-label={esReto ? "Reto completado" : "Semana completada"}
@@ -97,32 +97,33 @@ style={{ backgroundImage: "url('/9573392.png')" }}
       </div>
 
       <div className="relative z-10 w-full max-w-md animate-fade-up">
-        <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border border-white/10 rounded-3xl overflow-hidden">
+        {/* SIN FONDO BLANCO - Solo la tarjeta transparente */}
+        <Card className="bg-transparent backdrop-blur-none shadow-none border-0 rounded-3xl overflow-hidden">
           <div className="h-1.5 bg-gradient-to-r from-amber-400 via-rose-400 to-violet-500" />
           <CardContent className="p-8 text-center">
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">{title}</h1>
-            <p className="text-lg text-slate-600 mb-4">{subtitle}</p>
+            <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">{title}</h1>
+            <p className="text-lg text-white/90 mb-4 drop-shadow">{subtitle}</p>
 
-            <p className="text-slate-700 mb-6 leading-relaxed">{secondaryText}</p>
+            <p className="text-white/90 mb-6 leading-relaxed drop-shadow">{secondaryText}</p>
 
             {!esReto && (
               <>
-                <p className="text-xl font-bold text-slate-900 mb-2">{content.frase}</p>
+                <p className="text-xl font-bold text-white mb-2 drop-shadow-lg">{content.frase}</p>
                 <div className="mb-6">
-                  <span className="text-sm font-medium text-slate-500">{content.siguientePaso}</span>
+                  <span className="text-sm font-medium text-white/80 drop-shadow">{content.siguientePaso}</span>
                 </div>
               </>
             )}
 
             <Button
-              className="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors"
+              className="w-full bg-white text-slate-900 py-3 rounded-xl font-semibold text-lg hover:bg-white/90 transition-colors shadow-lg"
               onClick={() => onNavigate(navigatePath)}
             >
               {buttonText}
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
 
-            <p className="mt-6 text-slate-500 text-sm">
+            <p className="mt-6 text-white/70 text-sm drop-shadow">
               Tu camino continúa. Crece en comunidad.
             </p>
           </CardContent>
