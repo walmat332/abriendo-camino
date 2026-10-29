@@ -46,25 +46,18 @@ async function inicializarCacheMesActivo(): Promise<void> {
 
 function obtenerMesActivoCache(): string | null {
   if (mesActivoCache) return mesActivoCache
-  // Siempre consultar el mes activo actual de Supabase
-  const { data, error } = await supabase
-    .from('meses_reto')
-    .select('id')
-    .eq('activo', true)
-    .single()
-
-  if (error || !data) {
-    console.error('Error al obtener mes activo:', error)
-    return mesActivoCache
+  
+  const cached = localStorage.getItem(MES_ACTIVO_KEY)
+  if (cached) {
+    mesActivoCache = cached
+    return cached
   }
 
-  // Actualizar caché con el mes activo actual
-  mesActivoCache = data.id
-  localStorage.setItem(MES_ACTIVO_KEY, data.id)
-  return data.id
+  // Disparar actualización en segundo plano sin bloquear
   if (!cacheInicializado) {
     inicializarCacheMesActivo().catch(() => {})
   }
+  
   return null
 }
 
