@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
@@ -244,7 +244,7 @@ export default function AbriendoCaminoIndex() {
           <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-200/40" />
           <div className="relative">
             <Sprout className="mb-4 h-6 w-6 text-emerald-700" />
-            <p className="text-base font-medium leading-relaxed text-[#244438]">"10 »”En ese día, dice el Señor de los Ejércitos Celestiales, cada uno invitará a su vecino a sentarse en paz bajo sus propias vides e higueras”»."</p>
+            <p className="text-base font-medium leading-relaxed text-[#244438]">"En ese día, dice el Señor de los Ejércitos Celestiales, cada uno invitará a su vecino a sentarse en paz bajo sus propias vides e higueras".</p>
             <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">Zacarías 3:10
  </p>
           </div>
