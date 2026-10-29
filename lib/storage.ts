@@ -21,7 +21,7 @@ export interface ProgressData {
 
 const STORAGE_KEY = 'abriendo-camino-progress'
 const MODO_KEY = 'abriendo-camino-modo'
-const MES_ACTIVO_KEY = 'abriendo-camino-mes-activo'
+const MES_ACTIVO_KEY = 'abriendo-camino-mes-activo-v2'
 
 let mesActivoCache: string | null = null
 let cacheInicializado = false
