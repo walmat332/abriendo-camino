@@ -162,8 +162,8 @@ export default function AbriendoCaminoIndex() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-200">Reto actual</p>
-                <h3 className="mt-1 text-xl font-bold text-white">7 días — Volver a Dios</h3>
-                <p className="mt-1 text-sm leading-relaxed text-white/70">Un encuentro que puede cambiar tu camino.</p>
+                <h3 className="mt-1 text-xl font-bold text-white">Noviembre — Vuelve a Dios</h3>
+                <p className="mt-1 text-sm leading-relaxed text-white/70">Una palabra de Dios cambia el destino.</p>
               </div>
               <div className="hidden shrink-0 rounded-full bg-emerald-300 px-3 py-1.5 text-xs font-bold text-[#174936] sm:block">
                 Día {siguienteDiaSemana} de 7
@@ -244,8 +244,9 @@ export default function AbriendoCaminoIndex() {
           <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-emerald-200/40" />
           <div className="relative">
             <Sprout className="mb-4 h-6 w-6 text-emerald-700" />
-            <p className="text-base font-medium leading-relaxed text-[#244438]">"Tu conformismo no solo te detiene a ti; puede detener a otros. No hagas de tus límites el límite de los demás, porque hay una tierra que alcanzar y un propósito que conquistar."</p>
-            <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">Josué 1:2-3</p>
+            <p className="text-base font-medium leading-relaxed text-[#244438]">"10 »”En ese día, dice el Señor de los Ejércitos Celestiales, cada uno invitará a su vecino a sentarse en paz bajo sus propias vides e higueras”»."</p>
+            <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-700">Zacarías 3:10
+ </p>
           </div>
         </div>
       </section>
